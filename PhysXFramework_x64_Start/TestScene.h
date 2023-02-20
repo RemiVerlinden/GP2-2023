@@ -19,5 +19,15 @@ protected:
 
 private:
 
+	enum InputIds
+	{
+		moveLeft,
+		moveRight,
+		moveUp,
+		moveDown
+	};
+
+	GameObject* m_pCube{ nullptr };
+	GameObject* m_pDefaultCube{ nullptr };
 };
 

@@ -3,6 +3,7 @@
 #include "BaseCamera.h"
 #include "InputManager.h"
 
+// scene settings
 class SceneContext final
 {
 public:

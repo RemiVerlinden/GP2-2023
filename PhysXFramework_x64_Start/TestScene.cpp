@@ -80,6 +80,7 @@ void TestScene::Update()
 	XMFLOAT3 newTranslation{};
 	XMStoreFloat3(&newTranslation, newPos);
 	m_pCube->Translate(newTranslation.x, newTranslation.y, newTranslation.z);
+
 }
 
 void TestScene::Draw() const

@@ -1,16 +1,16 @@
-[2023-2-20 - 12:9:42:316][DEBUG]   Adapter 0 : NVIDIA GeForce RTX 3080 Laptop GPU
-[2023-2-20 - 12:9:42:318][DEBUG]   Adapter 1 : Microsoft Basic Render Driver
-[2023-2-20 - 12:9:42:318][DEBUG]   2 Adapter(s) found
-[2023-2-20 - 12:9:42:319][DEBUG]   InitalizeAdapterAndOutput ok.
-[2023-2-20 - 12:9:42:319][DEBUG]   Window Class Created
-[2023-2-20 - 12:9:42:321][DEBUG]   Desktop resolution: 1707 x 1067
-[2023-2-20 - 12:9:42:440][DEBUG]   Window Opened
-[2023-2-20 - 12:9:42:867][DEBUG]   Direct3D Initialized
-[2023-2-20 - 12:9:44:459][DEBUG]   Managers Initialized!
-[2023-2-20 - 12:9:44:460][INFO]    Press 'Page Up' or 'Page Down' to cycle between the different scenes
-[2023-2-20 - 12:9:44:461][INFO]    Press 'I' to toggle the debug renderer.
-[2023-2-20 - 12:9:44:462][INFO]    Press 'M' to do physics stepping.
-[2023-2-20 - 12:9:44:462][INFO]    Press 'L' to stop doing physics stepping.
-[2023-2-20 - 12:9:44:514][DEBUG]   Scenes Initialized!
-[2023-2-20 - 12:9:44:515][INFO]    Scene Activated > "TestScene"
-[2023-2-20 - 12:9:58:55][DEBUG]   Core Initialization Finished
+[2023-2-21 - 13:46:19:825][DEBUG]   Adapter 0 : NVIDIA GeForce RTX 3080 Laptop GPU
+[2023-2-21 - 13:46:19:827][DEBUG]   Adapter 1 : Microsoft Basic Render Driver
+[2023-2-21 - 13:46:19:827][DEBUG]   2 Adapter(s) found
+[2023-2-21 - 13:46:19:828][DEBUG]   InitalizeAdapterAndOutput ok.
+[2023-2-21 - 13:46:19:829][DEBUG]   Window Class Created
+[2023-2-21 - 13:46:19:830][DEBUG]   Desktop resolution: 2560 x 1440
+[2023-2-21 - 13:46:19:952][DEBUG]   Window Opened
+[2023-2-21 - 13:46:20:291][DEBUG]   Direct3D Initialized
+[2023-2-21 - 13:46:20:782][DEBUG]   Managers Initialized!
+[2023-2-21 - 13:46:20:784][INFO]    Press 'Page Up' or 'Page Down' to cycle between the different scenes
+[2023-2-21 - 13:46:20:785][INFO]    Press 'I' to toggle the debug renderer.
+[2023-2-21 - 13:46:20:786][INFO]    Press 'M' to do physics stepping.
+[2023-2-21 - 13:46:20:787][INFO]    Press 'L' to stop doing physics stepping.
+[2023-2-21 - 13:46:20:846][DEBUG]   Scenes Initialized!
+[2023-2-21 - 13:46:20:848][INFO]    Scene Activated > "TestScene"
+[2023-2-21 - 13:46:33:501][DEBUG]   Core Initialization Finished

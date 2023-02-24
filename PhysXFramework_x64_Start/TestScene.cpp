@@ -9,11 +9,11 @@
 
 void TestScene::Initialize()
 {
-	m_pCube = new CubePosColorNorm(5.f, 2.f, 1.f, XMFLOAT4{Colors::LightGoldenrodYellow} );
+	m_pCube = new CubePosColorNorm(5.f, 2.f, 1.f/*, XMFLOAT4{Colors::LightGoldenrodYellow}*/ );
 	AddGameObject(m_pCube);
 
-	m_pDefaultCube = new CubePosColorNorm(1.f, 1.f, 1.f );
-	AddGameObject(m_pDefaultCube);
+	//m_pDefaultCube = new CubePosColorNorm(1.f, 1.f, 1.f );
+	//AddGameObject(m_pDefaultCube);
 
 	const auto pTorus = new TorusPosColorNorm(9.f, 50, 1.f, 10, XMFLOAT4{Colors::ForestGreen});
 	AddGameObject(pTorus);
@@ -91,6 +91,7 @@ void TestScene::Draw() const
 void TestScene::OnSceneActivated()
 {
 	Logger::GetInstance()->LogFormat(LogLevel::Info, L"Scene Activated > \"%ls\"", GetName().c_str());
+	Logger::GetInstance()->LogFormat(LogLevel::Info, L"\t[INPUT > Translate = 'Arrow Keys']");
 }
 
 void TestScene::OnSceneDeactivated()

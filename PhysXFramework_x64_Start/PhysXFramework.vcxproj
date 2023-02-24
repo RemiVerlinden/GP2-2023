@@ -81,6 +81,7 @@
   <ItemGroup>
     <ClInclude Include="BaseCamera.h" />
     <ClInclude Include="BinaryReader.h" />
+    <ClInclude Include="BouncingBallScene.h" />
     <ClInclude Include="ContentLoader.h" />
     <ClInclude Include="ContentManager.h" />
     <ClInclude Include="Core.h" />
@@ -92,7 +93,9 @@
     <ClInclude Include="DdsTexResource.h" />
     <ClInclude Include="DebugRenderer.h" />
     <ClInclude Include="EffectLoader.h" />
+    <ClInclude Include="ForcesScene.h" />
     <ClInclude Include="FreeCamera.h" />
+    <ClInclude Include="FrictionScene.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="GameSettings.h" />
@@ -120,13 +123,16 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TestScene.h" />
+    <ClInclude Include="TorqueScene.h" />
     <ClInclude Include="TorusPosColorNorm.h" />
     <ClInclude Include="TrackingCamera.h" />
     <ClInclude Include="VertexStructs.h" />
+    <ClInclude Include="W1_AssignmentScene.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseCamera.cpp" />
     <ClCompile Include="BinaryReader.cpp" />
+    <ClCompile Include="BouncingBallScene.cpp" />
     <ClCompile Include="ContentManager.cpp" />
     <ClCompile Include="Core.cpp" />
     <ClCompile Include="CubePosColorNorm.cpp" />
@@ -136,7 +142,9 @@
     <ClCompile Include="DdsTexResource.cpp" />
     <ClCompile Include="DebugRenderer.cpp" />
     <ClCompile Include="EffectLoader.cpp" />
+    <ClCompile Include="ForcesScene.cpp" />
     <ClCompile Include="FreeCamera.cpp" />
+    <ClCompile Include="FrictionScene.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="GameTime.cpp" />
@@ -163,8 +171,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="TestScene.cpp" />
+    <ClCompile Include="TorqueScene.cpp" />
     <ClCompile Include="TorusPosColorNorm.cpp" />
     <ClCompile Include="TrackingCamera.cpp" />
+    <ClCompile Include="W1_AssignmentScene.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

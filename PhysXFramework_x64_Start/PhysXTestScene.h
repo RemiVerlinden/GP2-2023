@@ -19,8 +19,15 @@ protected:
 	void OnSceneDeactivated() override;
 
 private:
+	enum InputIds
+	{
+		reset
+	};
+
 	GameObject* m_pCube{nullptr};
 	PxRigidDynamic* m_pCubeActor{ nullptr };
 
+	XMFLOAT3 m_CubeDefaultTranslate{ 0.f, 5.f, 0.f };
+	XMFLOAT3 m_CubeDefaultRotation{ 45,30,30 };
 };
 

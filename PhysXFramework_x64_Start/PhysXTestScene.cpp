@@ -10,6 +10,10 @@ void PhysXTestScene::Initialize()
 {
 	EnablePhysxDebugRendering(true);
 
+	// input
+	InputAction reset = InputAction{ InputIds::reset, InputTriggerState::pressed, 0x52,-1,XINPUT_GAMEPAD_B };
+	m_SceneContext.GetInput()->AddInputAction(reset);
+
 	// Cube Actor
 	XMFLOAT3 actorDimensions{ 1.5f,1.f,1.f };
 	m_pCube = new CubePosColorNorm(actorDimensions.x,actorDimensions.y,actorDimensions.z);
@@ -29,7 +33,7 @@ void PhysXTestScene::Initialize()
 		}
 	);
 	// all the friction values
-	PxMaterial* pBoxMaterial = pPhysX->createMaterial(0.5f,0.5f,1.f);
+	PxMaterial* pBoxMaterial = pPhysX->createMaterial(0.5f,0.5f,0.1f);
 
 	//// bind the created varibles to the physics object
 	//PxShape* pBoxShape = pPhysX->createShape(boxGeometry, *pBoxMaterial, true);
@@ -39,7 +43,8 @@ void PhysXTestScene::Initialize()
 	PxRigidActorExt::createExclusiveShape(*m_pCubeActor, boxGeometry, &pBoxMaterial, 1);
 	m_pCube->AttachRigidActor(m_pCubeActor);
 
-	m_pCube->Translate(0.f, 5.f, 0.f);
+	m_pCube->Translate(m_CubeDefaultTranslate.x, m_CubeDefaultTranslate.y, m_CubeDefaultTranslate.z);
+	m_pCube->RotateDegrees(m_CubeDefaultRotation.x, m_CubeDefaultRotation.y, m_CubeDefaultRotation.z);
 
 	// Create a ground plane and add it to the physics scene
 	PxRigidStatic* pGroundActor = pPhysX->createRigidStatic(PxTransform
@@ -58,6 +63,11 @@ void PhysXTestScene::Initialize()
 
 void PhysXTestScene::Update()
 {
+	bool		resetInput = m_SceneContext.GetInput()->IsActionTriggered(InputIds::reset);
+	if (resetInput)
+	{
+		OnSceneActivated();
+	}
 }
 
 void PhysXTestScene::Draw() const
@@ -66,6 +76,11 @@ void PhysXTestScene::Draw() const
 
 void PhysXTestScene::OnSceneActivated()
 {
+	Logger::GetInstance()->LogFormat(LogLevel::Info, L"Scene Activated > \"%ls\"", GetName().c_str());
+	Logger::GetInstance()->LogFormat(LogLevel::Info, L"\t[INPUT > Reset='R']");
+
+	m_pCube->Translate(m_CubeDefaultTranslate.x, m_CubeDefaultTranslate.y, m_CubeDefaultTranslate.z);
+	m_pCube->RotateDegrees(m_CubeDefaultRotation.x, m_CubeDefaultRotation.y, m_CubeDefaultRotation.z);
 }
 
 void PhysXTestScene::OnSceneDeactivated()

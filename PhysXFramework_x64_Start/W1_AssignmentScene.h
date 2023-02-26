@@ -51,20 +51,20 @@ private:
 
 	XMFLOAT3 m_CubeDimentions{ 1,1,1 };
 
-	int m_TotalHorizontalCubes = 6;
-	int m_TotalVerticalCubes = 6;
+	int m_TotalHorizontalCubes = 10;
+	int m_TotalVerticalCubes = 10;
 
 	float m_CubeWallSpawnDistance{ 30.f };
-	float m_CubeWiggleRoom = 0.1f; // horizontal distance between each cube
+	float m_CubeWiggleRoom = 0.12f; // horizontal distance between each cube
 
 	float m_SphereRadius{1.f};
 	int m_MaxRandomSpawnRotation{ 20 }; // in degrees
-	float m_SphereTorqueForce = 4000.f;
-	float m_SphereJumpForce = 6000.f;
-	float m_SphereMass = 12.f;
+	float m_SphereTorqueForce = 10000.f;
+	float m_SphereJumpForce = 14000.f;
+	float m_SphereMass = 26.f;
 
 	XMFLOAT3 m_CubeMatValues{ 0.5f,0.5f,0.f };
-	XMFLOAT3 m_SphereMatValues{ 0.5f,0.5f,0.f };
+	XMFLOAT3 m_SphereMatValues{ 0.7f,0.7f,0.f };
 	XMFLOAT3 m_GroundMatValues{ 0.5f,0.5f,0.f };
 
 	XMFLOAT3 m_FloorCubeSize{50,5,70};

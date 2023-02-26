@@ -21,7 +21,6 @@ GameScene::GameScene(const std::wstring& sceneName)
 	, m_AccumulatedPhysicsTime{}
 	, m_PhysicsTimeStep{ 1.0f / 60 }
 {
-
 }
 
 GameScene::~GameScene()

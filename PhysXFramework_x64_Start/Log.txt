@@ -1,0 +1,38 @@
+[2023-2-26 - 15:18:16:682][DEBUG]   Adapter 0 : NVIDIA GeForce RTX 2080 Ti
+[2023-2-26 - 15:18:16:683][DEBUG]   Adapter 1 : Microsoft Basic Render Driver
+[2023-2-26 - 15:18:16:683][DEBUG]   2 Adapter(s) found
+[2023-2-26 - 15:18:16:684][DEBUG]   InitalizeAdapterAndOutput ok.
+[2023-2-26 - 15:18:16:684][DEBUG]   Window Class Created
+[2023-2-26 - 15:18:16:685][DEBUG]   Desktop resolution: 2560 x 1440
+[2023-2-26 - 15:18:16:743][DEBUG]   Window Opened
+[2023-2-26 - 15:18:17:84][DEBUG]   Direct3D Initialized
+[2023-2-26 - 15:18:17:369][DEBUG]   Managers Initialized!
+[2023-2-26 - 15:18:17:371][INFO]    Press 'Page Up' or 'Page Down' to cycle between the different scenes
+[2023-2-26 - 15:18:17:372][INFO]    Press 'I' to toggle the debug renderer.
+[2023-2-26 - 15:18:17:373][INFO]    Press 'M' to do physics stepping.
+[2023-2-26 - 15:18:17:373][INFO]    Press 'L' to stop doing physics stepping.
+[2023-2-26 - 15:18:17:528][DEBUG]   Scenes Initialized!
+[2023-2-26 - 15:18:17:529][INFO]    Scene Activated > "W1_AssignmentScene"
+[2023-2-26 - 15:18:17:530][INFO]    	[INPUT > Reset='R' | Apply_Torque='Arrow Keys' | Apply_Upwards_Force='SPACE']
+[2023-2-26 - 15:18:17:624][DEBUG]   DebugRenderer::Draw() > Increasing Vertexbuffer Size!
+[2023-2-26 - 15:18:19:150][INFO]    Scene Activated > "TestScene"
+[2023-2-26 - 15:18:19:150][INFO]    	[INPUT > Translate = 'Arrow Keys']
+[2023-2-26 - 15:18:19:351][INFO]    Scene Activated > "W1_AssignmentScene"
+[2023-2-26 - 15:18:19:352][INFO]    	[INPUT > Reset='R' | Apply_Torque='Arrow Keys' | Apply_Upwards_Force='SPACE']
+[2023-2-26 - 15:18:21:617][INFO]    Scene Activated > "TestScene"
+[2023-2-26 - 15:18:21:618][INFO]    	[INPUT > Translate = 'Arrow Keys']
+[2023-2-26 - 15:18:21:763][INFO]    Scene Activated > "W1_AssignmentScene"
+[2023-2-26 - 15:18:21:765][INFO]    	[INPUT > Reset='R' | Apply_Torque='Arrow Keys' | Apply_Upwards_Force='SPACE']
+[2023-2-26 - 15:18:22:891][INFO]    Scene Activated > "TestScene"
+[2023-2-26 - 15:18:22:891][INFO]    	[INPUT > Translate = 'Arrow Keys']
+[2023-2-26 - 15:18:23:1][INFO]    Scene Activated > "W1_AssignmentScene"
+[2023-2-26 - 15:18:23:2][INFO]    	[INPUT > Reset='R' | Apply_Torque='Arrow Keys' | Apply_Upwards_Force='SPACE']
+[2023-2-26 - 15:18:24:545][INFO]    Scene Activated > "TestScene"
+[2023-2-26 - 15:18:24:546][INFO]    	[INPUT > Translate = 'Arrow Keys']
+[2023-2-26 - 15:18:24:649][INFO]    Scene Activated > "W1_AssignmentScene"
+[2023-2-26 - 15:18:24:651][INFO]    	[INPUT > Reset='R' | Apply_Torque='Arrow Keys' | Apply_Upwards_Force='SPACE']
+[2023-2-26 - 15:18:25:497][INFO]    Scene Activated > "TestScene"
+[2023-2-26 - 15:18:25:498][INFO]    	[INPUT > Translate = 'Arrow Keys']
+[2023-2-26 - 15:18:25:623][INFO]    Scene Activated > "W1_AssignmentScene"
+[2023-2-26 - 15:18:25:624][INFO]    	[INPUT > Reset='R' | Apply_Torque='Arrow Keys' | Apply_Upwards_Force='SPACE']
+[2023-2-26 - 15:18:53:480][DEBUG]   Core Initialization Finished

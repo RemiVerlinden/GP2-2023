@@ -35,7 +35,7 @@ private:
 	float m_PushForce{800.f};
 
 	XMFLOAT3 m_CubeDimentions{ 2,2,2 };
-	XMFLOAT3 m_MaterialValues{ 0.f,0.f,0.f };
+	XMFLOAT3 m_MaterialValues{ 0.2f,0.2f,0.f };
 
 };
 

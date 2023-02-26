@@ -10,7 +10,7 @@
 void ForcesScene::Initialize()
 {
 	EnablePhysxDebugRendering(true);
-
+	m_pPhysxScene->setVisualizationParameter(PxVisualizationParameter::eBODY_LIN_VELOCITY, 1.0f);
 
 
 	// Camera

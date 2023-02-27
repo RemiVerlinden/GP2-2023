@@ -1,21 +1,17 @@
-[2023-2-27 - 9:52:36:859][DEBUG]   Adapter 0 : NVIDIA GeForce RTX 3080 Laptop GPU
-[2023-2-27 - 9:52:36:860][DEBUG]   Adapter 1 : Microsoft Basic Render Driver
-[2023-2-27 - 9:52:36:861][DEBUG]   2 Adapter(s) found
-[2023-2-27 - 9:52:36:862][DEBUG]   InitalizeAdapterAndOutput ok.
-[2023-2-27 - 9:52:36:862][DEBUG]   Window Class Created
-[2023-2-27 - 9:52:36:863][DEBUG]   Desktop resolution: 1707 x 1067
-[2023-2-27 - 9:52:36:974][DEBUG]   Window Opened
-[2023-2-27 - 9:52:37:299][DEBUG]   Direct3D Initialized
-[2023-2-27 - 9:52:39:128][DEBUG]   Managers Initialized!
-[2023-2-27 - 9:52:39:129][INFO]    Press 'Page Up' or 'Page Down' to cycle between the different scenes
-[2023-2-27 - 9:52:39:130][INFO]    Press 'I' to toggle the debug renderer.
-[2023-2-27 - 9:52:39:131][INFO]    Press 'M' to do physics stepping.
-[2023-2-27 - 9:52:39:132][INFO]    Press 'L' to stop doing physics stepping.
-[2023-2-27 - 9:52:39:180][DEBUG]   Parsing mesh: Chair.obj
-[2023-2-27 - 9:52:39:183][DEBUG]   Scenes Initialized!
-[2023-2-27 - 9:52:39:264][DEBUG]   DebugRenderer::Draw() > Increasing Vertexbuffer Size!
-[2023-2-27 - 9:52:40:771][INFO]    ENTERED trigger LEFT
-[2023-2-27 - 9:52:40:904][INFO]    LEFT trigger LEFT
-[2023-2-27 - 9:52:47:36][INFO]    ENTERED trigger LEFT
-[2023-2-27 - 9:52:47:170][INFO]    LEFT trigger LEFT
-[2023-2-27 - 9:52:48:724][DEBUG]   Core Initialization Finished
+[2023-2-27 - 11:33:3:82][DEBUG]   Adapter 0 : NVIDIA GeForce RTX 3080 Laptop GPU
+[2023-2-27 - 11:33:3:84][DEBUG]   Adapter 1 : Microsoft Basic Render Driver
+[2023-2-27 - 11:33:3:84][DEBUG]   2 Adapter(s) found
+[2023-2-27 - 11:33:3:85][DEBUG]   InitalizeAdapterAndOutput ok.
+[2023-2-27 - 11:33:3:86][DEBUG]   Window Class Created
+[2023-2-27 - 11:33:3:87][DEBUG]   Desktop resolution: 1707 x 1067
+[2023-2-27 - 11:33:3:202][DEBUG]   Window Opened
+[2023-2-27 - 11:33:3:544][DEBUG]   Direct3D Initialized
+[2023-2-27 - 11:33:5:233][DEBUG]   Managers Initialized!
+[2023-2-27 - 11:33:5:235][INFO]    Press 'Page Up' or 'Page Down' to cycle between the different scenes
+[2023-2-27 - 11:33:5:235][INFO]    Press 'I' to toggle the debug renderer.
+[2023-2-27 - 11:33:5:236][INFO]    Press 'M' to do physics stepping.
+[2023-2-27 - 11:33:5:237][INFO]    Press 'L' to stop doing physics stepping.
+[2023-2-27 - 11:33:5:295][DEBUG]   Parsing mesh: Chair.obj
+[2023-2-27 - 11:33:5:298][DEBUG]   Scenes Initialized!
+[2023-2-27 - 11:33:5:379][DEBUG]   DebugRenderer::Draw() > Increasing Vertexbuffer Size!
+[2023-2-27 - 11:33:33:632][DEBUG]   Core Initialization Finished

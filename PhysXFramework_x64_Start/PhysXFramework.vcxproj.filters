@@ -199,6 +199,9 @@
     <ClInclude Include="TriggerTestScene.h">
       <Filter>GameFiles\Scenes\W02_PhysX</Filter>
     </ClInclude>
+    <ClInclude Include="AudioTestScene.h">
+      <Filter>GameFiles\Scenes\W02_PhysX</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -331,6 +334,9 @@
       <Filter>GameFiles\Scenes\W02_PhysX</Filter>
     </ClCompile>
     <ClCompile Include="TriggerTestScene.cpp">
+      <Filter>GameFiles\Scenes\W02_PhysX</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioTestScene.cpp">
       <Filter>GameFiles\Scenes\W02_PhysX</Filter>
     </ClCompile>
   </ItemGroup>

@@ -79,6 +79,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AudioTestScene.h" />
     <ClInclude Include="BaseCamera.h" />
     <ClInclude Include="BinaryReader.h" />
     <ClInclude Include="BouncingBallScene.h" />
@@ -132,6 +133,7 @@
     <ClInclude Include="W1_AssignmentScene.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AudioTestScene.cpp" />
     <ClCompile Include="BaseCamera.cpp" />
     <ClCompile Include="BinaryReader.cpp" />
     <ClCompile Include="BouncingBallScene.cpp" />

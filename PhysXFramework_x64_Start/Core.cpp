@@ -432,12 +432,22 @@ LRESULT Core::WindowsProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 		if ((lParam & 0x80000000) != 0x80000000)
 			return -1;
 
+		// escape exits program
+		if (wParam == VK_ESCAPE)
+		{
+			PostQuitMessage(0);
+
+			return 0;
+		}
+
 		// NextScene
 		if (wParam == VK_NEXT || wParam == 'P')
 		{
 			m_pSceneManager->NextScene();
 			return 0;
 		}
+
+
 
 		// PreviousScene
 		if (wParam == VK_PRIOR || wParam == 'O')

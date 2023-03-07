@@ -1,0 +1,18 @@
+[2023-3-7 - 18:44:17:616][DEBUG]   Adapter 0 : NVIDIA GeForce RTX 3080 Laptop GPU
+[2023-3-7 - 18:44:17:617][DEBUG]   Adapter 1 : Microsoft Basic Render Driver
+[2023-3-7 - 18:44:17:618][DEBUG]   2 Adapter(s) found
+[2023-3-7 - 18:44:17:619][DEBUG]   InitalizeAdapterAndOutput ok.
+[2023-3-7 - 18:44:17:619][DEBUG]   Window Class Created
+[2023-3-7 - 18:44:17:621][DEBUG]   Desktop resolution: 2560 x 1440
+[2023-3-7 - 18:44:17:761][DEBUG]   Window Opened
+[2023-3-7 - 18:44:18:161][DEBUG]   Direct3D Initialized
+[2023-3-7 - 18:44:18:696][DEBUG]   Managers Initialized!
+[2023-3-7 - 18:44:18:698][INFO]    Press 'Page Up' or 'Page Down' to cycle between the different scenes
+[2023-3-7 - 18:44:18:699][INFO]    Press 'I' to toggle the debug renderer.
+[2023-3-7 - 18:44:18:700][INFO]    Press 'M' to do physics stepping.
+[2023-3-7 - 18:44:18:701][INFO]    Press 'L' to stop doing physics stepping.
+[2023-3-7 - 18:44:18:768][DEBUG]   Parsing mesh: Level.obj
+[2023-3-7 - 18:44:18:812][DEBUG]   Parsing mesh: Chair.obj
+[2023-3-7 - 18:44:18:818][DEBUG]   Scenes Initialized!
+[2023-3-7 - 18:44:18:911][DEBUG]   DebugRenderer::Draw() > Increasing Vertexbuffer Size!
+[2023-3-7 - 18:44:21:700][DEBUG]   Core Initialization Finished

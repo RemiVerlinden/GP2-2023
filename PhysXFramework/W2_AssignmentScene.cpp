@@ -255,15 +255,10 @@ void W2_AssignmentScene::Update()
 	}
 
 
-	//if (m_SceneContext.GetInput()->IsKeyboardKey(InputTriggerState::pressed, 'V'))
-	//{
-	//	float volume{};
-	//	m_pChannel2D->getVolume(&volume);
-	//	volume += 0.1f;
-	//	Clamp(volume, 1.f, 0.f);
-	//	m_pChannel2D->setVolume(volume);
-	//	Logger::GetInstance()->LogFormat(LogLevel::Info, L"Sound Volume Changed > %f", volume);
-	//}
+	if (m_SceneContext.GetInput()->IsKeyboardKey(InputTriggerState::pressed, 'R'))
+	{
+		OnSceneActivated();
+	}
 	//if (m_SceneContext.GetInput()->IsKeyboardKey(InputTriggerState::pressed, 'C'))
 	//{
 	//	float volume{};

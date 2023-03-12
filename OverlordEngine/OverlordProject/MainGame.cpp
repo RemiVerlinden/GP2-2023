@@ -20,6 +20,7 @@
 #include "Scenes/Week 3/MinionScene.h"
 #include "Scenes/Week 3/TestScene.h"
 #include "Scenes/Week 3/ComponentTestScene.h"
+#include "Scenes/Week 3/PongScene.h"
 //#include "Scenes/Week 3/PongScene.h"
 #endif
 
@@ -95,6 +96,7 @@ void MainGame::Initialize()
 {
 
 #ifdef W3
+	SceneManager::Get()->AddGameScene(new PongScene());
 	SceneManager::Get()->AddGameScene(new ComponentTestScene());
 	SceneManager::Get()->AddGameScene(new TestScene());
 	SceneManager::Get()->AddGameScene(new MinionScene());

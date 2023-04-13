@@ -2,6 +2,7 @@
 #include "PhysX/PhysxProxy.h"
 #include "Scenegraph/GameScene.h"
 
+
 namespace GameSceneExt
 {
 	inline void CreatePhysXGroundPlane(const GameScene& scene, PxMaterial* pMaterial = nullptr)
@@ -66,5 +67,12 @@ namespace ConvertUtil
 	{
 		return reinterpret_cast<float*>(const_cast<XMFLOAT4*>(&v));
 	}
+}
+
+namespace RandomVariablesUtil
+{
+
+	// Helper function to generate a random float between min and max
+
 }
 

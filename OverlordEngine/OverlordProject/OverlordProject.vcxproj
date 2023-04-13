@@ -100,6 +100,10 @@
     <ClCompile Include="Prefabs\TorusPrefab.cpp" />
     <ClCompile Include="Materials\ColorMaterial.cpp" />
     <ClCompile Include="Scenes\Week 3\MinionScene.cpp" />
+    <ClCompile Include="Scenes\Week 4\ModelTestScene.cpp" />
+    <ClCompile Include="Scenes\Week 4\SpikyScene.cpp" />
+    <ClCompile Include="Scenes\Week 4\SpriteTestScene.cpp" />
+    <ClCompile Include="Scenes\Week 4\UberMaterialScene.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h</PrecompiledHeaderFile>
@@ -130,6 +134,10 @@
     <ClInclude Include="Prefabs\TorusPrefab.h" />
     <ClInclude Include="Materials\ColorMaterial.h" />
     <ClInclude Include="Scenes\Week 3\MinionScene.h" />
+    <ClInclude Include="Scenes\Week 4\ModelTestScene.h" />
+    <ClInclude Include="Scenes\Week 4\SpikyScene.h" />
+    <ClInclude Include="Scenes\Week 4\SpriteTestScene.h" />
+    <ClInclude Include="Scenes\Week 4\UberMaterialScene.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="MainGame.h" />
     <ClInclude Include="Scenes\Week 3\TestScene.h" />

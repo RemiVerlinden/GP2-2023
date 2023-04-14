@@ -1,37 +1,47 @@
-//Precompiled Header [ALWAYS ON TOP IN CPP]
 #include "stdafx.h"
 #include "UberMaterialScene.h"
-
 #include "Prefabs/CubePrefab.h"
 #include "Prefabs/SpherePrefab.h"
+#include "Materials/UberMaterial.h"
 
-
+// Constructor
 UberMaterialScene::UberMaterialScene() :
-	GameScene(L"UberMaterialScene"){}
+    GameScene(L"UberMaterialScene")
+{
+}
 
+// Initialize the scene
 void UberMaterialScene::Initialize()
 {
-	//m_SceneContext.settings.showInfoOverlay = true;
-	//m_SceneContext.settings.drawPhysXDebug = true;
-	//m_SceneContext.settings.drawGrid = true;
-	m_SceneContext.settings.enableOnGUI = true;
+    m_SceneContext.settings.drawGrid = false;
+    m_SceneContext.settings.enableOnGUI = true;
 
-	Logger::LogInfo(L"Welcome, humble Minion!");
+    // Create and add sphere GameObject
+    m_pSphere = new GameObject{};
+    AddChild(m_pSphere);
+
+    // Create UberMaterial instance
+    m_pUberMaterial = MaterialManager::Get()->CreateMaterial<UberMaterial>();
+
+    // Add ModelComponent and set material
+    ModelComponent* pModelComponent = m_pSphere->AddComponent(new ModelComponent{ L"Labs/Week4/Meshes/Sphere.ovm" });
+    pModelComponent->SetMaterial(m_pUberMaterial);
+
+    // Scale the sphere
+    m_pSphere->GetTransform()->Scale(20.0f, 20.0f, 20.0f);
 }
 
+// Update the scene
 void UberMaterialScene::Update()
 {
-	//Optional
+    m_pSphere->GetTransform()->Rotate(0, GetSceneContext().pGameTime->GetTotal() * 12.f, 0, true);
 }
 
-void UberMaterialScene::Draw()
-{
-	//Optional
-}
+// Draw the scene (Optional)
+void UberMaterialScene::Draw() {}
 
+// Handle ImGUI for the material
 void UberMaterialScene::OnGUI()
 {
-	ImGui::Text("This only activates if\n SceneSettings.enableOnGUI is True.\n\n");
-	ImGui::Text("Use ImGui to add custom\n controllable scene parameters!");
-	ImGui::ColorEdit3("Demo ClearColor", &m_SceneContext.settings.clearColor.x, ImGuiColorEditFlags_NoInputs);
+    m_pUberMaterial->DrawImGui();
 }

@@ -1,8 +1,9 @@
 #pragma once
-class SpikyScene final : public GameScene
+class SpikyMaterial;
+class SpikyScene : public GameScene
 {
 public:
-	SpikyScene();
+	SpikyScene() :GameScene(L"SpikyScene") {}
 	~SpikyScene() override = default;
 
 	SpikyScene(const SpikyScene& other) = delete;
@@ -17,9 +18,7 @@ protected:
 	void OnGUI() override;
 
 private:
-	GameObject* m_pObject{};
-	RigidBodyComponent* m_pRigidBody{};
-	FreeCamera* m_pFixedCamera{};
+	GameObject* m_pSphere{};
+	SpikyMaterial* m_pSpikyMaterial{};
 };
-
 

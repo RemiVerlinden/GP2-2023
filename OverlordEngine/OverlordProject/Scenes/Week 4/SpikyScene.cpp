@@ -1,39 +1,41 @@
-//Precompiled Header [ALWAYS ON TOP IN CPP]
 #include "stdafx.h"
 #include "SpikyScene.h"
-
-#include "Prefabs/CubePrefab.h"
-#include "Prefabs/SpherePrefab.h"
-
-
-SpikyScene::SpikyScene() :
-	GameScene(L"SpikyScene")
-{
-}
+#include "Materials/SpikyMaterial.h"
 
 void SpikyScene::Initialize()
 {
-	//m_SceneContext.settings.showInfoOverlay = true;
-	//m_SceneContext.settings.drawPhysXDebug = true;
-	//m_SceneContext.settings.drawGrid = true;
+	m_SceneContext.settings.drawGrid = false;
 	m_SceneContext.settings.enableOnGUI = true;
 
-	Logger::LogInfo(L"Welcome, humble Minion!");
+	// Create and add sphere GameObject
+	m_pSphere = new GameObject();
+	AddChild(m_pSphere);
+
+	// Create SpikyMaterial instance
+	m_pSpikyMaterial = MaterialManager::Get()->CreateMaterial<SpikyMaterial>();
+
+	// Add ModelComponent and set material
+	ModelComponent* pModelComponent = m_pSphere->AddComponent(new ModelComponent(L"Labs/Week4/Meshes/OctaSphere.ovm"));
+	pModelComponent->SetMaterial(m_pSpikyMaterial);
+
+	// Scale the sphere
+	m_pSphere->GetTransform()->Scale(12.f, 12.f, 12.f);
 }
 
+// Update the scene
 void SpikyScene::Update()
 {
-	//Optional
+	m_pSphere->GetTransform()->Rotate(0, m_SceneContext.pGameTime->GetTotal() * 20, 0);
 }
 
+// Draw the scene (Optional)
 void SpikyScene::Draw()
 {
-	//Optional
 }
 
+// Handle ImGUI for the material
 void SpikyScene::OnGUI()
 {
-	ImGui::Text("This only activates if\n SceneSettings.enableOnGUI is True.\n\n");
-	ImGui::Text("Use ImGui to add custom\n controllable scene parameters!");
-	ImGui::ColorEdit3("Demo ClearColor", &m_SceneContext.settings.clearColor.x, ImGuiColorEditFlags_NoInputs);
+	m_pSpikyMaterial->DrawImGui();
 }
+

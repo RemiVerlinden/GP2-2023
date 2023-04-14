@@ -16,11 +16,15 @@ protected:
 	void Update() override;
 	void Draw() override;
 	void OnGUI() override;
-
+	void OnSceneActivated() override;
 private:
-	GameObject* m_pObject{};
-	RigidBodyComponent* m_pRigidBody{};
-	FreeCamera* m_pFixedCamera{};
+	void InitializeGroundPlane();
+	void InitializeChairObject();
+	void ResetChairPosRot();
+	ImVec4 LerpColors(const ImVec4& colorA, const ImVec4& colorB, float t);
+
+	GameObject* m_pChair;
+
 };
 
 

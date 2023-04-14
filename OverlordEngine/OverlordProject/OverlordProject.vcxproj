@@ -93,6 +93,9 @@
     <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Materials\DiffuseMaterial.cpp" />
+    <ClCompile Include="Materials\SpikyMaterial.cpp" />
+    <ClCompile Include="Materials\UberMaterial.cpp" />
     <ClCompile Include="Scenes\Week 3\PongScene.cpp" />
     <ClCompile Include="Scenes\Week 3\ComponentTestScene.cpp" />
     <ClCompile Include="Prefabs\CubePrefab.cpp" />
@@ -127,6 +130,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Materials\DiffuseMaterial.h" />
+    <ClInclude Include="Materials\SpikyMaterial.h" />
+    <ClInclude Include="Materials\UberMaterial.h" />
     <ClInclude Include="Scenes\Week 3\PongScene.h" />
     <ClInclude Include="Scenes\Week 3\ComponentTestScene.h" />
     <ClInclude Include="Prefabs\CubePrefab.h" />

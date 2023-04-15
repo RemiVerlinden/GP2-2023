@@ -1,5 +1,5 @@
 #pragma once
-class UberMaterial final : public Material<UberMaterial>
+class UberMaterial : public Material<UberMaterial>
 {
 public:
 	UberMaterial();
@@ -16,6 +16,6 @@ public:
 	void SetOpacityTexture(const std::wstring& assetFile);
 	void SetCubeEnvironmentTexture(const std::wstring& assetFile);
 
-private:
-	void InitializeEffectVariables() override;
+protected:
+	void InitializeEffectVariables() override = 0;
 };

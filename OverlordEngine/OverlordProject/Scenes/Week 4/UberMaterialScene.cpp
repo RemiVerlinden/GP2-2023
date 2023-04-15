@@ -2,7 +2,7 @@
 #include "UberMaterialScene.h"
 #include "Prefabs/CubePrefab.h"
 #include "Prefabs/SpherePrefab.h"
-#include "Materials/UberMaterial.h"
+#include "Materials/SkullBallUberMaterial.h"
 
 // Constructor
 UberMaterialScene::UberMaterialScene() :
@@ -21,7 +21,7 @@ void UberMaterialScene::Initialize()
     AddChild(m_pSphere);
 
     // Create UberMaterial instance
-    m_pUberMaterial = MaterialManager::Get()->CreateMaterial<UberMaterial>();
+    m_pUberMaterial = MaterialManager::Get()->CreateMaterial<SkullBallUberMaterial>();
 
     // Add ModelComponent and set material
     ModelComponent* pModelComponent = m_pSphere->AddComponent(new ModelComponent{ L"Labs/Week4/Meshes/Sphere.ovm" });

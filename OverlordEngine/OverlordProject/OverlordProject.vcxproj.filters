@@ -19,6 +19,12 @@
     <ClCompile Include="Materials\DiffuseMaterial.cpp" />
     <ClCompile Include="Materials\UberMaterial.cpp" />
     <ClCompile Include="Materials\SpikyMaterial.cpp" />
+    <ClCompile Include="Prefabs\BoneObject.cpp" />
+    <ClCompile Include="Materials\SkullBallUberMaterial.cpp" />
+    <ClCompile Include="Scenes\Week 5\SoftwareSkinningScene_1.cpp" />
+    <ClCompile Include="Scenes\Week 5\SoftwareSkinningScene_2.cpp" />
+    <ClCompile Include="Scenes\Week 5\GunScene.cpp" />
+    <ClCompile Include="Scenes\Week 5\SoftwareSkinningScene_3.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainGame.h" />
@@ -38,5 +44,11 @@
     <ClInclude Include="Materials\DiffuseMaterial.h" />
     <ClInclude Include="Materials\UberMaterial.h" />
     <ClInclude Include="Materials\SpikyMaterial.h" />
+    <ClInclude Include="Prefabs\BoneObject.h" />
+    <ClInclude Include="Materials\SkullBallUberMaterial.h" />
+    <ClInclude Include="Scenes\Week 5\SoftwareSkinningScene_1.h" />
+    <ClInclude Include="Scenes\Week 5\SoftwareSkinningScene_2.h" />
+    <ClInclude Include="Scenes\Week 5\GunScene.h" />
+    <ClInclude Include="Scenes\Week 5\SoftwareSkinningScene_3.h" />
   </ItemGroup>
 </Project>

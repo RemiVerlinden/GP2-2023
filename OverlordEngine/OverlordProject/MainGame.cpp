@@ -3,8 +3,8 @@
 
 /*LAB Content*/
 //#define W3
- #define W4
-// #define W5
+ //#define W4
+ #define W5
 // #define W6
 // #define W7
 // #define W8
@@ -33,6 +33,7 @@
 
 #ifdef W5
 #include "Scenes/Week 5/SoftwareSkinningScene_1.h"
+#include "Scenes/Week 5/GunScene.h"
 #include "Scenes/Week 5/SoftwareSkinningScene_2.h"
 #include "Scenes/Week 5/SoftwareSkinningScene_3.h"
 #endif
@@ -111,6 +112,7 @@ void MainGame::Initialize()
 #endif
 
 #ifdef W5
+	//SceneManager::Get()->AddGameScene(new GunScene());
 	SceneManager::Get()->AddGameScene(new SoftwareSkinningScene_1());
 	SceneManager::Get()->AddGameScene(new SoftwareSkinningScene_2());
 	SceneManager::Get()->AddGameScene(new SoftwareSkinningScene_3());

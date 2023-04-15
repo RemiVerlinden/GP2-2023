@@ -54,7 +54,7 @@ void ModelTestScene::InitializeChairObject()
 	m_pChair = new GameObject();
 	AddChild(m_pChair);
 
-	ModelComponent* model = new ModelComponent(L"Labs/Week4/Meshes/OVM/Chair.ovm");
+	ModelComponent* model = new ModelComponent(L"Labs/Week4/Meshes/Chair.ovm");
 	m_pChair->AddComponent(model);
 
 	ResetChairPosRot();
@@ -66,7 +66,7 @@ void ModelTestScene::InitializeChairObject()
 	model->SetMaterial(diffuse);
 
 	// Attach a rigidbody and collider components to the chair object
-	PxConvexMesh* pConvexMesh = ContentManager::Load<PxConvexMesh>(L"Labs/Week4/Meshes/OVM/Chair.ovpc");
+	PxConvexMesh* pConvexMesh = ContentManager::Load<PxConvexMesh>(L"Labs/Week4/Meshes/Chair.ovpc");
 	RigidBodyComponent* pRigidBody = m_pChair->AddComponent(new RigidBodyComponent());
 	pRigidBody->AddCollider(PxConvexMeshGeometry{ pConvexMesh }, *pFrictionMaterial);
 

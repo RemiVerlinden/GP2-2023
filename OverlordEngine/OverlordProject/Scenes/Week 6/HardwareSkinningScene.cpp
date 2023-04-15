@@ -18,10 +18,10 @@ void HardwareSkinningScene::Initialize()
 	m_SceneContext.settings.enableOnGUI = true;
 
 	const auto pSkinnedMaterial = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Skinned>();
-	pSkinnedMaterial->SetDiffuseTexture(L"Textures/PeasantGirl_Diffuse.png");
+	pSkinnedMaterial->SetDiffuseTexture(L"Labs/Week6/Textures/PeasantGirl_Diffuse.png");
 
 	const auto pObject = AddChild(new GameObject);
-	const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/PeasantGirl.ovm"));
+	const auto pModel = pObject->AddComponent(new ModelComponent(L"Labs/Week6/Meshes/PeasantGirl.ovm"));
 	pModel->SetMaterial(pSkinnedMaterial);
 
 	pObject->GetTransform()->Scale(0.15f);

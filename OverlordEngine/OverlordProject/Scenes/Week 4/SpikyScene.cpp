@@ -37,5 +37,8 @@ void SpikyScene::Draw()
 void SpikyScene::OnGUI()
 {
 	m_pSpikyMaterial->DrawImGui();
+	static float spikeLength = 0.2f;
+	ImGui::SliderFloat("Spike Length", &spikeLength,0,1);
+	m_pSpikyMaterial->SetSpikeLength(spikeLength);
 }
 

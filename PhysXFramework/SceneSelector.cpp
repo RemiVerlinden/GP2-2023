@@ -6,7 +6,8 @@
 // W01 - W02  (#define ...)
 
 //#define W01
-#define W02
+//#define W02
+#define MILESTONE
 
 #ifdef W01
 #include "TestScene.h"
@@ -22,6 +23,11 @@
 #include "PhysXMeshTestScene.h"
 #include "TriggerTestScene.h"
 #include "AudioTestScene.h"
+#include "W2_AssignmentScene.h"
+#endif
+
+#ifdef MILESTONE
+#include "W1_AssignmentScene.h"
 #include "W2_AssignmentScene.h"
 #endif
 
@@ -45,6 +51,11 @@ namespace dae
 		pSceneManager->AddGameScene(new AudioTestScene());
 		pSceneManager->AddGameScene(new TriggerTestScene());
 		pSceneManager->AddGameScene(new PhysXMeshTestScene());
+#endif
+
+#ifdef MILESTONE
+		pSceneManager->AddGameScene(new W1_AssignmentScene());
+		pSceneManager->AddGameScene(new W2_AssignmentScene());
 
 #endif
 

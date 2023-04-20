@@ -10,6 +10,7 @@ public:
 	SpikyMaterial& operator=(const SpikyMaterial& other) = delete;
 	SpikyMaterial& operator=(SpikyMaterial&& other) noexcept = delete;
 
+	void SetSpikeLength(float length);
 private:
 	void InitializeEffectVariables() override;
 };

@@ -12,6 +12,7 @@ PongScene::PongScene() :
 void PongScene::Initialize()
 {
 	m_SceneContext.settings.drawGrid = false;
+	m_SceneContext.settings.drawPhysXDebug = false;
 
 	auto& physx = PxGetPhysics();
 	auto* pMaterial = physx.createMaterial(.0f, .0f, 1.02f);

@@ -6,6 +6,11 @@ SpikyMaterial::SpikyMaterial()
 {
 }
 
+void SpikyMaterial::SetSpikeLength(float length)
+{
+	SetVariable_Scalar(L"gSpikeLength", length);
+}
+
 void SpikyMaterial::InitializeEffectVariables()
 {
 }

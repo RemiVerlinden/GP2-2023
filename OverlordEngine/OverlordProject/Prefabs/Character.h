@@ -47,7 +47,8 @@ public:
 protected:
 	void Initialize(const SceneContext&) override;
 	void Update(const SceneContext&) override;
-
+private:
+	void InitCharacterSettings();
 private:
 	CameraComponent* m_pCameraComponent{};
 	ControllerComponent* m_pControllerComponent{};

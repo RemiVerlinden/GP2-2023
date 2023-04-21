@@ -5,10 +5,13 @@ Character::Character(const CharacterDesc& characterDesc) :
 	m_CharacterDesc{ characterDesc },
 	m_MoveAcceleration(characterDesc.maxMoveSpeed / characterDesc.moveAccelerationTime),
 	m_FallAcceleration(characterDesc.maxFallSpeed / characterDesc.fallAccelerationTime)
-{}
+{
+}
 
 void Character::Initialize(const SceneContext& /*sceneContext*/)
 {
+	InitCharacterSettings();
+
 	//Controller
 	m_pControllerComponent = AddComponent(new ControllerComponent(m_CharacterDesc.controller));
 
@@ -19,12 +22,15 @@ void Character::Initialize(const SceneContext& /*sceneContext*/)
 
 	pCamera->GetTransform()->Translate(0.f, m_CharacterDesc.controller.height * .5f, 0.f);
 }
-
+void Character::InitCharacterSettings()
+{
+	m_CharacterDesc.rotationSpeed = 5;
+}
 void Character::Update(const SceneContext& sceneContext)
 {
 	if (m_pCameraComponent->IsActive())
 	{
-		constexpr float epsilon{ 0.01f }; //Constant that can be used to compare if a float is near zero
+		//constexpr float epsilon{ 0.01f }; //Constant that can be used to compare if a float is near zero
 
 		//***************
 		//HANDLE INPUT
@@ -45,88 +51,150 @@ void Character::Update(const SceneContext& sceneContext)
 		sidewaysMovement += sceneContext.pInput->IsActionTriggered(m_CharacterDesc.actionId_MoveRight);
 
 
-		moveInput.y = forwardMovement;
-		moveInput.x = sidewaysMovement;
+		moveInput.y = static_cast<float>(forwardMovement);
+		moveInput.x = static_cast<float>(sidewaysMovement);
 
-		XMVECTOR moveDir = XMVectorSet(moveInput.x, moveInput.y, 0.f, 0.f);
-		moveDir = XMVector2Normalize(moveDir);
 
 		//## Input Gathering (look)
-		XMFLOAT2 look{ 0.f, 0.f }; //Uncomment
-		float       pitch = 0;  // vertical
-		float       yaw = 0;    // horizontal
-		float       roll = 0;   // sideways wobble
-
 		//Only if the Left Mouse Button is Down >
 			// Store the MouseMovement in the local 'look' variable (cast is required)
 		//Optional: in case look.x AND look.y are near zero, you could use the Right ThumbStickPosition for look
+		POINT rawMouseMove = sceneContext.pInput->GetMouseMovement();
+		XMFLOAT2 look{0,0};
+
+		if (sceneContext.pInput->IsMouseButton(InputState::down, VK_LBUTTON))
+		{
+			look.x = static_cast<float>(rawMouseMove.x);
+			look.y = static_cast<float>(rawMouseMove.y);
+		}
+
+		//float       pitch = 0;  // vertical
+		//float       yaw = 0;    // horizontal
+		//float       roll = 0;   // sideways wobble
+
 
 		//************************
 		//GATHERING TRANSFORM INFO
 
 		//Retrieve the TransformComponent
 		//Retrieve the forward & right vector (as XMVECTOR) from the TransformComponent
-		
-		auto NormalizeXMFLOAT3 = [](XMFLOAT3& vec)
-		{
-			XMVECTOR v = XMLoadFloat3(&vec); // Load the XMFLOAT3 into an XMVECTOR
-			v = XMVector3Normalize(v);       // Normalize the XMVECTOR
-			XMStoreFloat3(&vec, v);       // Store the normalized XMVECTOR back into an XMFLOAT3
-		};
 
-		XMFLOAT3 forward = GetTransform()->GetForward();
-		XMFLOAT3 right = GetTransform()->GetRight();
-		forward.z = 0.f;
-		right.z = 0.f;
+		TransformComponent* transform = GetTransform();
 
-		NormalizeXMFLOAT3(forward);
-		NormalizeXMFLOAT3(right);
-
-		XMFLOAT3 wishvel;
-		for (size_t i = 0; i < 2; i++)
-		{
-			wishvel[i] = forward[i] * forwardMovement + right[i] * sidewaysMovement;
-		}
+		XMVECTOR forward = XMLoadFloat3(&transform->GetForward());
+		XMVECTOR right = XMLoadFloat3(&transform->GetRight());
+		forward = XMVectorMultiply(forward, { 1,0,1,1 });
+		right = XMVectorMultiply(right, { 1,0,1,1 });
+		forward = XMVector3Normalize(forward);
+		right = XMVector3Normalize(right);
 		//***************
 		//CAMERA ROTATION
 
 		//Adjust the TotalYaw (m_TotalYaw) & TotalPitch (m_TotalPitch) based on the local 'look' variable
 		//Make sure this calculated on a framerate independent way and uses CharacterDesc::rotationSpeed.
 		//Rotate this character based on the TotalPitch (X) and TotalYaw (Y)
-		
+
+		float timeStep = sceneContext.pGameTime->GetElapsed();
+		m_TotalYaw += look.x * m_CharacterDesc.rotationSpeed * timeStep;
+		m_TotalPitch += look.y * m_CharacterDesc.rotationSpeed * timeStep;
+
+		m_TotalPitch = std::clamp(m_TotalPitch, -90.0f, 90.0f);
+
+		transform->Rotate(m_TotalPitch, m_TotalYaw, 0.0f);
+
 		//********
 		//MOVEMENT
 
 		//## Horizontal Velocity (Forward/Backward/Right/Left)
 		//Calculate the current move acceleration for this frame (m_MoveAcceleration * ElapsedTime)
+		float acceleration = m_MoveAcceleration * timeStep;
 		//If the character is moving (= input is pressed)
 			//Calculate & Store the current direction (m_CurrentDirection) >> based on the forward/right vectors and the pressed input
 			//Increase the current MoveSpeed with the current Acceleration (m_MoveSpeed)
+		if (forwardMovement != 0 || sidewaysMovement != 0)
+		{
+			XMVECTOR zMovement = XMVectorScale(forward, moveInput.y);
+			XMVECTOR xMovement = XMVectorScale(right, moveInput.x);
+			XMVECTOR moveDirection = XMVector3Normalize(xMovement + zMovement);
+			//moveDirection = XMVector3Normalize(moveDirection);
+			XMStoreFloat3(&m_CurrentDirection, moveDirection);
+
+			m_MoveSpeed += acceleration;
+
 			//Make sure the current MoveSpeed stays below the maximum MoveSpeed (CharacterDesc::maxMoveSpeed)
+			m_MoveSpeed = std::min(m_MoveSpeed, m_CharacterDesc.maxMoveSpeed);
+		}
 		//Else (character is not moving, or stopped moving)
 			//Decrease the current MoveSpeed with the current Acceleration (m_MoveSpeed)
 			//Make sure the current MoveSpeed doesn't get smaller than zero
+		else
+		{
+			m_MoveSpeed -= acceleration;
+			m_MoveSpeed = std::max(m_MoveSpeed, 0.0f);
+		}
 
 		//Now we can calculate the Horizontal Velocity which should be stored in m_TotalVelocity.xz
 		//Calculate the horizontal velocity (m_CurrentDirection * MoveSpeed)
+
+		XMFLOAT3 horizontalVelocity
+		{
+			m_CurrentDirection.x * m_MoveSpeed,
+			0.0f,
+			m_CurrentDirection.z * m_MoveSpeed
+		};
+
+
 		//Set the x/z component of m_TotalVelocity (horizontal_velocity x/z)
 		//It's important that you don't overwrite the y component of m_TotalVelocity (contains the vertical velocity)
+
+		m_TotalVelocity.x = horizontalVelocity.x;
+		m_TotalVelocity.z = horizontalVelocity.z;
 
 		//## Vertical Movement (Jump/Fall)
 		//If the Controller Component is NOT grounded (= freefall)
 			//Decrease the y component of m_TotalVelocity with a fraction (ElapsedTime) of the Fall Acceleration (m_FallAcceleration)
 			//Make sure that the minimum speed stays above -CharacterDesc::maxFallSpeed (negative!)
+		XMFLOAT3 centerPos = m_pControllerComponent->GetPosition();
+		XMFLOAT3 footPos = m_pControllerComponent->GetFootPosition();
+		PxVec3 origin{ centerPos.x ,centerPos.y ,centerPos.z };
+		PxVec3 direction{ footPos.x - centerPos.x, footPos.y - centerPos.y, footPos.z - centerPos.z };
+		direction.y -= 0.001f;
+		PxRaycastBuffer hit{};
+		PxQueryFilterData filterData{ PxQueryFlag::eSTATIC };
+		bool isGrounded = GetScene()->GetPhysxProxy()->Raycast(origin, direction.getNormalized(), direction.magnitude(), hit, PxHitFlag::eDEFAULT, filterData);
+		if (!isGrounded)
+		{
+			m_TotalVelocity.y -= m_FallAcceleration * timeStep;
+			m_TotalVelocity.y = std::max(m_TotalVelocity.y, -m_CharacterDesc.maxFallSpeed);
+		}
 		//Else If the jump action is triggered
 			//Set m_TotalVelocity.y equal to CharacterDesc::JumpSpeed
+		else if (sceneContext.pInput->IsActionTriggered(m_CharacterDesc.actionId_Jump))
+		{
+			m_TotalVelocity.y += m_CharacterDesc.JumpSpeed;
+		}
 		//Else (=Character is grounded, no input pressed)
 			//m_TotalVelocity.y is zero
+		else
+		{
+			m_TotalVelocity.y = 0;
+		}
 
 		//************
 		//DISPLACEMENT
 
 		//The displacement required to move the Character Controller (ControllerComponent::Move) can be calculated using our TotalVelocity (m/s)
 		//Calculate the displacement (m) for the current frame and move the ControllerComponent
+		//calculate frame velocity
+		XMVECTOR velocity;
+		velocity = XMLoadFloat3(&m_TotalVelocity);
+		velocity = velocity * timeStep;
+		//store in usuable variable
+		XMFLOAT3 outputVelocity{};
+		XMStoreFloat3(&outputVelocity, velocity);
 
+		//move character according to frame velocity
+		m_pControllerComponent->Move(outputVelocity);
 		//The above is a simple implementation of Movement Dynamics, adjust the code to further improve the movement logic and behaviour.
 		//Also, it can be usefull to use a seperate RayCast to check if the character is grounded (more responsive)
 	}
@@ -165,7 +233,7 @@ void Character::DrawImGui()
 		ImGui::DragFloat("Rotation Speed (deg/s)", &m_CharacterDesc.rotationSpeed, 0.1f, 0.f, 0.f, "%.1f");
 
 		bool isActive = m_pCameraComponent->IsActive();
-		if(ImGui::Checkbox("Character Camera", &isActive))
+		if (ImGui::Checkbox("Character Camera", &isActive))
 		{
 			m_pCameraComponent->SetActive(isActive);
 		}

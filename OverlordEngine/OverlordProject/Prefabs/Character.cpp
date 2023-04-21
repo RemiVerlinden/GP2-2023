@@ -15,30 +15,48 @@ void Character::Initialize(const SceneContext& /*sceneContext*/)
 	//Camera
 	const auto pCamera = AddChild(new FixedCamera());
 	m_pCameraComponent = pCamera->GetComponent<CameraComponent>();
-	//m_pCameraComponent->SetActive(true); //Uncomment to make this camera the active camera
+	m_pCameraComponent->SetActive(true); //Uncomment to make this camera the active camera
 
 	pCamera->GetTransform()->Translate(0.f, m_CharacterDesc.controller.height * .5f, 0.f);
 }
 
-void Character::Update(const SceneContext& /*sceneContext*/)
+void Character::Update(const SceneContext& sceneContext)
 {
 	if (m_pCameraComponent->IsActive())
 	{
-		//constexpr float epsilon{ 0.01f }; //Constant that can be used to compare if a float is near zero
+		constexpr float epsilon{ 0.01f }; //Constant that can be used to compare if a float is near zero
 
 		//***************
 		//HANDLE INPUT
 
 		//## Input Gathering (move)
-		//XMFLOAT2 move; //Uncomment
+		XMFLOAT2 moveInput; //Uncomment
 		//move.y should contain a 1 (Forward) or -1 (Backward) based on the active input (check corresponding actionId in m_CharacterDesc)
 		//Optional: if move.y is near zero (abs(move.y) < epsilon), you could use the ThumbStickPosition.y for movement
-
 		//move.x should contain a 1 (Right) or -1 (Left) based on the active input (check corresponding actionId in m_CharacterDesc)
-		//Optional: if move.x is near zero (abs(move.x) < epsilon), you could use the Left ThumbStickPosition.x for movement
+		//Optional: if move.x is near zero (abs(move.x) < epsilon), you could use the Left ThumbStickPosition.x for movement\]
+
+		int forwardMovement = 0;
+		forwardMovement -= sceneContext.pInput->IsActionTriggered(m_CharacterDesc.actionId_MoveBackward);
+		forwardMovement += sceneContext.pInput->IsActionTriggered(m_CharacterDesc.actionId_MoveForward);
+
+		int sidewaysMovement = 0;
+		sidewaysMovement -= sceneContext.pInput->IsActionTriggered(m_CharacterDesc.actionId_MoveLeft);
+		sidewaysMovement += sceneContext.pInput->IsActionTriggered(m_CharacterDesc.actionId_MoveRight);
+
+
+		moveInput.y = forwardMovement;
+		moveInput.x = sidewaysMovement;
+
+		XMVECTOR moveDir = XMVectorSet(moveInput.x, moveInput.y, 0.f, 0.f);
+		moveDir = XMVector2Normalize(moveDir);
 
 		//## Input Gathering (look)
-		//XMFLOAT2 look{ 0.f, 0.f }; //Uncomment
+		XMFLOAT2 look{ 0.f, 0.f }; //Uncomment
+		float       pitch = 0;  // vertical
+		float       yaw = 0;    // horizontal
+		float       roll = 0;   // sideways wobble
+
 		//Only if the Left Mouse Button is Down >
 			// Store the MouseMovement in the local 'look' variable (cast is required)
 		//Optional: in case look.x AND look.y are near zero, you could use the Right ThumbStickPosition for look
@@ -48,14 +66,34 @@ void Character::Update(const SceneContext& /*sceneContext*/)
 
 		//Retrieve the TransformComponent
 		//Retrieve the forward & right vector (as XMVECTOR) from the TransformComponent
+		
+		auto NormalizeXMFLOAT3 = [](XMFLOAT3& vec)
+		{
+			XMVECTOR v = XMLoadFloat3(&vec); // Load the XMFLOAT3 into an XMVECTOR
+			v = XMVector3Normalize(v);       // Normalize the XMVECTOR
+			XMStoreFloat3(&vec, v);       // Store the normalized XMVECTOR back into an XMFLOAT3
+		};
 
+		XMFLOAT3 forward = GetTransform()->GetForward();
+		XMFLOAT3 right = GetTransform()->GetRight();
+		forward.z = 0.f;
+		right.z = 0.f;
+
+		NormalizeXMFLOAT3(forward);
+		NormalizeXMFLOAT3(right);
+
+		XMFLOAT3 wishvel;
+		for (size_t i = 0; i < 2; i++)
+		{
+			wishvel[i] = forward[i] * forwardMovement + right[i] * sidewaysMovement;
+		}
 		//***************
 		//CAMERA ROTATION
 
 		//Adjust the TotalYaw (m_TotalYaw) & TotalPitch (m_TotalPitch) based on the local 'look' variable
 		//Make sure this calculated on a framerate independent way and uses CharacterDesc::rotationSpeed.
 		//Rotate this character based on the TotalPitch (X) and TotalYaw (Y)
-
+		
 		//********
 		//MOVEMENT
 

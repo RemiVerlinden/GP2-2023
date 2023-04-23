@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 class Character;
 
 class CharacterScene : public GameScene
@@ -14,8 +15,19 @@ public:
 protected:
 	void Initialize() override;
 	void OnGUI() override;
+	void Update() override;
 
 private:
+	enum Portal
+	{
+		Orange,
+		Blue,
+		PortalsCount
+	};
+
+	void InitializePortal(Portal portal);
+	void MovePortal(Portal portal);
+
 	enum InputIds
 	{
 		CharacterMoveLeft,
@@ -26,5 +38,7 @@ private:
 	};
 
 	Character* m_pCharacter{};
+	std::array<GameObject*,2> m_pPortals{};
+
 };
 

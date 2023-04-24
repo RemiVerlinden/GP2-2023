@@ -63,8 +63,54 @@ void CameraComponent::SetActive(bool active)
 	pScene->SetActiveCamera(active?this:nullptr); //Switch to default camera if active==false
 }
 
-GameObject* CameraComponent::Pick(CollisionGroup /*ignoreGroups*/) const
+GameObject* CameraComponent::Pick(CollisionGroup ignoreGroups) const
 {
-	TODO_W7(L"Implement Picking Logic")
+	//get mouse position
+	const PxVec2 mousePos
+	{
+		static_cast<float>(InputManager::GetMousePosition().x),
+		static_cast<float>(InputManager::GetMousePosition().y)
+	};
+	//get screen size
+	const PxVec2 screenSize{ m_pScene->GetSceneContext().windowWidth ,m_pScene->GetSceneContext().windowHeight };
+
+	//get world view and projection matrices
+	XMMATRIX view, proj;
+	view = XMLoadFloat4x4(&m_View);
+	proj = XMLoadFloat4x4(&m_Projection);
+
+	//create 2 points in screen space
+	XMVECTOR nearPointScreen, farPointScreen;
+	nearPointScreen = XMVectorSet(mousePos.x, mousePos.y, 0.0f, 1.f);
+	farPointScreen = XMVectorSet(mousePos.x, mousePos.y, 1.f, 1.f);
+
+	//unproject points to world space
+	XMVECTOR nearPointWorld, farPointWorld;
+	nearPointWorld = XMVector3Unproject(nearPointScreen, 0, 0, screenSize.x, screenSize.y, 0, 1, proj, view, XMMatrixIdentity());
+	farPointWorld = XMVector3Unproject(farPointScreen, 0, 0, screenSize.x, screenSize.y, 0, 1, proj, view, XMMatrixIdentity());
+	//create direction using 2 points
+	XMVECTOR rayDirection;
+	rayDirection = XMVector3Normalize(farPointWorld - nearPointWorld);
+
+	//store SIMD variables in usable local variables
+	XMFLOAT3 origin, direction;
+	XMStoreFloat3(&origin, nearPointWorld);
+	XMStoreFloat3(&direction, rayDirection);
+
+	//define filter using ignored groups setting
+	PxQueryFilterData filterData{};
+	filterData.data.word0 = ~static_cast<UINT>(ignoreGroups);
+
+	//if raycast hits something
+	PxRaycastBuffer hit{};
+	if (m_pScene->GetPhysxProxy()->Raycast(PxVec3(origin.x, origin.y, origin.z), PxVec3(direction.x, direction.y, direction.z), PX_MAX_F32, hit, PxHitFlag::eDEFAULT, filterData))
+	{
+		//get rigid body component from pxActor data
+		RigidBodyComponent* rb = reinterpret_cast<RigidBodyComponent*>(hit.getAnyHit(0).actor->userData);
+		//get owning game object and return it
+		return rb->GetGameObject();
+	}
+
+	//return nullptr if no hit was found
 	return nullptr;
 }

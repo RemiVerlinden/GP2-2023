@@ -115,6 +115,7 @@
     <ClInclude Include="Misc\ShadowMapMaterial.h" />
     <ClInclude Include="Prefabs\FixedCamera.h" />
     <ClInclude Include="Prefabs\FreeCamera.h" />
+    <ClInclude Include="Utils\bothdefs.h" />
     <ClInclude Include="Utils\ImguiHelper.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </ExcludedFromBuild>
@@ -145,6 +146,8 @@
     <ClInclude Include="Base\Enumerations.h" />
     <ClInclude Include="OverlordAPI.h" />
     <ClInclude Include="Utils\Macros.h" />
+    <ClInclude Include="Utils\mathlib.cpp" />
+    <ClInclude Include="Utils\mathlib.h" />
     <ClInclude Include="Utils\PhysxHelper.h" />
     <ClInclude Include="Components\SpriteComponent.h" />
     <ClInclude Include="Misc\SpriteFont.h" />

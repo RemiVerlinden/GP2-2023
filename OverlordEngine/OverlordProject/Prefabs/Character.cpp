@@ -161,8 +161,9 @@ void Character::Update(const SceneContext& sceneContext)
 		direction.y -= 0.001f;
 		PxRaycastBuffer hit{};
 		PxQueryFilterData filterData{ PxQueryFlag::eSTATIC };
-		bool isGrounded = GetScene()->GetPhysxProxy()->Raycast(origin, direction.getNormalized(), direction.magnitude(), hit, PxHitFlag::eDEFAULT, filterData);
-		if (!isGrounded)
+		//bool isGrounded = GetScene()->GetPhysxProxy()->Raycast(origin, direction.getNormalized(), direction.magnitude(), hit, PxHitFlag::eDEFAULT, filterData);
+		//if (!isGrounded)
+		if (!(m_pControllerComponent->GetCollisionFlags() & PxControllerCollisionFlag::eCOLLISION_DOWN))
 		{
 			m_TotalVelocity.y -= m_FallAcceleration * timeStep;
 			m_TotalVelocity.y = std::max(m_TotalVelocity.y, -m_CharacterDesc.maxFallSpeed);
@@ -177,7 +178,7 @@ void Character::Update(const SceneContext& sceneContext)
 			//m_TotalVelocity.y is zero
 		else
 		{
-			m_TotalVelocity.y = 0;
+			m_TotalVelocity.y = -0.01f;
 		}
 
 		//************

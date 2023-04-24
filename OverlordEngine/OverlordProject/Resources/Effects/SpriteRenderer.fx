@@ -116,7 +116,7 @@ void MainGS(point VS_DATA vertex[1], inout TriangleStream<GS_DATA> triStream)
 	// | /          |
 	// LB----------RB
 
-	float4 white = float4(1,1,1,1);
+	float4 white = vertex[0].Color;
 	float2 pivotOffset = float2(pivot.x * scale.x * gTextureSize.x, pivot.y * scale.y * gTextureSize.y);
 	
 	//VERTEX 1 [LT]

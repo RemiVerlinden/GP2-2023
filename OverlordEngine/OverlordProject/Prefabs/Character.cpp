@@ -159,10 +159,7 @@ void Character::Update(const SceneContext& sceneContext)
 		PxVec3 origin{ centerPos.x ,centerPos.y ,centerPos.z };
 		PxVec3 direction{ footPos.x - centerPos.x, footPos.y - centerPos.y, footPos.z - centerPos.z };
 		direction.y -= 0.001f;
-		PxRaycastBuffer hit{};
-		PxQueryFilterData filterData{ PxQueryFlag::eSTATIC };
-		//bool isGrounded = GetScene()->GetPhysxProxy()->Raycast(origin, direction.getNormalized(), direction.magnitude(), hit, PxHitFlag::eDEFAULT, filterData);
-		//if (!isGrounded)
+
 		if (!(m_pControllerComponent->GetCollisionFlags() & PxControllerCollisionFlag::eCOLLISION_DOWN))
 		{
 			m_TotalVelocity.y -= m_FallAcceleration * timeStep;

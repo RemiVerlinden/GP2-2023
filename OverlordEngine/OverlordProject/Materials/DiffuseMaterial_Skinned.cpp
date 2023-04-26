@@ -1,4 +1,4 @@
-#include "stdafx.h"
+	#include "stdafx.h"
 #include "DiffuseMaterial_Skinned.h"
 
 DiffuseMaterial_Skinned::DiffuseMaterial_Skinned():

@@ -40,7 +40,8 @@ private:
 	enum class ShadowGeneratorType
 	{
 		Static,
-		Skinned
+		Skinned,
+		Count
 	};
 
 	ShadowMapMaterial* m_pShadowMapGenerator{ nullptr };

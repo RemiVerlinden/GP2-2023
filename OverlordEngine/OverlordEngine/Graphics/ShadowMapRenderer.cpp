@@ -18,7 +18,7 @@ void ShadowMapRenderer::Initialize()
 
 	RENDERTARGET_DESC desc;
 	desc.width = m_GameContext.windowWidth;
-	desc.height = m_GameContext.windowHeight/2;
+	desc.height = m_GameContext.windowHeight;
 	desc.enableColorBuffer = false;
 	desc.enableDepthBuffer = true;
 	desc.enableDepthSRV = true;

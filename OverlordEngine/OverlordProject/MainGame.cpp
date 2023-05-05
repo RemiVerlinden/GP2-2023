@@ -7,9 +7,10 @@
  //#define W5
  //#define W6
  //#define W7
- #define W8
+ //#define W8
 // #define W9
 // #define W10
+#define PORTAL
 
 /*MILESTONE Content*/
  //#define MILESTONE_1
@@ -58,6 +59,10 @@
 
 #ifdef W10
 #include "Scenes/Week 10/PostProcessingScene.h"
+#endif
+
+#ifdef PORTAL
+#include "Scenes\Portal\PortalTestScene.h"
 #endif
 
 #ifdef MILESTONE_1
@@ -138,6 +143,10 @@ void MainGame::Initialize()
 
 #ifdef W10
 	SceneManager::Get()->AddGameScene(new PostProcessingScene());
+#endif
+
+#ifdef PORTAL
+	SceneManager::Get()->AddGameScene(new PortalTestScene());
 #endif
 
 #ifdef MILESTONE_1

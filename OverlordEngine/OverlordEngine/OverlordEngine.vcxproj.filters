@@ -54,6 +54,9 @@
     <ClCompile Include="Managers\LightManager.cpp" />
     <ClCompile Include="Graphics\ShadowMapRenderer.cpp" />
     <ClCompile Include="Components\ParticleEmitterComponent.cpp" />
+    <ClCompile Include="Graphics\CameraViewMapRenderer.cpp" />
+    <ClCompile Include="Misc\CameraViewMapMaterial.cpp" />
+    <ClCompile Include="Components\PortalComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -122,5 +125,8 @@
     <ClInclude Include="Utils\mathlib.cpp" />
     <ClInclude Include="Utils\mathlib.h" />
     <ClInclude Include="Utils\bothdefs.h" />
+    <ClInclude Include="Graphics\CameraViewMapRenderer.h" />
+    <ClInclude Include="Misc\CameraViewMapMaterial.h" />
+    <ClInclude Include="Components\PortalComponent.h" />
   </ItemGroup>
 </Project>

@@ -52,42 +52,11 @@ void CharacterScene::Initialize()
 	m_SceneContext.pInput->AddInputAction(inputAction);
 }
 
-void CharacterScene::InitializePortal(Portal portal)
-{
-	m_pPortals[portal] = AddChild(new GameObject());
 
-	const auto pLevelMesh = m_pPortals[portal]->AddComponent(new ModelComponent(L"Blender/Portal.ovm"));
-	pLevelMesh->SetMaterial(MaterialManager::Get()->CreateMaterial<ColorMaterial>());
-}
 
-void CharacterScene::MovePortal(Portal portal) 
-{
-	if (portal >= PortalsCount || portal < 0)
-	{
-		Logger::LogError(L"{} is not a valid Portal ID", (int)portal);
-		assert(false);
-	}
-
-	if (!m_pPortals[portal])
-		InitializePortal(portal);
-
-	m_pPortals[portal]->GetTransform()->Translate(m_pCharacter->GetTransform()->GetPosition());
-}
 
 
 void CharacterScene::OnGUI()
 {
 	m_pCharacter->DrawImGui();
-}
-
-void CharacterScene::Update()
-{
-	if (m_SceneContext.pInput->IsKeyboardKey(InputState::pressed, 'K'))
-	{
-		MovePortal(Blue);
-	}
-	if (m_SceneContext.pInput->IsKeyboardKey(InputState::pressed, 'J'))
-	{
-		MovePortal(Orange);
-	}
 }

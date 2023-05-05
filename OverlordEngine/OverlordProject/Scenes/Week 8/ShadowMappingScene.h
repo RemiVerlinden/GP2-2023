@@ -18,5 +18,6 @@ protected:
 private:
 	bool m_DrawShadowMap{ false };
 	float m_ShadowMapScale{0.3f};
+	GameObject* m_pSecondCharacter;
 };
 

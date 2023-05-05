@@ -67,6 +67,14 @@ void GameScene::RemoveChild(GameObject* pObject, bool deleteObject)
 	}		
 }
 
+void GameScene::PortalDraw()
+{
+	for (const auto pChild : m_pChildren)
+	{
+		pChild->RootDraw(m_SceneContext);
+	}
+}
+
 void GameScene::RootInitialize(const GameContext& gameContext)
 {
 	if (m_IsInitialized)
@@ -149,10 +157,12 @@ void GameScene::RootUpdate()
 	m_pPhysxProxy->Update(m_SceneContext);
 }
 
+
 void GameScene::RootDraw()
 {
 #pragma region SHADOW PASS
 	//SHADOW_PASS
+	// GENERATE SHADOW MAPS
 	//+++++++++++
 	TODO_W8(L"Implement Shadow Pass")
 	//1. BEGIN > ShadowMapRenderer::Begin (Initiate the ShadowPass)
@@ -164,6 +174,14 @@ void GameScene::RootDraw()
 	}
 	//3. END > ShadowMapRenderer::End (Terminate the ShadowPass)
 	ShadowMapRenderer::Get()->End(m_SceneContext);
+#pragma endregion
+
+#pragma region PORTAL STUFF
+	for (const auto pChild : m_pChildren)
+	{
+		pChild->RootPreDraw(m_SceneContext);
+	}
+
 #pragma endregion
 
 #pragma region USER PASS

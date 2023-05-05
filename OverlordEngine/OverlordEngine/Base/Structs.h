@@ -2,6 +2,7 @@
 class CameraComponent;
 class InputManager;
 class LightManager;
+class PortalManager;
 class GameTime;
 class OverlordGame;
 class MaterialManager;
@@ -35,6 +36,7 @@ struct SceneContext
 {
 	InputManager* pInput{};
 	LightManager* pLights{};
+	PortalManager* pPortals{};
 	CameraComponent* pCamera{};
 	GameTime* pGameTime{};
 	D3D11Context d3dContext{};

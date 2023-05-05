@@ -1,65 +1,62 @@
 #include "stdafx.h"
-#include "ShadowMapRenderer.h"
-#include "Misc/ShadowMapMaterial.h"
+#include "CameraViewMapRenderer.h"
+#include "Misc/CameraViewMapMaterial.h"
 
-ShadowMapRenderer::~ShadowMapRenderer()
+CameraViewMapRenderer::~CameraViewMapRenderer()
 {
-	SafeDelete(m_pShadowRenderTarget)
+	SafeDelete(m_pCameraRenderTarget)
 }
 
-void ShadowMapRenderer::Initialize()
+void CameraViewMapRenderer::Initialize()
 {
 	TODO_W8(L"Implement Initialize")
 		//1. Create a separate RenderTarget (see RenderTarget class), store in m_pShadowRenderTarget
 		//	- RenderTargets are initialized with the RenderTarget::Create function, requiring a RENDERTARGET_DESC
 		//	- Initialize the relevant fields of the RENDERTARGET_DESC (enableColorBuffer:false, enableDepthSRV:true, width & height)
 
-		m_pShadowRenderTarget = new RenderTarget(m_GameContext.d3dContext);
+		m_pCameraRenderTarget = new RenderTarget(m_GameContext.d3dContext);
 
 	RENDERTARGET_DESC desc;
 
+	desc.enableColorBuffer = true;
+	desc.enableColorSRV = true;
 	desc.enableDepthBuffer = true;
 	desc.enableDepthSRV = true;
-	desc.enableColorBuffer = false;
-	desc.enableColorSRV = false;
 	desc.generateMipMaps_Color = false;
 	desc.width = m_GameContext.windowWidth;
 	desc.height = m_GameContext.windowHeight;
 	desc.depthFormat = DXGI_FORMAT_D32_FLOAT;
+	// Add a color format
+	desc.colorFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 
-
-	HANDLE_ERROR(m_pShadowRenderTarget->Create(desc));
+	HANDLE_ERROR(m_pCameraRenderTarget->Create(desc));
 
 	//2. Create a new ShadowMapMaterial, this will be the material that 'generated' the ShadowMap, store in m_pShadowMapGenerator
 	//	- The effect has two techniques, one for static meshes, and another for skinned meshes (both very similar, the skinned version also transforms the vertices based on a given set of boneTransforms)
 	//	- We want to store the TechniqueContext (struct that contains information about the Technique & InputLayout required for rendering) for both techniques in the m_GeneratorTechniqueContexts array.
 	//	- Use the ShadowGeneratorType enum to retrieve the correct TechniqueContext by ID, and also use that ID to store it inside the array (see BaseMaterial::GetTechniqueContext)
 
-	m_pShadowMapGenerator = MaterialManager::Get()->CreateMaterial<ShadowMapMaterial>();
+	m_pCameraViewMapGenerator = MaterialManager::Get()->CreateMaterial<CameraViewMapMaterial>();
 
-	for (int ID = 0; ID < (int)ShadowGeneratorType::Count; ++ID)
-		m_GeneratorTechniqueContexts[ID] = m_pShadowMapGenerator->GetTechniqueContext(ID);
+	m_GeneratorTechniqueContext = m_pCameraViewMapGenerator->GetTechniqueContext();
 
 	m_IsInitialized = true;
 }
 
-void ShadowMapRenderer::UpdateMeshFilter(const SceneContext& sceneContext, MeshFilter* pMeshFilter) const
-{
-	TODO_W8(L"Implement UpdateMeshFilter")
-		//Here we want to Update the MeshFilter of ModelComponents that need to be rendered to the ShadowMap
-		//Updating the MeshFilter means that we want to create a corresponding VertexBuffer for our ShadowGenerator material
+//void CameraViewMapRenderer::UpdateMeshFilter(const SceneContext& sceneContext, MeshFilter* pMeshFilter) const
+//{
+//	TODO_W8(L"Implement UpdateMeshFilter")
+//		//Here we want to Update the MeshFilter of ModelComponents that need to be rendered to the ShadowMap
+//		//Updating the MeshFilter means that we want to create a corresponding VertexBuffer for our ShadowGenerator material
+//
+//	//2. Retrieve the corresponding TechniqueContext from m_GeneratorTechniqueContexts array (Static/Skinned)
+//	const MaterialTechniqueContext& context = m_GeneratorTechniqueContext;
+//
+//	//3. Build a corresponding VertexBuffer with data from the relevant TechniqueContext you retrieved in Step2 (MeshFilter::BuildVertexBuffer)
+//	pMeshFilter->BuildVertexBuffer(sceneContext, context.inputLayoutID, context.inputLayoutSize, context.pInputLayoutDescriptions);
+//}
 
-		//1. Figure out the correct ShadowGeneratorType (either Static, or Skinned) with information from the incoming MeshFilter
-	ShadowGeneratorType meshType = pMeshFilter->HasAnimations() ? ShadowGeneratorType::Skinned : ShadowGeneratorType::Static;
-
-	//2. Retrieve the corresponding TechniqueContext from m_GeneratorTechniqueContexts array (Static/Skinned)
-	const MaterialTechniqueContext& context = m_GeneratorTechniqueContexts[(int)meshType];
-
-	//3. Build a corresponding VertexBuffer with data from the relevant TechniqueContext you retrieved in Step2 (MeshFilter::BuildVertexBuffer)
-	pMeshFilter->BuildVertexBuffer(sceneContext, context.inputLayoutID, context.inputLayoutSize, context.pInputLayoutDescriptions);
-}
-
-void ShadowMapRenderer::Begin(const SceneContext& sceneContext)
+void CameraViewMapRenderer::Begin(const SceneContext& sceneContext, const XMFLOAT4X4& cameraViewProjection)
 {
 	TODO_W8(L"Implement Begin")
 		//This function is called once right before we start the Shadow Pass (= generating the ShadowMap)
@@ -75,54 +72,19 @@ void ShadowMapRenderer::Begin(const SceneContext& sceneContext)
 	sceneContext.d3dContext.pDeviceContext->PSSetShaderResources(1, 1, pSRV);
 
 
-
-	//2. Calculate the Light ViewProjection and store in m_LightVP
-	// - Use XMMatrixOrtographicLH to create Projection Matrix (constants used for the demo below - feel free to change)
-	//		*viewWidth> 100.f * aspectRatio
-	//		*viewHeight> 100.f
-	//		*nearZ>0.1f
-	//		*farZ>500.f
-	//- Use XMMatrixLookAtLH to create a View Matrix
-	//		*eyePosition: Position of the Direction Light (SceneContext::pLights > Retrieve Directional Light)
-	//		*focusPosition: Calculate using the Direction Light position and direction
-	//- Use the Projection & View Matrix to calculate the ViewProjection of this Light, store in m_LightVP
-
-	float viewWidth = 100.f * sceneContext.aspectRatio;
-	float viewHeight = 100.0f;
-	float nearZ = 0.1f;
-	float farZ = 500.0f;
-	XMMATRIX projection = XMMatrixOrthographicLH(viewWidth, viewHeight, nearZ, farZ);
-
-	//- Use XMMatrixLookAtLH to create a View Matrix
-	//		*eyePosition: Position of the Direction Light (SceneContext::pLights > Retrieve Directional Light)
-	//		*focusPosition: Calculate using the Direction Light position and direction
-	auto eyePosition = XMLoadFloat4(&sceneContext.pLights->GetDirectionalLight().position);
-	auto direction = XMLoadFloat4(&sceneContext.pLights->GetDirectionalLight().direction);
-	XMVECTOR upVec = XMVectorSet(0, 1, 0, 0);
-	auto view = XMMatrixLookAtLH(eyePosition, eyePosition + direction, upVec);
-
-
-	//- Use the Projection & View Matrix to calculate the ViewProjection of this Light, store in m_LightVP
-	XMMATRIX viewproj = view * projection;
-	XMStoreFloat4x4(&m_LightVP, viewproj);
-
-
 	//3. Update this matrix (m_LightVP) on the ShadowMapMaterial effect
-	m_pShadowMapGenerator->SetVariable_Matrix(L"gLightViewProj", m_LightVP);
+	m_pCameraViewMapGenerator->SetVariable_Matrix(L"gCameraViewProj", cameraViewProjection);
 
 	//4. Set the Main Game RenderTarget to m_pShadowRenderTarget (OverlordGame::SetRenderTarget) - Hint: every Singleton object has access to the GameContext...
-	m_GameContext.pGame->SetRenderTarget(m_pShadowRenderTarget);
+	m_GameContext.pGame->SetRenderTarget(m_pCameraRenderTarget);
 	//5. Clear the ShadowMap rendertarget (RenderTarget::Clear)
-	m_pShadowRenderTarget->Clear();
+	m_pCameraRenderTarget->Clear();
 }
 
-void ShadowMapRenderer::DrawMesh(const SceneContext& sceneContext, MeshFilter* pMeshFilter, const XMFLOAT4X4& meshWorld, const std::vector<XMFLOAT4X4>& meshBones)
+void CameraViewMapRenderer::DrawMesh(const SceneContext& sceneContext, MeshFilter* pMeshFilter, const XMFLOAT4X4& meshWorld, const std::vector<XMFLOAT4X4>&)
 {
 	TODO_W8(L"Implement DrawMesh")
 		//This function is called for every mesh that needs to be rendered on the shadowmap (= cast shadows)
-
-		//1. Figure out the correct ShadowGeneratorType (Static or Skinned)
-		ShadowGeneratorType meshType = pMeshFilter->HasAnimations() ? ShadowGeneratorType::Skinned : ShadowGeneratorType::Static;
 
 	//2. Retrieve the correct TechniqueContext for m_GeneratorTechniqueContexts
 	//const MaterialTechniqueContext& context = m_GeneratorTechniqueContexts[(int)meshType];
@@ -130,9 +92,7 @@ void ShadowMapRenderer::DrawMesh(const SceneContext& sceneContext, MeshFilter* p
 	//3. Set the relevant variables on the ShadowMapMaterial
 	//		- world of the mesh
 	//		- if animated, the boneTransforms
-	m_pShadowMapGenerator->SetVariable_Matrix(L"gWorld", meshWorld);
-	if (meshType == ShadowGeneratorType::Skinned)
-		m_pShadowMapGenerator->SetVariable_MatrixArray(L"gBones", reinterpret_cast<const float*>(meshBones.data()), static_cast<UINT>(meshBones.size()));
+		m_pCameraViewMapGenerator->SetVariable_Matrix(L"gWorld", meshWorld);
 
 	//4. Setup Pipeline for Drawing (Similar to ModelComponent::Draw, but for our ShadowMapMaterial)
 	//	- Set InputLayout (see TechniqueContext)
@@ -142,10 +102,10 @@ void ShadowMapRenderer::DrawMesh(const SceneContext& sceneContext, MeshFilter* p
 	//		- Set IndexBuffer
 	//		- Set correct TechniqueContext on ShadowMapMaterial - use ShadowGeneratorType as ID (BaseMaterial::SetTechnique)
 	//		- Perform Draw Call (same as usual, iterate Technique Passes, Apply, Draw - See ModelComponent::Draw for reference)
-	m_pShadowMapGenerator->SetTechnique((int)meshType);
+	m_pCameraViewMapGenerator->SetTechnique(0);
 
 	const auto pDeviceContext = sceneContext.d3dContext.pDeviceContext;
-	pDeviceContext->IASetInputLayout(m_pShadowMapGenerator->GetTechniqueContext().pInputLayout);
+	pDeviceContext->IASetInputLayout(m_pCameraViewMapGenerator->GetTechniqueContext().pInputLayout);
 
 	//Set Primitive Topology
 	pDeviceContext->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -154,14 +114,14 @@ void ShadowMapRenderer::DrawMesh(const SceneContext& sceneContext, MeshFilter* p
 	{
 		//Set Vertex Buffer
 		const UINT offset = 0;
-		const auto& vertexBufferData = pMeshFilter->GetVertexBufferData(sceneContext, m_pShadowMapGenerator, subMesh.id);
+		const auto& vertexBufferData = pMeshFilter->GetVertexBufferData(sceneContext, m_pCameraViewMapGenerator, subMesh.id);
 		pDeviceContext->IASetVertexBuffers(0, 1, &vertexBufferData.pVertexBuffer, &vertexBufferData.VertexStride,
 			&offset);
 
 		pDeviceContext->IASetIndexBuffer(subMesh.buffers.pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
 		//DRAW
-		auto tech = m_pShadowMapGenerator->GetTechniqueContext().pTechnique;
+		auto tech = m_pCameraViewMapGenerator->GetTechniqueContext().pTechnique;
 		D3DX11_TECHNIQUE_DESC techDesc{};
 
 		tech->GetDesc(&techDesc);
@@ -173,7 +133,7 @@ void ShadowMapRenderer::DrawMesh(const SceneContext& sceneContext, MeshFilter* p
 	}
 }
 
-void ShadowMapRenderer::End(const SceneContext&) const
+void CameraViewMapRenderer::End(const SceneContext&) const
 {
 	TODO_W8(L"Implement End")
 		//This function is called at the end of the Shadow-pass, all shadow-casting meshes should be drawn to the ShadowMap at this point.
@@ -185,16 +145,16 @@ void ShadowMapRenderer::End(const SceneContext&) const
 
 }
 
-ID3D11ShaderResourceView* ShadowMapRenderer::GetShadowMap() const
+ID3D11ShaderResourceView* CameraViewMapRenderer::GetColorMap() const
 {
-	return m_pShadowRenderTarget->GetDepthShaderResourceView();
+	return m_pCameraRenderTarget->GetColorShaderResourceView();
 }
 
-void ShadowMapRenderer::Debug_DrawDepthSRV(const XMFLOAT2& position, const XMFLOAT2& scale, const XMFLOAT2& pivot) const
+void CameraViewMapRenderer::Debug_DrawDepthSRV(const XMFLOAT2& position, const XMFLOAT2& scale, const XMFLOAT2& pivot) const
 {
-	if (m_pShadowRenderTarget->HasDepthSRV())
+	if (m_pCameraRenderTarget->HasDepthSRV())
 	{
-		SpriteRenderer::Get()->DrawImmediate(m_GameContext.d3dContext, m_pShadowRenderTarget->GetDepthShaderResourceView(), position, XMFLOAT4{ Colors::White }, pivot, scale);
+		SpriteRenderer::Get()->DrawImmediate(m_GameContext.d3dContext, m_pCameraRenderTarget->GetDepthShaderResourceView(), position, XMFLOAT4{ Colors::White }, pivot, scale);
 
 		//Remove from Pipeline
 		constexpr ID3D11ShaderResourceView* const pSRV[] = { nullptr };

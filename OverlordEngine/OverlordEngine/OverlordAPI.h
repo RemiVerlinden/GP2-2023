@@ -46,6 +46,7 @@
 #include "Content/SpriteFontLoader.h"
 #include "Content/TextureDataLoader.h"
 
+#include "Graphics/CameraViewMapRenderer.h"
 #include "Graphics/ShadowMapRenderer.h" //Week 8
 #include "Graphics/DebugRenderer.h"
 #include "Graphics/SpriteRenderer.h" //Week 4

@@ -186,6 +186,13 @@ void TransformComponent::Scale(const XMFLOAT3& scale)
 	Scale(scale.x, scale.y, scale.z);
 }
 
+XMFLOAT4X4 TransformComponent::GetWorldToLocal() const
+{
+	XMFLOAT4X4 worldToLocal;
+	XMStoreFloat4x4(&worldToLocal, XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_World)));
+	return worldToLocal;
+}
+
 bool TransformComponent::CheckConstraints() const
 {
 	return true;

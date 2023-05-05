@@ -23,8 +23,10 @@ protected:
 	virtual void Initialize(const SceneContext& sceneContext) = 0;
 	virtual void PostInitialize(const SceneContext& /*sceneContext*/){}
 	virtual void Update(const SceneContext& /*sceneContext*/){}
+	virtual void PreDraw(const SceneContext& /*sceneContext*/){}
 	virtual void Draw(const SceneContext& /*sceneContext*/){}
 	virtual void ShadowMapDraw(const SceneContext&) {} //update_W9
+	virtual void PortalMapDraw(const SceneContext&) {} //update_W9
 	virtual void PostDraw(const SceneContext&) {} //update_W9
 	virtual void OnOwnerAttach(GameObject* /*pOwner*/) {}
 	virtual void OnOwnerDetach(GameObject* /*pPreviousOwner*/) {}

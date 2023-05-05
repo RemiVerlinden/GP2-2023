@@ -28,6 +28,10 @@ public:
 	const XMFLOAT4X4& GetViewInverse() const {return m_ViewInverse;}
 	const XMFLOAT4X4& GetViewProjectionInverse() const {return m_ViewProjectionInverse;}
 
+	// same as GetViewInverse and GetViewProjectionInverse, I just like these names better
+	const XMFLOAT4X4& GetWorldToLocalMatrix() const { return m_View; }
+	const XMFLOAT4X4& GetLocalToWorldMatrix() const { return m_ViewInverse; }
+
 	GameObject* Pick(CollisionGroup ignoreGroups = CollisionGroup::None) const;
 
 protected:

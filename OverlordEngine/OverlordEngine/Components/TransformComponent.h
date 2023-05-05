@@ -34,6 +34,9 @@ public:
 	const XMFLOAT4& GetRotation() const { return m_Rotation; }
 	const XMFLOAT4& GetWorldRotation() const { return m_WorldRotation; }
 	const XMFLOAT4X4& GetWorld() const { return m_World; }
+	// the same as GetWorld, only difference is that it's not const
+	XMFLOAT4X4 GetLocalToWorld() const { return m_World; }
+	XMFLOAT4X4 GetWorldToLocal() const;
 
 	const XMFLOAT3& GetForward() const { return m_Forward; }
 	const XMFLOAT3& GetUp() const { return m_Up; }

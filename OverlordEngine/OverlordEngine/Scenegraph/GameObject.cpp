@@ -82,6 +82,22 @@ void GameObject::RootUpdate(const SceneContext& sceneContext)
 		pChild->RootUpdate(sceneContext);
 	}
 }
+void GameObject::RootPreDraw(const SceneContext& sceneContext)
+{
+	PreDraw(sceneContext);
+
+	//Component Draw
+	for (BaseComponent* pComp : m_pComponents)
+	{
+		pComp->PreDraw(sceneContext);
+	}
+
+	//Root-Object Draw
+	for (GameObject* pChild : m_pChildren)
+	{
+		pChild->PreDraw(sceneContext);
+	}
+}
 void GameObject::RootDraw(const SceneContext& sceneContext)
 {
 	//User-Object Draw

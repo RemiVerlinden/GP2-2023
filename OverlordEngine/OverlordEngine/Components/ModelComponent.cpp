@@ -103,6 +103,7 @@ void ModelComponent::Draw(const SceneContext& sceneContext)
 	}
 }
 
+
 void ModelComponent::ShadowMapDraw(const SceneContext& sceneContext)
 {
 	//We only draw this Mesh to the ShadowMap if it casts shadows

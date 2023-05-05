@@ -104,9 +104,12 @@
   <ItemGroup>
     <ClInclude Include="Components\ControllerComponent.h" />
     <ClInclude Include="Components\ParticleEmitterComponent.h" />
+    <ClInclude Include="Components\PortalComponent.h" />
+    <ClInclude Include="Graphics\CameraViewMapRenderer.h" />
     <ClInclude Include="Graphics\ShadowMapRenderer.h" />
     <ClInclude Include="Lab_Todos.h" />
     <ClInclude Include="Managers\LightManager.h" />
+    <ClInclude Include="Misc\CameraViewMapMaterial.h" />
     <ClInclude Include="Misc\ModelAnimator.h" />
     <ClInclude Include="Content\SpriteFontLoader.h" />
     <ClInclude Include="Graphics\TextRenderer.h" />
@@ -177,8 +180,11 @@
   <ItemGroup>
     <ClCompile Include="Components\ControllerComponent.cpp" />
     <ClCompile Include="Components\ParticleEmitterComponent.cpp" />
+    <ClCompile Include="Components\PortalComponent.cpp" />
+    <ClCompile Include="Graphics\CameraViewMapRenderer.cpp" />
     <ClCompile Include="Graphics\ShadowMapRenderer.cpp" />
     <ClCompile Include="Managers\LightManager.cpp" />
+    <ClCompile Include="Misc\CameraViewMapMaterial.cpp" />
     <ClCompile Include="Misc\ModelAnimator.cpp" />
     <ClCompile Include="Content\SpriteFontLoader.cpp" />
     <ClCompile Include="Graphics\TextRenderer.cpp" />

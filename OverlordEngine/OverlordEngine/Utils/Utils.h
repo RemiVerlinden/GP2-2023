@@ -68,3 +68,16 @@ namespace ConvertUtil
 		return reinterpret_cast<float*>(const_cast<XMFLOAT4*>(&v));
 	}
 }
+
+namespace MatrixUtil
+{
+	void MultiplyMatrices(const XMFLOAT4X4& matrixA, const XMFLOAT4X4& matrixB, const XMFLOAT4X4& matrixC, XMFLOAT4X4& result);
+
+
+	// all chatgpt functions I know things could be differenet but I dont care, it works so im good
+	XMFLOAT3 GetPositionFromMatrix(const XMFLOAT4X4& matrix);
+
+
+	XMVECTOR GetRotationFromMatrix(const XMFLOAT4X4& matrix);
+
+}

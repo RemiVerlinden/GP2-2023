@@ -38,6 +38,7 @@
     <ClCompile Include="Materials\Portal\PortalMaterial.cpp" />
     <ClCompile Include="Portal\PortalManager.cpp" />
     <ClCompile Include="Portal\Portal.cpp" />
+    <ClCompile Include="Scenes\Week 9\ParticleScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainGame.h" />
@@ -76,5 +77,6 @@
     <ClInclude Include="Materials\Portal\PortalMaterial.h" />
     <ClInclude Include="Portal\PortalManager.h" />
     <ClInclude Include="Portal\Portal.h" />
+    <ClInclude Include="Scenes\Week 9\ParticleScene.h" />
   </ItemGroup>
 </Project>

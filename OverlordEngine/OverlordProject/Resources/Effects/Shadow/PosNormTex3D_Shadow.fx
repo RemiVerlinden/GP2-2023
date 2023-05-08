@@ -3,7 +3,7 @@ float4x4 gWorldViewProj : WORLDVIEWPROJECTION;
 float4x4 gWorldViewProj_Light;
 float3 gLightDirection = float3(-0.577f, -0.577f, 0.577f);
 float gShadowMapBias = 0.001f;
-float2 gResolution = float2(50, 50);
+float2 gResolution = float2(50, 50	);
 float gAmbientLight = 0.35f;
 
 Texture2D gDiffuseMap;

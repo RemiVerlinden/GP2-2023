@@ -26,7 +26,7 @@ void PortalMaterial::OnUpdateModelVariables(const SceneContext&, const ModelComp
 	XMFLOAT4X4 PortalCameraWVP;
 	XMStoreFloat4x4(&PortalCameraWVP, PortalCameraWVP_matrix);
 
-	SetVariable_Matrix(L"gWorldViewProj", PortalCameraWVP);
+	//SetVariable_Matrix(L"gWorldViewProj", PortalCameraWVP);
 
 	//  2. Update the ShadowMap texture
 	SetVariable_Texture(L"gPortalMap", CameraViewMapRenderer::Get()->GetColorMap());

@@ -25,6 +25,11 @@ void PortalMaterial::OnUpdateModelVariables(const SceneContext&, const ModelComp
 	XMMATRIX PortalCameraWVP_matrix = model_world * PortalCamera_viewprojection;
 	XMFLOAT4X4 PortalCameraWVP;
 	XMStoreFloat4x4(&PortalCameraWVP, PortalCameraWVP_matrix);
+	auto world = XMLoadFloat4x4(&pModel->GetTransform()->GetWorld());
+	auto view = XMLoadFloat4x4(&pPortalComponent->GetPortalCamera()->GetView());
+	const auto projection = XMLoadFloat4x4(&pPortalComponent->GetPortalCamera()->GetProjection());
+	XMMATRIX wvp = world * view * projection;
+	XMStoreFloat4x4(&PortalCameraWVP, wvp);
 
 	//SetVariable_Matrix(L"gWorldViewProj", PortalCameraWVP);
 

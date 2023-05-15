@@ -1,6 +1,7 @@
 #pragma once
 class CameraViewMapMaterial;
-
+class CameraComponent;
+class GameScene;
 class CameraViewMapRenderer: public Singleton<CameraViewMapRenderer>
 {
 public:
@@ -11,7 +12,7 @@ public:
 
 	//void UpdateMeshFilter(const SceneContext& sceneContext, MeshFilter* pMeshFilter) const;
 
-	void Begin(const SceneContext&, const XMFLOAT4X4& );
+	void Begin(const SceneContext&, CameraComponent* pCamera);
 	void DrawMesh(const SceneContext& sceneContext, MeshFilter* pMeshFilter, const XMFLOAT4X4& meshWorld, const std::vector<XMFLOAT4X4>& meshBones = {});
 	void End(const SceneContext&) const;
 
@@ -34,6 +35,8 @@ private:
 
 	//Light ViewProjection (perspective used to render ShadowMap)
 	XMFLOAT4X4 m_CameraVP{};
+	CameraComponent* m_pCameraContainer;
+	GameScene* m_pCurrentScene;
 
 	//Shadow Generator is responsible of drawing all shadow casting meshes to the ShadowMap
 	//There are two techniques, one for static (non-skinned) meshes, and another for skinned meshes (with bones, blendIndices, blendWeights)
@@ -43,5 +46,8 @@ private:
 	//Information about each technique (static/skinned) is stored in a MaterialTechniqueContext structure
 	//This information is automatically create by the Material class, we only store it in a local array for fast retrieval 
 	MaterialTechniqueContext m_GeneratorTechniqueContext;
+
+	inline static int m_InstanceCounter;
+	int m_InstanceID;
 };
 

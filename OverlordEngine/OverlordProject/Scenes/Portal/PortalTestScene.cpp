@@ -13,8 +13,8 @@ void PortalTestScene::Initialize()
 	m_SceneContext.settings.enableOnGUI = true;
 	m_SceneContext.settings.drawGrid = false;
 
-	pBall1 = AddChild(new SpherePrefab);
-	pBall2 = AddChild(new SpherePrefab);
+	pBall1 = AddChild(new SpherePrefab(0.5f,10,XMFLOAT4(Colors::Orange)));
+	pBall2 = AddChild(new SpherePrefab(0.5f, 10, XMFLOAT4(Colors::Blue)));
 
 	//Create portals
 	CreatePortals();
@@ -94,7 +94,7 @@ void PortalTestScene::CreatePortals()
 
 		auto* pMaterial = PxGetPhysics().createMaterial(.0f, .0f, 0.0f);
 
-		pRigidBody->AddCollider(PxBoxGeometry{ colliderSize }, *pMaterial);
+		pRigidBody->AddCollider(PxBoxGeometry{ colliderSize }, *pMaterial, false, {0,1,0});
 
 	}
 

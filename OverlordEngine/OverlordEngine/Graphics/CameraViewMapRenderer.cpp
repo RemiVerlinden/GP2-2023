@@ -41,6 +41,9 @@ void CameraViewMapRenderer::Initialize()
 	m_GeneratorTechniqueContext = m_pCameraViewMapGenerator->GetTechniqueContext();
 
 	m_IsInitialized = true;
+
+	m_InstanceID = m_InstanceCounter;
+	++m_InstanceCounter;
 }
 
 //void CameraViewMapRenderer::UpdateMeshFilter(const SceneContext& sceneContext, MeshFilter* pMeshFilter) const
@@ -56,8 +59,13 @@ void CameraViewMapRenderer::Initialize()
 //	pMeshFilter->BuildVertexBuffer(sceneContext, context.inputLayoutID, context.inputLayoutSize, context.pInputLayoutDescriptions);
 //}
 
-void CameraViewMapRenderer::Begin(const SceneContext& sceneContext, const XMFLOAT4X4& cameraViewProjection)
+void CameraViewMapRenderer::Begin(const SceneContext& sceneContext, CameraComponent* pCamera)
 {
+	//m_pCurrentScene = pCamera->GetGameObject()->GetScene();
+	//m_pCameraContainer = m_pCurrentScene->GetActiveCamera();
+	//m_pCurrentScene->SetActiveCamera(pCamera);
+
+	//sceneContext.pCamera = 
 	TODO_W8(L"Implement Begin")
 		//This function is called once right before we start the Shadow Pass (= generating the ShadowMap)
 		//This function is responsible for setting the pipeline into the correct state, meaning
@@ -69,11 +77,11 @@ void CameraViewMapRenderer::Begin(const SceneContext& sceneContext, const XMFLOA
 		//1. Making sure that the ShadowMap is unbound from the pipeline as ShaderResourceView (SRV) is important, because we cannot use the same resource as a ShaderResourceView (texture resource inside a shader) and a RenderTargetView (target everything is rendered too) at the same time. In case this happens, you'll see an error in the output of visual studio - warning you that a resource is still bound as a SRV and cannot be used as an RTV.
 		//	-> Unbinding an SRV can be achieved using DeviceContext::PSSetShaderResource [I'll give you the implementation for free] - double check your output because depending on your usage of ShaderResources, the actual slot the ShadowMap is using can be different, but you'll see a warning pop-up with the correct slot ID in that case.
 		constexpr ID3D11ShaderResourceView* const pSRV[] = { nullptr };
-	sceneContext.d3dContext.pDeviceContext->PSSetShaderResources(1, 1, pSRV);
+	sceneContext.d3dContext.pDeviceContext->PSSetShaderResources(0 , 1, pSRV);
 
 
 	//3. Update this matrix (m_LightVP) on the ShadowMapMaterial effect
-	m_pCameraViewMapGenerator->SetVariable_Matrix(L"gCameraViewProj", cameraViewProjection);
+	m_pCameraViewMapGenerator->SetVariable_Matrix(L"gCameraViewProj", pCamera->GetViewProjection());
 
 	//4. Set the Main Game RenderTarget to m_pShadowRenderTarget (OverlordGame::SetRenderTarget) - Hint: every Singleton object has access to the GameContext...
 	m_GameContext.pGame->SetRenderTarget(m_pCameraRenderTarget);
@@ -141,6 +149,8 @@ void CameraViewMapRenderer::End(const SceneContext&) const
 
 		//1. Reset the Main Game RenderTarget back to default (OverlordGame::SetRenderTarget)
 		//		- Have a look inside the function, there is a easy way to do this...
+		//m_pCurrentScene->SetActiveCamera(m_pCameraContainer);
+
 		m_GameContext.pGame->SetRenderTarget(nullptr);
 
 }

@@ -22,11 +22,11 @@ void ParticleScene::Initialize()
 	settings.color = { 1.f,1.f,1.f, .6f };
 
 	const auto pObject = AddChild(new GameObject);
-	m_pEmitter = pObject->AddComponent(new ParticleEmitterComponent(L"Textures/Smoke.png", settings, 200));
+	m_pEmitter = pObject->AddComponent(new ParticleEmitterComponent(L"Labs/Week9/Textures/Smoke.png", settings, 200));
 
 	//Teapot
 	m_pTeapot = AddChild(new GameObject());
-	const auto pModel = m_pTeapot->AddComponent(new ModelComponent(L"Meshes/Teapot.ovm"));
+	const auto pModel = m_pTeapot->AddComponent(new ModelComponent(L"Labs/Week9/Meshes/Teapot.ovm"));
 
 	const auto pMaterial = MaterialManager::Get()->CreateMaterial<ColorMaterial>();
 	pMaterial->SetColor(XMFLOAT4{ Colors::White });

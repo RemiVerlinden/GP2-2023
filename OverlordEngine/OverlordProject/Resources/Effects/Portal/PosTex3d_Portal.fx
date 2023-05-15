@@ -17,12 +17,10 @@ RasterizerState Solid
 
 struct VS_INPUT{
 	float3 pos : POSITION;
-	float3 normal : NORMAL;
 	float2 texCoord : TEXCOORD;
 };
 struct VS_OUTPUT{
 	float4 pos : SV_POSITION;
-	float3 normal : NORMAL;
 	float2 texCoord : TEXCOORD;
 };
 
@@ -53,7 +51,6 @@ VS_OUTPUT VS(VS_INPUT input){
 	// Step 2:	rotate the normal: NO TRANSLATION
 	//			this is achieved by clipping the 4x4 to a 3x3 matrix, 
 	//			thus removing the postion row of the matrix
-	output.normal = normalize(mul(input.normal, (float3x3)gWorld));
 	output.texCoord = input.texCoord;
 	return output;
 }

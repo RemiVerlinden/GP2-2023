@@ -106,20 +106,23 @@ void PostProcessingMaterial::UpdateBaseEffectVariables(const SceneContext& /*sce
 	//In case we want to use pSource as a RTV (RenderTargetView, render to) we have to unbind it first as an SRV
 }
 
-void PostProcessingMaterial::DrawPass(const SceneContext& /*sceneContext*/, ID3DX11EffectTechnique* /*pTechnique*/, RenderTarget* /*pDestination*/)
+void PostProcessingMaterial::DrawPass(const SceneContext& sceneContext, ID3DX11EffectTechnique* pTechnique, RenderTarget* pDestination)
 {
 	TODO_W10(L"Implement PostProcessingMaterial Draw function")
-	//This function invokes a Draw Call for our full screen quad
-	//The draw call uses pTechnique for rendering and renders to the given destination RenderTarget (pDestination)
+		//This function invokes a Draw Call for our full screen quad
+		//The draw call uses pTechnique for rendering and renders to the given destination RenderTarget (pDestination)
 
-	//In case you have a PP effect with multiple passes, you can easily reuse this function and call it with different Techniques from different Effects.
-	//The logic of drawing the passes, and updating the relevant variables for each pass can be coded in the overloaded Draw function of your derived post processing effect.
+		//In case you have a PP effect with multiple passes, you can easily reuse this function and call it with different Techniques from different Effects.
+		//The logic of drawing the passes, and updating the relevant variables for each pass can be coded in the overloaded Draw function of your derived post processing effect.
 
-	//1. Bind the Destination RenderTarget (pDestination) to the pipeline
-	//		- Easily achieved by calling OverlordGame::SetRenderTarget (m_GameContext has a reference to OverlordGame)
+		//1. Bind the Destination RenderTarget (pDestination) to the pipeline
+		//		- Easily achieved by calling OverlordGame::SetRenderTarget (m_GameContext has a reference to OverlordGame)
+		m_GameContext.pGame->SetRenderTarget(pDestination);
+
 	//2. Clear the destination RT with a Purple color
 	//		- Using purple will make debugging easier, when the screen is purple you'll know something is wrong with your post-processing effects
-
+	pDestination->Clear({ 0.5f, 0.f, 0.5f, 1.f });
+	
 	//3. Set The Pipeline!
 	//		- Set Inputlayout > m_pDefaultInputLayout (The inputlayout for all post-processing effects should 'normally' be the same POSITION/TEXCOORD)
 	//		- Set PrimitiveTopology (check the VertexBuffer for the correct topology)
@@ -127,4 +130,22 @@ void PostProcessingMaterial::DrawPass(const SceneContext& /*sceneContext*/, ID3D
 	//		- Iterate the technique passes (same as usual)
 	//			- apply the pass
 	//			- DRAW! (use the m_VertexCount constant for the number of vertices)
+
+	ID3D11DeviceContext* pDeviceContext = sceneContext.d3dContext.pDeviceContext;
+
+	pDeviceContext->IASetInputLayout(m_pDefaultInputLayout);
+	pDeviceContext->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+	const UINT offset = 0;
+	UINT stride = sizeof(VertexPosTex);
+	pDeviceContext->IASetVertexBuffers(0, 1,&m_pDefaultVertexBuffer, &stride,&offset);
+
+	D3DX11_TECHNIQUE_DESC techDesc{};
+
+	pTechnique->GetDesc(&techDesc);
+	for (UINT p = 0; p < techDesc.Passes; ++p)
+	{
+		pTechnique->GetPassByIndex(p)->Apply(0, pDeviceContext);
+		pDeviceContext->Draw(m_VertexCount, 0);
+	}
 }

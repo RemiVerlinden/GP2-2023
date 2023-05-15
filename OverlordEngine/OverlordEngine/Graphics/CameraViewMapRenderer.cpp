@@ -136,7 +136,7 @@ void CameraViewMapRenderer::DrawMesh(const SceneContext& sceneContext, MeshFilte
 		for (UINT p = 0; p < techDesc.Passes; ++p)
 		{
 			tech->GetPassByIndex(p)->Apply(0, pDeviceContext);
-			pDeviceContext->DrawIndexed(subMesh.indexCount, 0, 0);
+			pDeviceContext->Draw(subMesh.indexCount, 0);
 		}
 	}
 }

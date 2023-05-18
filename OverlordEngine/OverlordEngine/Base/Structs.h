@@ -51,8 +51,10 @@ struct SceneContext
 
 struct GameContext
 {
-	UINT windowWidth{1280};
-	UINT windowHeight{720};
+	//UINT windowWidth{1280};
+	//UINT windowHeight{720};
+	UINT windowWidth{1920};
+	UINT windowHeight{1080};
 	std::wstring windowTitle{L"GP2 - Overlord Engine 2023 (x64)"};
 	HWND windowHandle{};
 	std::wstring contentRoot{ L"./Resources/" };

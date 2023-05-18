@@ -29,7 +29,7 @@ void SkullBallUberMaterial::InitializeEffectVariables()
 
 	SetDiffuseTexture(L"Labs/Week3/Textures/Skulls Textures/Skulls_DiffuseMap.tga");
 	SetSpecularIntensityTexture(L"Labs/Week3/Textures/Skulls Textures/Skulls_HeightMap.tga");
-	SetOpacityTexture(L"Labs/Week3/Textures/Skulls Textures/Skulls_HeightMap.tga");
+	//SetOpacityTexture(L"Labs/Week3/Textures/Skulls Textures/Skulls_HeightMap.tga");
 	SetNormalMapTexture(L"Labs/Week3/Textures/Skulls Textures/Skulls_NormalMap.tga");
 	SetCubeEnvironmentTexture(L"Labs/Week3/Textures/Sunol_Cubemap.dds");
 }

@@ -19,7 +19,7 @@ void Character::Initialize(const SceneContext& /*sceneContext*/)
 	const auto pCamera = AddChild(new FixedCamera());
 	m_pCameraComponent = pCamera->GetComponent<CameraComponent>();
 	m_pCameraComponent->SetActive(true); //Uncomment to make this camera the active camera
-
+	m_pCameraComponent->SetFieldOfView(60 * DirectX::XM_PI / 180.f);
 	pCamera->GetTransform()->Translate(0.f, m_CharacterDesc.controller.height * .5f, 0.f);
 }
 void Character::InitCharacterSettings()

@@ -34,16 +34,29 @@ void PortalTestScene::Initialize()
 	m_pCharacter = AddChild(new Character(characterDesc));
 	m_pCharacter->GetTransform()->Translate(0.f, 5.f, 0.f);
 
-	//Simple Level
-	const auto pLevelObject = AddChild(new GameObject());
-	const auto pLevelMesh = pLevelObject->AddComponent(new ModelComponent(L"Labs/Week7/Meshes/SimpleLevel.ovm"));
-	pLevelMesh->SetMaterial(MaterialManager::Get()->CreateMaterial<ColorMaterial>());
+	////Simple Level
+	//const auto pLevelObject = AddChild(new GameObject());
+	//const auto pLevelMesh = pLevelObject->AddComponent(new ModelComponent(L"Labs/Week7/Meshes/SimpleLevel.ovm"));
+	//pLevelMesh->SetMaterial(MaterialManager::Get()->CreateMaterial<ColorMaterial>());
 
-	const auto pLevelActor = pLevelObject->AddComponent(new RigidBodyComponent(true));
-	const auto pPxTriangleMesh = ContentManager::Load<PxTriangleMesh>(L"Labs/Week7/Meshes/SimpleLevel.ovpt");
-	pLevelActor->AddCollider(PxTriangleMeshGeometry(pPxTriangleMesh, PxMeshScale({ .5f,.5f,.5f })), *pDefaultMaterial);
-	pLevelObject->GetTransform()->Scale(.5f, .5f, .5f);
 
+	//const auto pLevelActor = pLevelObject->AddComponent(new RigidBodyComponent(true));
+	//const auto pPxTriangleMesh = ContentManager::Load<PxTriangleMesh>(L"Labs/Week7/Meshes/SimpleLevel.ovpt");
+	//pLevelActor->AddCollider(PxTriangleMeshGeometry(pPxTriangleMesh, PxMeshScale({ .5f,.5f,.5f })), *pDefaultMaterial);
+	//pLevelObject->GetTransform()->Scale(.5f, .5f, .5f);
+
+	// portal map
+	const auto pMapObject = AddChild(new GameObject());
+
+	const auto pMapMesh = pMapObject->AddComponent(new ModelComponent(L"Meshes/Maps/chamber_02.ovm"));
+	pMapMesh->SetMaterial(MaterialManager::Get()->CreateMaterial<ColorMaterial>());
+
+	const auto pMapActor = pMapObject->AddComponent(new RigidBodyComponent(true));
+	const auto pPxTriangleMesh = ContentManager::Load<PxTriangleMesh>(L"Meshes/Maps/chamber_02_collision2.ovpt");
+	pMapActor->AddCollider(PxTriangleMeshGeometry(pPxTriangleMesh, PxMeshScale({ 1,1,1 })), *pDefaultMaterial);
+
+
+	m_pMap = pMapObject;
 	//Input
 	auto inputAction = InputAction(CharacterMoveLeft, InputState::down, 'A');
 	m_SceneContext.pInput->AddInputAction(inputAction);
@@ -126,6 +139,16 @@ void PortalTestScene::MovePortal(Portal portal)
 void PortalTestScene::OnGUI()
 {
 	m_pCharacter->DrawImGui();
+
+	static float scale = 1.f;
+
+	ImGui::Begin("PortalTestScene");
+
+	ImGui::DragFloat("Scale", &scale, 0.1f, 0.1f, 2.f);
+
+	m_pMap->GetTransform()->Scale(scale);
+
+	ImGui::End();
 }
 
 void PortalTestScene::Update()

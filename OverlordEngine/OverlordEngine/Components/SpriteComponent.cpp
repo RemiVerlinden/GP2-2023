@@ -18,7 +18,7 @@ void SpriteComponent::SetTexture(const std::wstring& spriteAsset)
 	m_pTexture = ContentManager::Load<TextureData>(m_SpriteAsset);
 }
 
-void SpriteComponent::Draw(const SceneContext& sceneContext)
+void SpriteComponent::Draw(const SceneContext& /*sceneContext*/)
 {
 	if (!m_pTexture)
 		return;
@@ -30,7 +30,7 @@ void SpriteComponent::Draw(const SceneContext& sceneContext)
 	// you will need to position (X&Y should be in screenspace, Z contains the depth between [0,1]), the rotation and the scale from the owning GameObject
 	// You can use the MathHelper::QuaternionToEuler function to help you with the z rotation 
 
-		TransformComponent* transform
+	TransformComponent* transform
 	{
 		m_pGameObject->GetTransform()
 	};
@@ -43,6 +43,4 @@ void SpriteComponent::Draw(const SceneContext& sceneContext)
 		MathHelper::QuaternionToEuler(transform->GetWorldRotation()).z,
 		transform->GetPosition().z
 	);
-
-	SpriteRenderer::Get()->Draw(sceneContext);
 }

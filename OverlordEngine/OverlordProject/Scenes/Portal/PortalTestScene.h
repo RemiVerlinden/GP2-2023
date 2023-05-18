@@ -42,5 +42,7 @@ private:
 	std::array<GameObject*,2> m_pPortals{};
 	GameObject* pBall1;
 	GameObject* pBall2;
+
+	GameObject* m_pMap;
 };
 

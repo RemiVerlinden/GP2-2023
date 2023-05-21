@@ -1,6 +1,10 @@
 #pragma once
 #include <array>
+#include <filesystem>
+#include <regex>
+
 class Character;
+class ModelComponent;
 
 class PortalTestScene : public GameScene
 {
@@ -25,9 +29,15 @@ private:
 		PortalsCount
 	};
 
+	void LoadMap();
+	void LoadMapTextures(const std::wstring& mapname, ModelComponent* pMapModel);
+	std::filesystem::path SearchForMatchingFile(fs::path directory, std::wregex pattern);
+
+	//std::wstring ConstructTextureFileName(const std::wstring& submeshName) const;
 	void CreatePortals();
 	//void InitializePortal(Portal portal);
 	void MovePortal(Portal portal);
+
 
 	enum InputIds
 	{

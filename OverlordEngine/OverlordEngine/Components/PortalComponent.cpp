@@ -19,7 +19,6 @@ PortalComponent::~PortalComponent()
 void PortalComponent::Initialize(const SceneContext& /*sceneContext*/)
 {
 	// Add your initialization code here
-	m_pPlayerCam = m_pGameObject->GetScene()->GetSceneContext().pCamera;
 	m_pPortalCameraObject = m_pGameObject->AddChild(new GameObject);
 
 	m_pPortalCam = m_pPortalCameraObject->AddComponent(new CameraComponent());
@@ -46,8 +45,12 @@ void PortalComponent::PortalMapDraw(const SceneContext& /*context*/)
 void PortalComponent::PrePortalRender(const SceneContext& context)
 {
 	assert(m_pLinkedPortal);
+	m_pPlayerCam = m_pGameObject->GetScene()->GetActiveCamera();
+	m_pGameObject->GetScene()->SetActiveCamera(m_pPortalCam);
 
-	CameraComponent* playerCam = m_pGameObject->GetScene()->GetSceneContext().pCamera;
+	CameraViewMapRenderer::Get()->Begin(context, m_pPortalCam);
+
+	CameraComponent* playerCam = m_pPlayerCam;
 
 	XMFLOAT4X4 portalLocalToWorld, linkedPortalWorldToLocal, playerCamLocalToWorld, portalCamTransform;
 	playerCamLocalToWorld = playerCam->GetLocalToWorldMatrix();
@@ -58,9 +61,6 @@ void PortalComponent::PrePortalRender(const SceneContext& context)
 
 	m_pPortalCameraObject->GetTransform()->Translate(MatrixUtil::GetPositionFromMatrix(portalCamTransform));
 	m_pPortalCameraObject->GetTransform()->Rotate(MatrixUtil::GetRotationFromMatrix(portalCamTransform));
-
-
-	CameraViewMapRenderer::Get()->Begin(context, m_pPortalCam);
 }
 
 void PortalComponent::Render(const SceneContext&)
@@ -74,6 +74,8 @@ void PortalComponent::PostPortalRender(const SceneContext& context)
 {
 	// Add your PostPortalRender code here
 	CameraViewMapRenderer::Get()->End(context);
+	m_pGameObject->GetScene()->SetActiveCamera(m_pPlayerCam);
+
 }
 
 void PortalComponent::SetLinkedPortal(PortalComponent* pPortal)

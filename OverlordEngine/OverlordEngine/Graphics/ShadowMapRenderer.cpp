@@ -74,8 +74,6 @@ void ShadowMapRenderer::Begin(const SceneContext& sceneContext)
 		constexpr ID3D11ShaderResourceView* const pSRV[] = { nullptr };
 	sceneContext.d3dContext.pDeviceContext->PSSetShaderResources(1, 1, pSRV);
 
-
-
 	//2. Calculate the Light ViewProjection and store in m_LightVP
 	// - Use XMMatrixOrtographicLH to create Projection Matrix (constants used for the demo below - feel free to change)
 	//		*viewWidth> 100.f * aspectRatio
@@ -173,7 +171,7 @@ void ShadowMapRenderer::DrawMesh(const SceneContext& sceneContext, MeshFilter* p
 	}
 }
 
-void ShadowMapRenderer::End(const SceneContext&) const
+void ShadowMapRenderer::End(const SceneContext& /*sceneContext*/) const
 {
 	TODO_W8(L"Implement End")
 		//This function is called at the end of the Shadow-pass, all shadow-casting meshes should be drawn to the ShadowMap at this point.
@@ -181,8 +179,35 @@ void ShadowMapRenderer::End(const SceneContext&) const
 
 		//1. Reset the Main Game RenderTarget back to default (OverlordGame::SetRenderTarget)
 		//		- Have a look inside the function, there is a easy way to do this...
+
 		m_GameContext.pGame->SetRenderTarget(nullptr);
 
+
+		//// Create a device context
+		//ID3D11DeviceContext* deviceContext = sceneContext.d3dContext.pDeviceContext; // you should actually retrieve your actual device context here
+
+		//// Number of slots that shader resource views can be bound to, usually 128
+		//const UINT numSRVSlots = D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT;
+
+		//// Array of ID3D11ShaderResourceView pointers, initialized to nullptr
+		//ID3D11ShaderResourceView* shaderResourceViews[numSRVSlots] = {};
+
+		//// Get shader resource views
+		//deviceContext->PSGetShaderResources(0, numSRVSlots, shaderResourceViews);
+
+		//// Print each shader resource view
+		//for (UINT i = 0; i < numSRVSlots; ++i)
+		//{
+		//	if (shaderResourceViews[i] != nullptr)
+		//	{
+		//		// Do something with shaderResourceViews[i], such as printing its details
+		//		// The actual implementation depends on your needs
+		//		std::cout << "SRV bound at slot " << i << std::endl;
+
+		//		// Don't forget to release the SRV
+		//		shaderResourceViews[i]->Release();
+		//	}
+		//}
 }
 
 ID3D11ShaderResourceView* ShadowMapRenderer::GetShadowMap() const

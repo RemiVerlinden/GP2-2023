@@ -33,7 +33,7 @@ void PortalTestScene::Initialize()
 	characterDesc.actionId_Jump = CharacterJump;
 
 	m_pCharacter = AddChild(new Character(characterDesc));
-	m_pCharacter->GetTransform()->Translate(0.f, 5.f, 0.f);
+	m_pCharacter->GetTransform()->Translate(0.f, 5.f, 15.f);
 
 	////Simple Level
 	//const auto pLevelObject = AddChild(new GameObject());

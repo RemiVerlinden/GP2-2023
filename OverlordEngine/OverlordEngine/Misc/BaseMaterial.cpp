@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "BaseMaterial.h"
 #include <ranges>
+#include "Components\CameraComponent.h"
 
 std::map<std::string, BaseMaterial::eRootVariable> BaseMaterial::m_RootVariableSemanticLUT = {
 		{"world", eRootVariable::WORLD},
@@ -46,11 +47,20 @@ void BaseMaterial::_baseInitialize(ID3DX11Effect* pRootEffect, UINT materialId)
 
 void BaseMaterial::UpdateEffectVariables(const SceneContext& sceneContext, const ModelComponent* pModelComponent)
 {
-	//if (!NeedsUpdate(sceneContext.frameNumber, pModelComponent->GetComponentId())) return;
+	if (!NeedsUpdate(sceneContext, sceneContext.frameNumber, pModelComponent->GetComponentId())) return;
 
 	if (m_IsInitialized)
 	{
- 		m_LastUpdateFrame = sceneContext.frameNumber;
+		// this function will be calles a lot of times during a single frame,
+		// in order to optimize, there was originally a check to see if the effect
+		// has already been updated once 
+		if (PortalRenderer::Get()->IsRenderingPortals())
+		{
+			if (PortalRenderer::Get()->IsGameObjectPortal(pModelComponent->GetGameObject()))
+				return;
+		}
+
+		m_LastUpdateFrame = sceneContext.frameNumber;
 		m_LastUpdateID = pModelComponent->GetComponentId();
 
 		//Update Root Variables
@@ -80,8 +90,13 @@ void BaseMaterial::UpdateEffectVariables(const SceneContext& sceneContext, const
 	}
 }
 
-bool BaseMaterial::NeedsUpdate(UINT frame, UINT id) const
+bool BaseMaterial::NeedsUpdate(const SceneContext& sceneContext, UINT frame, UINT id)
 {
+	if (m_pLastCamera != sceneContext.pCamera)
+	{
+		m_pLastCamera = sceneContext.pCamera;
+		return true;
+	}
 	if (m_LastUpdateFrame == 0 && m_LastUpdateID == 0) return true;
 	return m_LastUpdateFrame != frame || m_LastUpdateID != id;
 }

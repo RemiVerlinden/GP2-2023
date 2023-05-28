@@ -6,9 +6,20 @@ namespace MathHelper
 	{
 		XMFLOAT3 euler{};
 
-		euler.y = atan2f(2.f * q.x * q.w + 2.f * q.y * q.z, 1.f - 2.f * (q.z * q.z + q.w * q.w));     // Yaw 
-		euler.x = asinf(2.f * (q.x * q.z - q.w * q.y));                             // Pitch 
+		euler.y = atan2(2.0f * (q.x * q.w + q.y * q.z), (1.0f - 2.0f * (q.y * q.y + q.w * q.w)));     // Yaw 
+		euler.x = -asinf(2.f * (q.x * q.z - q.w * q.y));                             // Pitch 
 		euler.z = atan2f(2.f * q.x * q.y + 2.f * q.z * q.w, 1.f - 2.f * (q.y * q.y + q.z * q.z));      // Roll 
+
+
+		//euler.y = atan2(2.0f * (q.x * q.w + q.y * q.z), (1.0f - 2.0f * (q.y * q.y + q.w * q.w)));// Yaw 
+		//euler.x = asin(2.0f * (q.x * q.z - q.y * q.w));// Pitch 
+		//euler.z = atan2(2.0f * (q.x * q.y + q.z * q.w), (1.0f - 2.0f * (q.z * q.z + q.y * q.y)));      // Roll 
+
+
+		if (abs(euler.y) > XM_PIDIV2)
+		{
+			euler.y += (euler.y > XM_PIDIV2) ? -XM_PI : XM_PI;
+		}
 
 		return euler;
 	}

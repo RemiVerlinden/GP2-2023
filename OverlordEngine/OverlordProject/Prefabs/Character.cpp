@@ -98,9 +98,10 @@ void Character::Update(const SceneContext& sceneContext)
 		m_TotalYaw += look.x * m_CharacterDesc.rotationSpeed * timeStep;
 		m_TotalPitch += look.y * m_CharacterDesc.rotationSpeed * timeStep;
 
-		m_TotalPitch = std::clamp(m_TotalPitch, -90.0f, 90.0f);
+		m_TotalPitch = std::clamp(m_TotalPitch, -89.0f, 89.0f);
 
 		transform->Rotate(m_TotalPitch, m_TotalYaw, 0.0f);
+
 
 		//********
 		//MOVEMENT

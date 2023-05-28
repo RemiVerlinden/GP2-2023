@@ -18,10 +18,15 @@ public:
 	void Translate(float x, float y, float z);
 	void Translate(const XMFLOAT3& position);
 	void Translate(const XMVECTOR& position);
+	void TranslateWorld(const XMFLOAT3& position);
 
 	void Rotate(float x, float y, float z, bool degrees = true);
 	void Rotate(const XMFLOAT3& rotation, bool degrees = true);
 	void Rotate(const XMVECTOR& rotation, bool isQuaternion = true);
+	void Rotate(const XMFLOAT4& rotation, bool isQuaternion = true);
+	void RotateWorld(const XMVECTOR& rotation);
+
+	void SetTransform(const XMFLOAT4X4& transform);
 
 	void Scale(float x, float y, float z);
 	void Scale(float s);

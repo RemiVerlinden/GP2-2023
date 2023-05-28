@@ -51,6 +51,7 @@
 #include "Graphics/DebugRenderer.h"
 #include "Graphics/SpriteRenderer.h" //Week 4
 #include "Graphics/TextRenderer.h" //Week 5
+#include "Graphics/PortalRenderer.h" //portal
 
 #include "Misc/BaseMaterial.h"
 #include "Misc/Material.h"

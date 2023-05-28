@@ -3,7 +3,7 @@
 
 #include "Materials/Shadow/DiffuseMaterial_Shadow.h"
 #include "Materials/Shadow/DiffuseMaterial_Shadow_Skinned.h"
-
+#include "Materials\ColorMaterial.h"
 
 void ShadowMappingScene::Initialize()
 {
@@ -11,6 +11,18 @@ void ShadowMappingScene::Initialize()
 	m_SceneContext.settings.enableOnGUI = true;
 
 	m_SceneContext.pLights->SetDirectionalLight({ -95.6139526f,66.1346436f,-41.1850471f }, { 0.740129888f, -0.597205281f, 0.309117377f });
+
+	auto MakeArrowObject = [&](const XMFLOAT4& color) -> GameObject*
+	{
+		GameObject* pArrowObject = AddChild(new GameObject());
+		auto pMeshComponent = pArrowObject->AddComponent(new ModelComponent(L"Meshes/Arrow.ovm"));
+		auto pArrowMaterial = MaterialManager::Get()->CreateMaterial<ColorMaterial>();
+		pArrowMaterial->SetColor(color);
+		pMeshComponent->SetMaterial(pArrowMaterial);
+
+		return pArrowObject;
+	};
+	MakeArrowObject(XMFLOAT4(Colors::White));
 
 	//Materials
 	//*********

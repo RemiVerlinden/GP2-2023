@@ -8,10 +8,10 @@
 #include <algorithm>
 class GameObject;
 
-class PortalComponent : public BaseComponent
+class PortalComponent final: public BaseComponent
 {
 public:
-	PortalComponent();
+	PortalComponent(CameraComponent* playerCamera, bool orangePortal);
 	virtual ~PortalComponent();
 
 	PortalComponent(const PortalComponent& other) = delete;
@@ -24,6 +24,7 @@ public:
 	void Render(const SceneContext& context);
 	void PostPortalRender(const SceneContext& context);
 	CameraComponent* GetPortalCamera() const { return m_pPortalCam; }
+	PortalComponent* m_pLinkedPortal;
 protected:
 
 	void Initialize(const SceneContext& sceneContext) override;
@@ -47,10 +48,11 @@ private:
 	//bool SameSideOfPortal(const XMFLOAT3& posA, const XMFLOAT3& posB);
 	//XMFLOAT3 PortalCamPos();
 
-	PortalComponent* m_pLinkedPortal;
 	CameraComponent* m_pPlayerCam;
-	GameObject* m_pPortalCameraObject;
+	GameObject* m_pPortalCameraHolder;
+	GameObject* m_pPortalCameraRotator;
 	CameraComponent* m_pPortalCam;
+	bool bluePortal;
 
 	//std::shared_ptr<RenderTexture> m_pViewTexture;
 	//std::vector<std::shared_ptr<PortalTraveller>> m_TrackedTravellers;

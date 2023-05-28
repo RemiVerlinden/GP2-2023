@@ -12,7 +12,7 @@ SamplerState samLinear
 RasterizerState Solid
 {
 	FillMode = SOLID;
-	CullMode = FRONT;
+	CullMode = BACK;
 };
 
 struct VS_INPUT{
@@ -32,7 +32,7 @@ DepthStencilState EnableDepth
 
 RasterizerState NoCulling
 {
-	CullMode = NONE;
+	CullMode = FRONT;
 };
 
 BlendState NoBlending

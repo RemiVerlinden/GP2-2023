@@ -67,13 +67,7 @@ void GameScene::RemoveChild(GameObject* pObject, bool deleteObject)
 	}		
 }
 
-void GameScene::PortalDraw()
-{
-	for (const auto pChild : m_pChildren)
-	{
-		pChild->RootDraw(m_SceneContext);
-	}
-}
+
 
 void GameScene::RootInitialize(const GameContext& gameContext)
 {
@@ -157,6 +151,16 @@ void GameScene::RootUpdate()
 	m_pPhysxProxy->Update(m_SceneContext);
 }
 
+void GameScene::SimpleDrawMeshes()
+{
+	//Draw();
+
+	//Object-Scene Draw
+	for (const auto pChild : m_pChildren)
+	{
+		pChild->RootDraw(m_SceneContext);
+	}
+}
 
 void GameScene::RootDraw()
 {
@@ -177,24 +181,14 @@ void GameScene::RootDraw()
 #pragma endregion
 
 #pragma region PORTAL STUFF
-	for (const auto pChild : m_pChildren)
-	{
-		pChild->RootPreDraw(m_SceneContext);
-	}
-
+	PortalRenderer::Get()->RenderPortals(m_SceneContext, this);
 #pragma endregion
 
 #pragma region USER PASS
 	//USER_PASS
 	//+++++++++
 	//User-Scene Draw
-	Draw();
-
-	//Object-Scene Draw
-	for (const auto pChild : m_pChildren)
-	{
-		pChild->RootDraw(m_SceneContext);
-	}
+	SimpleDrawMeshes();
 
 	//SpriteRenderer Draw
 	SpriteRenderer::Get()->Draw(m_SceneContext);

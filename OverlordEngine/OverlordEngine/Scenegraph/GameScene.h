@@ -5,7 +5,6 @@ class BaseMaterial;
 class PhysxProxy;
 class CameraComponent;
 class GameObject;
-class PortalComponent;
 
 class GameScene
 {
@@ -53,10 +52,9 @@ protected:
 
 	SceneContext m_SceneContext{};
 private:
+	friend class PortalRenderer;
+	void SimpleDrawMeshes();
 	friend class SceneManager;
-
-	friend PortalComponent;
-	void PortalDraw();
 
 	void RootInitialize(const GameContext& /*gameContext*/);
 	void RootPostInitialize();

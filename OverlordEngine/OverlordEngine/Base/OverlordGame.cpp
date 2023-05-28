@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "OverlordGame.h"
 
+
 OverlordGame::OverlordGame():
 	m_IsActive(true)
 {
@@ -25,7 +26,8 @@ OverlordGame::~OverlordGame()
 	SpriteRenderer::Destroy();
 	TextRenderer::Destroy();
 	ShadowMapRenderer::Destroy();
-	CameraViewMapRenderer::Destroy();
+	//CameraViewMapRenderer::Destroy();
+	PortalRenderer::Destroy();
 	Logger::Release(); //TODO > Singleton
 
 	//ImGui Cleanup
@@ -329,8 +331,7 @@ HRESULT OverlordGame::InitializeGame()
 	SpriteRenderer::Create(m_GameContext);
 	TextRenderer::Create(m_GameContext);
 	ShadowMapRenderer::Create(m_GameContext);
-	ShadowMapRenderer::Create(m_GameContext);
-	CameraViewMapRenderer::Create(m_GameContext);
+	PortalRenderer::Create(m_GameContext);
 	//***************
 	//GAME INITIALIZE
 	Initialize();

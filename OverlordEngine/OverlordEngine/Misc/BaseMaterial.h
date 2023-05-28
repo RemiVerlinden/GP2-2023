@@ -1,4 +1,6 @@
 #pragma once
+class CameraComponent;
+
 class BaseMaterial
 {
 public:
@@ -85,7 +87,8 @@ private:
 
 	ID3DX11Effect* m_pEffect{};
 
-	bool NeedsUpdate(UINT frame, UINT id) const;
+	bool NeedsUpdate(const SceneContext& sceneContext, UINT frame, UINT id);
+	const CameraComponent* m_pLastCamera{};
 	UINT m_LastUpdateFrame{};
 	UINT m_LastUpdateID{};
 };

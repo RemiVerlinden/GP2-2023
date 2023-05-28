@@ -5,6 +5,7 @@
 
 class Character;
 class ModelComponent;
+class PortalComponent;
 
 class PortalTestScene : public GameScene
 {
@@ -24,17 +25,20 @@ protected:
 private:
 	enum Portal
 	{
-		Orange,
 		Blue,
+		Orange,
 		PortalsCount
 	};
+
+	friend PortalComponent;
+	void PortalDraw();
 
 	void LoadMap();
 	void LoadMapTextures(const std::wstring& mapname, ModelComponent* pMapModel);
 	std::filesystem::path SearchForMatchingFile(fs::path directory, std::wregex pattern);
 
 	//std::wstring ConstructTextureFileName(const std::wstring& submeshName) const;
-	void CreatePortals();
+	void CreatePortals(CameraComponent* playerCamera);
 	//void InitializePortal(Portal portal);
 	void MovePortal(Portal portal);
 
@@ -52,6 +56,9 @@ private:
 	std::array<GameObject*,2> m_pPortals{};
 	GameObject* pBall1;
 	GameObject* pBall2;
+	GameObject* pBall3;
+	GameObject* pBall4;
+	GameObject* pTestObject;
 
 	GameObject* m_pMap;
 };

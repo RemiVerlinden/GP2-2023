@@ -62,6 +62,7 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <BuildStlModules>true</BuildStlModules>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -86,7 +87,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;OVERLORDENGINE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -106,6 +107,7 @@
     <ClInclude Include="Components\ParticleEmitterComponent.h" />
     <ClInclude Include="Components\PortalComponent.h" />
     <ClInclude Include="Graphics\CameraViewMapRenderer.h" />
+    <ClInclude Include="Graphics\PortalRenderer.h" />
     <ClInclude Include="Graphics\ShadowMapRenderer.h" />
     <ClInclude Include="Lab_Todos.h" />
     <ClInclude Include="Managers\LightManager.h" />
@@ -182,6 +184,7 @@
     <ClCompile Include="Components\ParticleEmitterComponent.cpp" />
     <ClCompile Include="Components\PortalComponent.cpp" />
     <ClCompile Include="Graphics\CameraViewMapRenderer.cpp" />
+    <ClCompile Include="Graphics\PortalRenderer.cpp" />
     <ClCompile Include="Graphics\ShadowMapRenderer.cpp" />
     <ClCompile Include="Managers\LightManager.cpp" />
     <ClCompile Include="Misc\CameraViewMapMaterial.cpp" />

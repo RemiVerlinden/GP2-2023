@@ -42,8 +42,10 @@ public:
 	Character& operator=(const Character& other) = delete;
 	Character& operator=(Character&& other) noexcept = delete;
 
+	float GetPitch() const { return m_TotalPitch; }
+	float GetYaw() const { return m_TotalYaw; }
 	void DrawImGui();
-
+	CameraComponent* GetCameraComponent() const { return m_pCameraComponent; }
 protected:
 	void Initialize(const SceneContext&) override;
 	void Update(const SceneContext&) override;

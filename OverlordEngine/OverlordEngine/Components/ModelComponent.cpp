@@ -64,11 +64,16 @@ void ModelComponent::Draw(const SceneContext& sceneContext)
 		Logger::LogWarning(L"ModelComponent::Draw() > No Default Material Set!");
 		return;
 	}
-
+	if (PortalRenderer::Get()->IsRenderingPortals())
+	{
+		if (PortalRenderer::Get()->IsGameObjectPortal(this->GetGameObject()))
+			return;
+	}
 	//Update Materials
 	BaseMaterial* pCurrMaterial = nullptr;
 	for (const auto& subMesh : m_pMeshFilter->GetMeshes())
 	{
+
 		//Gather Material
 		pCurrMaterial = m_Materials[subMesh.id] != nullptr ? m_Materials[subMesh.id] : m_pDefaultMaterial;
 		pCurrMaterial->UpdateEffectVariables(sceneContext, this);

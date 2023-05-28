@@ -11,28 +11,21 @@ void PortalMaterial::InitializeEffectVariables()
 {
 }
 
-void PortalMaterial::OnUpdateModelVariables(const SceneContext&, const ModelComponent* pModel) const
+void PortalMaterial::OnUpdateModelVariables(const SceneContext&, const ModelComponent* /*pModel*/) const
 {
-	//  1. Update the LightWVP > Used to Transform a vertex into Light clipping space
-	//  LightWVP = model_world * light_viewprojection
-	//  (light_viewprojection[LightVP] can be acquired from the ShadowMapRenderer)
+	////  2. Update the ShadowMap texture
+	RenderTarget* portalRenderTarget = PortalRenderer::Get()->GetPortalRenderTarget(m_Portal);
+	SetVariable_Texture(L"gPortalMap", portalRenderTarget->GetColorShaderResourceView());
+}
 
-	static PortalComponent* pPortalComponent = pModel->GetGameObject()->GetComponent<PortalComponent>();
+OrangePortalMaterial::OrangePortalMaterial()
+	: PortalMaterial()
+{
+	m_Portal = PortalRenderer::Portal::blue; // we want to see the blue portal through the orange portal
+}
 
-	XMMATRIX model_world = XMLoadFloat4x4(&pModel->GetTransform()->GetWorld());
-	XMMATRIX PortalCamera_viewprojection = XMLoadFloat4x4(&pPortalComponent->GetPortalCamera()->GetViewProjection());
-
-	XMMATRIX PortalCameraWVP_matrix = model_world * PortalCamera_viewprojection;
-	XMFLOAT4X4 PortalCameraWVP;
-	XMStoreFloat4x4(&PortalCameraWVP, PortalCameraWVP_matrix);
-	auto world = XMLoadFloat4x4(&pModel->GetTransform()->GetWorld());
-	auto view = XMLoadFloat4x4(&pPortalComponent->GetPortalCamera()->GetView());
-	const auto projection = XMLoadFloat4x4(&pPortalComponent->GetPortalCamera()->GetProjection());
-	XMMATRIX wvp = world * view * projection;
-	XMStoreFloat4x4(&PortalCameraWVP, wvp);
-
-	//SetVariable_Matrix(L"gWorldViewProj", PortalCameraWVP);
-
-	//  2. Update the ShadowMap texture
-	SetVariable_Texture(L"gPortalMap", CameraViewMapRenderer::Get()->GetColorMap());
+BluePortalMaterial::BluePortalMaterial()
+	: PortalMaterial()
+{
+	m_Portal = PortalRenderer::Portal::orange; // we want to see the orange portal through the blue portal
 }

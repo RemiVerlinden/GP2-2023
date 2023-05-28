@@ -81,3 +81,8 @@ namespace MatrixUtil
 	XMVECTOR GetRotationFromMatrix(const XMFLOAT4X4& matrix);
 
 }
+
+namespace QuatUtil 
+{
+	void QuaternionToEuler(const XMVECTOR& Q, float& pitch, float& yaw, float& roll);
+}

@@ -59,115 +59,63 @@ void CameraViewMapRenderer::Initialize()
 //	pMeshFilter->BuildVertexBuffer(sceneContext, context.inputLayoutID, context.inputLayoutSize, context.pInputLayoutDescriptions);
 //}
 
-void CameraViewMapRenderer::Begin(const SceneContext& sceneContext, CameraComponent* pCamera)
+void CameraViewMapRenderer::Begin(const SceneContext& /*sceneContext*/, CameraComponent* /*pCamera*/)
 {
-	//m_pCurrentScene = pCamera->GetGameObject()->GetScene();
-	//m_pCameraContainer = m_pCurrentScene->GetActiveCamera();
-	//m_pCurrentScene->SetActiveCamera(pCamera);
-
-	//sceneContext.pCamera = 
-	TODO_W8(L"Implement Begin")
-		//This function is called once right before we start the Shadow Pass (= generating the ShadowMap)
-		//This function is responsible for setting the pipeline into the correct state, meaning
-		//	- Making sure the ShadowMap is unbound from the pipeline as a ShaderResource (SRV), so we can bind it as a RenderTarget (RTV)
-		//	- Calculating the Light ViewProjection, and updating the relevant Shader variables
-		//	- Binding the ShadowMap RenderTarget as Main Game RenderTarget (= Everything we render is rendered to this rendertarget)
-		//	- Clear the current (which should be the ShadowMap RT) rendertarget
-
-		//1. Making sure that the ShadowMap is unbound from the pipeline as ShaderResourceView (SRV) is important, because we cannot use the same resource as a ShaderResourceView (texture resource inside a shader) and a RenderTargetView (target everything is rendered too) at the same time. In case this happens, you'll see an error in the output of visual studio - warning you that a resource is still bound as a SRV and cannot be used as an RTV.
-		//	-> Unbinding an SRV can be achieved using DeviceContext::PSSetShaderResource [I'll give you the implementation for free] - double check your output because depending on your usage of ShaderResources, the actual slot the ShadowMap is using can be different, but you'll see a warning pop-up with the correct slot ID in that case.
-
-
-				// Create a device context
-
-		constexpr ID3D11ShaderResourceView* const pSRV[] = { nullptr };
-	sceneContext.d3dContext.pDeviceContext->PSSetShaderResources(0 , 1, pSRV);
-
-	ID3D11DeviceContext* deviceContext = sceneContext.d3dContext.pDeviceContext; // you should actually retrieve your actual device context here
-
-	// Number of slots that shader resource views can be bound to, usually 128
-	const UINT numSRVSlots = D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT;
-
-	// Array of ID3D11ShaderResourceView pointers, initialized to nullptr
-	ID3D11ShaderResourceView* shaderResourceViews[numSRVSlots] = {};
-
-	// Get shader resource views
-	deviceContext->PSGetShaderResources(0, numSRVSlots, shaderResourceViews);
-
-	// Print each shader resource view
-	for (UINT i = 0; i < numSRVSlots; ++i)
-	{
-		if (shaderResourceViews[i] != nullptr)
-		{
-			// Do something with shaderResourceViews[i], such as printing its details
-			// The actual implementation depends on your needs
-			std::cout << "SRV bound at slot " << i << std::endl;
-
-			// Don't forget to release the SRV
-			shaderResourceViews[i]->Release();
-		}
-	}
-
-
-	//3. Update this matrix (m_LightVP) on the ShadowMapMaterial effect
-	m_pCameraViewMapGenerator->SetVariable_Matrix(L"gCameraViewProj", pCamera->GetViewProjection());
-	
-	//4. Set the Main Game RenderTarget to m_pShadowRenderTarget (OverlordGame::SetRenderTarget) - Hint: every Singleton object has access to the GameContext...
 	m_GameContext.pGame->SetRenderTarget(m_pCameraRenderTarget);
-	//5. Clear the ShadowMap rendertarget (RenderTarget::Clear)
+
 	m_pCameraRenderTarget->Clear();
 }
 
-void CameraViewMapRenderer::DrawMesh(const SceneContext& sceneContext, MeshFilter* pMeshFilter, const XMFLOAT4X4& meshWorld, const std::vector<XMFLOAT4X4>&)
+void CameraViewMapRenderer::DrawMesh(const SceneContext& /*sceneContext*/, MeshFilter* /*pMeshFilter*/, const XMFLOAT4X4& /*meshWorld*/, const std::vector<XMFLOAT4X4>&)
 {
-	TODO_W8(L"Implement DrawMesh")
-		//This function is called for every mesh that needs to be rendered on the shadowmap (= cast shadows)
+	//TODO_W8(L"Implement DrawMesh")
+	//	//This function is called for every mesh that needs to be rendered on the shadowmap (= cast shadows)
 
-	//2. Retrieve the correct TechniqueContext for m_GeneratorTechniqueContexts
-	//const MaterialTechniqueContext& context = m_GeneratorTechniqueContexts[(int)meshType];
+	////2. Retrieve the correct TechniqueContext for m_GeneratorTechniqueContexts
+	////const MaterialTechniqueContext& context = m_GeneratorTechniqueContexts[(int)meshType];
 
-	//3. Set the relevant variables on the ShadowMapMaterial
-	//		- world of the mesh
-	//		- if animated, the boneTransforms
-		m_pCameraViewMapGenerator->SetVariable_Matrix(L"gWorld", meshWorld);
+	////3. Set the relevant variables on the ShadowMapMaterial
+	////		- world of the mesh
+	////		- if animated, the boneTransforms
+	//	m_pCameraViewMapGenerator->SetVariable_Matrix(L"gWorld", meshWorld);
 
-	//4. Setup Pipeline for Drawing (Similar to ModelComponent::Draw, but for our ShadowMapMaterial)
-	//	- Set InputLayout (see TechniqueContext)
-	//	- Set PrimitiveTopology
-	//	- Iterate the SubMeshes of the MeshFilter (see ModelComponent::Draw), for each SubMesh:
-	//		- Set VertexBuffer
-	//		- Set IndexBuffer
-	//		- Set correct TechniqueContext on ShadowMapMaterial - use ShadowGeneratorType as ID (BaseMaterial::SetTechnique)
-	//		- Perform Draw Call (same as usual, iterate Technique Passes, Apply, Draw - See ModelComponent::Draw for reference)
-	m_pCameraViewMapGenerator->SetTechnique(0);
+	////4. Setup Pipeline for Drawing (Similar to ModelComponent::Draw, but for our ShadowMapMaterial)
+	////	- Set InputLayout (see TechniqueContext)
+	////	- Set PrimitiveTopology
+	////	- Iterate the SubMeshes of the MeshFilter (see ModelComponent::Draw), for each SubMesh:
+	////		- Set VertexBuffer
+	////		- Set IndexBuffer
+	////		- Set correct TechniqueContext on ShadowMapMaterial - use ShadowGeneratorType as ID (BaseMaterial::SetTechnique)
+	////		- Perform Draw Call (same as usual, iterate Technique Passes, Apply, Draw - See ModelComponent::Draw for reference)
+	//m_pCameraViewMapGenerator->SetTechnique(0);
 
-	const auto pDeviceContext = sceneContext.d3dContext.pDeviceContext;
-	pDeviceContext->IASetInputLayout(m_pCameraViewMapGenerator->GetTechniqueContext().pInputLayout);
+	//const auto pDeviceContext = sceneContext.d3dContext.pDeviceContext;
+	//pDeviceContext->IASetInputLayout(m_pCameraViewMapGenerator->GetTechniqueContext().pInputLayout);
 
-	//Set Primitive Topology
-	pDeviceContext->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	////Set Primitive Topology
+	//pDeviceContext->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	for (const auto& subMesh : pMeshFilter->GetMeshes())
-	{
-		//Set Vertex Buffer
-		const UINT offset = 0;
-		const auto& vertexBufferData = pMeshFilter->GetVertexBufferData(sceneContext, m_pCameraViewMapGenerator, subMesh.id);
-		pDeviceContext->IASetVertexBuffers(0, 1, &vertexBufferData.pVertexBuffer, &vertexBufferData.VertexStride,
-			&offset);
+	//for (const auto& subMesh : pMeshFilter->GetMeshes())
+	//{
+	//	//Set Vertex Buffer
+	//	const UINT offset = 0;
+	//	const auto& vertexBufferData = pMeshFilter->GetVertexBufferData(sceneContext, m_pCameraViewMapGenerator, subMesh.id);
+	//	pDeviceContext->IASetVertexBuffers(0, 1, &vertexBufferData.pVertexBuffer, &vertexBufferData.VertexStride,
+	//		&offset);
 
-		pDeviceContext->IASetIndexBuffer(subMesh.buffers.pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	//	pDeviceContext->IASetIndexBuffer(subMesh.buffers.pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-		//DRAW
-		auto tech = m_pCameraViewMapGenerator->GetTechniqueContext().pTechnique;
-		D3DX11_TECHNIQUE_DESC techDesc{};
+	//	//DRAW
+	//	auto tech = m_pCameraViewMapGenerator->GetTechniqueContext().pTechnique;
+	//	D3DX11_TECHNIQUE_DESC techDesc{};
 
-		tech->GetDesc(&techDesc);
-		for (UINT p = 0; p < techDesc.Passes; ++p)
-		{
-			tech->GetPassByIndex(p)->Apply(0, pDeviceContext);
-			pDeviceContext->Draw(subMesh.indexCount, 0);
-		}
-	}
+	//	tech->GetDesc(&techDesc);
+	//	for (UINT p = 0; p < techDesc.Passes; ++p)
+	//	{
+	//		tech->GetPassByIndex(p)->Apply(0, pDeviceContext);
+	//		pDeviceContext->Draw(subMesh.indexCount, 0);
+	//	}
+	//}
 }
 
 void CameraViewMapRenderer::End(const SceneContext&) const

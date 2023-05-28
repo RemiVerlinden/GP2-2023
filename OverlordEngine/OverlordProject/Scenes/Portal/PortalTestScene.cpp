@@ -8,21 +8,37 @@
 #include "Materials/Portal/PortalMaterial.h"
 #include "Components\PortalComponent.h"
 #include "Prefabs\SpherePrefab.h"
+#include "Prefabs\CubePrefab.h"
 #include <filesystem>
 void PortalTestScene::Initialize()
 {
 	m_SceneContext.settings.enableOnGUI = true;
 	m_SceneContext.settings.drawGrid = false;
 
-	pBall1 = AddChild(new SpherePrefab(0.5f, 10, XMFLOAT4(Colors::Orange)));
-	pBall2 = AddChild(new SpherePrefab(0.5f, 10, XMFLOAT4(Colors::Blue)));
+	auto MakeArrowObject = [&](const XMFLOAT4& color) -> GameObject*
+	{
+		GameObject* pArrowObject = AddChild(new GameObject());
+		auto pMeshComponent = pArrowObject->AddComponent(new ModelComponent(L"Meshes/Arrow.ovm"));
+		auto pArrowMaterial = MaterialManager::Get()->CreateMaterial<ColorMaterial>();
+		pArrowMaterial->SetColor(color);
+		pMeshComponent->SetMaterial(pArrowMaterial);
+		
+		return pArrowObject;
+	};
 
-	//Create portals
-	CreatePortals();
+	pBall1 = MakeArrowObject(XMFLOAT4(Colors::Orange));
+	pBall2 = MakeArrowObject( XMFLOAT4(Colors::Blue));
+	pBall3 = MakeArrowObject( XMFLOAT4(Colors::Red));
+	pBall4 = MakeArrowObject( XMFLOAT4(Colors::Green));
+	pTestObject = MakeArrowObject(XMFLOAT4(Colors::White));
+
+	/*	pBall1 = AddChild(new SpherePrefab(0.5f, 10, XMFLOAT4(Colors::Orange)));
+	pBall2 = AddChild(new SpherePrefab(0.5f, 10, XMFLOAT4(Colors::Blue)));*/
+
 
 	//Ground Plane
 	const auto pDefaultMaterial = PxGetPhysics().createMaterial(0.5f, 0.5f, 0.5f);
-	//GameSceneExt::CreatePhysXGroundPlane(*this, pDefaultMaterial);
+	GameSceneExt::CreatePhysXGroundPlane(*this, pDefaultMaterial);
 
 	//Character
 	CharacterDesc characterDesc{ pDefaultMaterial };
@@ -33,7 +49,16 @@ void PortalTestScene::Initialize()
 	characterDesc.actionId_Jump = CharacterJump;
 
 	m_pCharacter = AddChild(new Character(characterDesc));
-	m_pCharacter->GetTransform()->Translate(0.f, 5.f, 15.f);
+	m_pCharacter->GetTransform()->Translate(0,2,0);
+
+	//Create portals
+	CreatePortals(m_pCharacter->GetCameraComponent());
+	std::array<PortalComponent*, 2> portalComponents;
+	portalComponents[0] = m_pPortals[0]->GetComponent<PortalComponent>();
+	portalComponents[1] = m_pPortals[1]->GetComponent<PortalComponent>();
+
+	PortalRenderer::Get()->InitializePortalComponents(portalComponents);
+
 
 	////Simple Level
 	//const auto pLevelObject = AddChild(new GameObject());
@@ -48,7 +73,7 @@ void PortalTestScene::Initialize()
 
 	// portal map
 
-	LoadMap();
+	//LoadMap();
 
 	//Input
 	auto inputAction = InputAction(CharacterMoveLeft, InputState::down, 'A');
@@ -66,6 +91,12 @@ void PortalTestScene::Initialize()
 	inputAction = InputAction(CharacterJump, InputState::pressed, VK_SPACE, -1, XINPUT_GAMEPAD_A);
 	m_SceneContext.pInput->AddInputAction(inputAction);
 }
+
+void PortalTestScene::PortalDraw()
+{
+
+}
+
 void PortalTestScene::LoadMap()
 {
 	const auto pDefaultMaterial = PxGetPhysics().createMaterial(0.5f, 0.5f, 0.5f);
@@ -283,19 +314,32 @@ void PortalTestScene::LoadMapTextures(const std::wstring& mapName, ModelComponen
 //	return search_files(materialName);
 //}
 
-void PortalTestScene::CreatePortals()
+void PortalTestScene::CreatePortals(CameraComponent* playerCamera)
 {
+	if (playerCamera == nullptr)
+	{
+		assert(false);
+	}
 	//create game objects where portals willl be stored
 	m_pPortals[Portal::Orange] = AddChild(new GameObject());
 	m_pPortals[Portal::Blue] = AddChild(new GameObject());
 
 	// add the portal logic to the game objects
-	for (GameObject* pPortal : m_pPortals)
+	for (UINT currentPortal = 0; currentPortal < m_pPortals.size(); ++currentPortal)
 	{
-		pPortal->AddComponent(new PortalComponent());
+		GameObject* pPortal = m_pPortals.at(currentPortal);
+		pPortal->AddComponent(new PortalComponent(playerCamera, (bool)currentPortal));
 
-		const auto plevelmesh = pPortal->AddComponent(new ModelComponent(L"blender/portal.ovm"));
-		plevelmesh->SetMaterial(MaterialManager::Get()->CreateMaterial<PortalMaterial>());
+		const auto pPortalMesh = pPortal->AddComponent(new ModelComponent(L"blender/portal.ovm"));
+
+		PortalMaterial* pPortalMaterial;
+
+		if ((PortalRenderer::Portal)currentPortal == PortalRenderer::Portal::blue)
+			pPortalMaterial = MaterialManager::Get()->CreateMaterial<BluePortalMaterial>();
+		else
+			pPortalMaterial = MaterialManager::Get()->CreateMaterial<OrangePortalMaterial>();
+
+		pPortalMesh->SetMaterial(pPortalMaterial);
 
 		// add rigidbody
 		RigidBodyComponent* pRigidBody = pPortal->AddComponent(new RigidBodyComponent(true));
@@ -318,6 +362,12 @@ void PortalTestScene::CreatePortals()
 
 	orangePortal->SetLinkedPortal(bluePortal);
 	bluePortal->SetLinkedPortal(orangePortal);
+
+	orangePortal->GetTransform()->TranslateWorld({-5, 0.f, 0});
+	bluePortal->GetTransform()->TranslateWorld({ 0, 0, 0 });
+
+	//orangePortal->GetTransform()->Rotate( 0,20,0 );
+	//bluePortal->GetTransform()->Rotate(0,90,0 );
 }
 
 void PortalTestScene::MovePortal(Portal portal)
@@ -332,8 +382,11 @@ void PortalTestScene::MovePortal(Portal portal)
 	//	InitializePortal(portal);
 
 	m_pPortals[portal]->GetTransform()->Translate(m_pCharacter->GetTransform()->GetPosition());
-	XMVECTOR playerRotation = XMLoadFloat4(&m_pCharacter->GetTransform()->GetRotation());
-	m_pPortals[portal]->GetTransform()->Rotate(playerRotation);
+	//m_pPortals[portal]->GetTransform()->Translate(10,10,10);
+	
+	//auto rotation = m_pCharacter->GetTransform()->GetWorldRotation();
+	//m_pPortals[portal]->GetTransform()->RotateWorld(XMLoadFloat4(&rotation));
+	m_pPortals[portal]->GetTransform()->Rotate(0, m_pCharacter->GetYaw(), 0);
 }
 
 
@@ -347,7 +400,17 @@ void PortalTestScene::OnGUI()
 
 	ImGui::DragFloat("Scale", &scale, 0.1f, 0.1f, 2.f);
 
-	m_pMap->GetTransform()->Scale(scale);
+	static XMFLOAT3 testObjectPos{};
+
+	float pos[] = { testObjectPos.x, testObjectPos.y, testObjectPos.z };
+
+	if (ImGui::SliderFloat3("TestObject Position", pos, -10.0f, 10.0f))
+		testObjectPos = { pos[0], pos[1], pos[2] };
+
+	pTestObject->GetTransform()->Translate(testObjectPos);
+
+
+	//m_pMap->GetTransform()->Scale(scale);
 
 	ImGui::End();
 }
@@ -362,12 +425,52 @@ void PortalTestScene::Update()
 	{
 		MovePortal(Orange);
 	}
-
-	TransformComponent* pCamera1, * pCamera2;
+	static float rotator = 0;
+	rotator += 0.3f;
+	//m_pPortals[Portal::Orange]->GetTransform()->Rotate(0, rotator, 0);
+	TransformComponent* pCamera1, * pCamera2/*, *pCamera3*/;
 
 	pCamera1 = m_pPortals[Portal::Orange]->GetComponent<PortalComponent>()->GetPortalCamera()->GetTransform();
 	pCamera2 = m_pPortals[Portal::Blue]->GetComponent<PortalComponent>()->GetPortalCamera()->GetTransform();
 
-	pBall1->GetTransform()->Translate(pCamera1->GetPosition());
-	pBall2->GetTransform()->Translate(pCamera2->GetPosition());
+	auto rotate = [&](const GameObject& object, const XMFLOAT4& rotation) -> void
+	{
+		XMVECTOR quaternion = XMLoadFloat4(&rotation);
+		object.GetTransform()->Rotate(quaternion);
+	};
+
+	pBall1->GetTransform()->Translate(pCamera1->GetWorldPosition());
+	rotate(*pBall1, pCamera1->GetWorldRotation());
+	pBall2->GetTransform()->Translate(pCamera2->GetWorldPosition());
+	rotate(*pBall2, pCamera2->GetWorldRotation());
+
+	//pBall3->GetTransform()->SetTransform(m_pPortals[Portal::Blue]->GetComponent<PortalComponent>()->m_pLinkedPortal->GetTransform()->GetWorldToLocal());
+
+
+	XMFLOAT4X4 worldMatrix = GetActiveCamera()->GetTransform()->GetLocalToWorld();
+	XMMATRIX xmWorldMatrix = XMLoadFloat4x4(&worldMatrix);
+
+	XMVECTOR pos, rot, scale;
+	XMMatrixDecompose(&scale, &rot, &pos, xmWorldMatrix);
+	XMFLOAT3 position;
+	XMStoreFloat3(&position, pos);
+	
+	position.y -= 2;
+	pBall4->GetTransform()->Translate(position);
+
+	XMFLOAT3 euler = MathHelper::QuaternionToEuler(GetActiveCamera()->GetTransform()->GetWorldRotation());
+
+
+
+	// Convert to degrees
+	euler.x *= 180.0f / DirectX::XM_PI;
+	euler.y *= 180.0f / DirectX::XM_PI;
+	euler.z *= 180.0f / DirectX::XM_PI;
+
+	//std::cout << "Rotation in Degrees: (" << euler.x << ", " << euler.y << ")" << std::endl;
+
+
+	//pCamera3 = m_SceneContext.pCamera->GetTransform();
+	//pBall3->GetTransform()->Translate(pCamera3->GetWorldPosition());
+
 }

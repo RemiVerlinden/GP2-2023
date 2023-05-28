@@ -2,14 +2,14 @@
 #include "stdafx.h"
 #include "PortalComponent.h"
 #include "Graphics/CameraViewMapRenderer.h"
-
-PortalComponent::PortalComponent()
+#include "Components\ControllerComponent.h"
+PortalComponent::PortalComponent(CameraComponent* playerCamera, bool color)
 	: m_pLinkedPortal(nullptr)
-	, m_pPlayerCam(nullptr)
+	, m_pPlayerCam(playerCamera)
 	, m_pPortalCam(nullptr)
-	,m_pPortalCameraObject(nullptr)
+	,m_pPortalCameraHolder(nullptr)
 {
-
+	this->bluePortal = color;
 }
 
 PortalComponent::~PortalComponent()
@@ -19,9 +19,10 @@ PortalComponent::~PortalComponent()
 void PortalComponent::Initialize(const SceneContext& /*sceneContext*/)
 {
 	// Add your initialization code here
-	m_pPortalCameraObject = m_pGameObject->AddChild(new GameObject);
+	m_pPortalCameraHolder = m_pGameObject->AddChild(new GameObject);
+	m_pPortalCameraRotator = m_pPortalCameraHolder->AddChild(new GameObject);
 
-	m_pPortalCam = m_pPortalCameraObject->AddComponent(new CameraComponent());
+	m_pPortalCam = m_pPortalCameraRotator->AddComponent(new CameraComponent());
 }
 
 void PortalComponent::PreDraw(const SceneContext& context)
@@ -34,40 +35,73 @@ void PortalComponent::PreDraw(const SceneContext& context)
 void PortalComponent::Update(const SceneContext& /*sceneContext*/)
 {
 	//HandleTravellers();
+	assert(m_pLinkedPortal);
+	//m_pGameObject->GetScene()->SetActiveCamera(m_pPortalCam);
+
+	//CameraViewMapRenderer::Get()->Begin(sceneContext, m_pPortalCam);
+
+
+
+
+
+
+	CameraComponent* playerCam = m_pPlayerCam;
+
+	XMFLOAT4X4 portalLocalToWorld, linkedPortalWorldToLocal, playerCamLocalToWorld, portalCamTransform;
+	XMMATRIX portalLocalToWorldMatrix, linkedPortalWorldToLocalMatrix, playerCamLocalToWorldMatrix, portalCamTransformMatrix;
+
+	playerCamLocalToWorld = playerCam->GetTransform()->GetLocalToWorld();
+	linkedPortalWorldToLocal = m_pLinkedPortal->GetTransform()->GetWorldToLocal();
+	portalLocalToWorld = GetTransform()->GetLocalToWorld();
+
+	// Load into XMMATRIX
+	portalLocalToWorldMatrix = XMLoadFloat4x4(&portalLocalToWorld);
+	linkedPortalWorldToLocalMatrix = XMLoadFloat4x4(&linkedPortalWorldToLocal);
+	playerCamLocalToWorldMatrix = XMLoadFloat4x4(&playerCamLocalToWorld);
+
+	portalCamTransformMatrix = playerCamLocalToWorldMatrix * linkedPortalWorldToLocalMatrix * portalLocalToWorldMatrix;
+
+
+	XMStoreFloat4x4(&portalCamTransform, portalCamTransformMatrix);
+	//MatrixUtil::MultiplyMatrices(portalLocalToWorld, linkedPortalWorldToLocal, playerCamLocalToWorld, portalCamTransform);
+
+	m_pPortalCameraHolder->GetTransform()->TranslateWorld(MatrixUtil::GetPositionFromMatrix(portalCamTransform));
+	m_pPortalCameraRotator->GetTransform()->RotateWorld(MatrixUtil::GetRotationFromMatrix(portalCamTransform));
+
+ 	//m_pPortalCameraHolder->GetTransform()->SetTransform(portalCamTransform);
+
+	//XMFLOAT3 localToWorld = MatrixUtil::GetPositionFromMatrix(portalCamTransform);
+	//static int counter = 0;
+	//std::wcout << std::format(L"frame {} ----- {:.1f} \t| {:.1f} \t| {:.1f}",counter, localToWorld.x, localToWorld.y, localToWorld.z) << std::endl;
+	//++counter;
+	//CameraComponent* playerCamera = m_pGameObject->GetScene()->GetActiveCamera();
+
+	//XMFLOAT3 pos1 = playerCamera->GetTransform()->GetWorldPosition();
+	//XMFLOAT3 pos2 = MatrixUtil::GetPositionFromMatrix(playerCamera->GetTransform()->GetLocalToWorld());
+
+
+
+	//m_pPortalCameraHolder->GetTransform()->Translate(playerCamera->GetTransform()->GetWorldPosition());
+	//m_pPortalCameraHolder->GetTransform()->Rotate(playerCamera->GetTransform()->GetWorldRotation());
 }
 
 void PortalComponent::PortalMapDraw(const SceneContext& /*context*/)
 {
 
+	std::cout << "this shouldnt happen" << std::endl;
 	
 }
 
-void PortalComponent::PrePortalRender(const SceneContext& context)
+void PortalComponent::PrePortalRender(const SceneContext& /*context*/)
 {
-	assert(m_pLinkedPortal);
-	m_pPlayerCam = m_pGameObject->GetScene()->GetActiveCamera();
-	m_pGameObject->GetScene()->SetActiveCamera(m_pPortalCam);
-
-	CameraViewMapRenderer::Get()->Begin(context, m_pPortalCam);
-
-	CameraComponent* playerCam = m_pPlayerCam;
-
-	XMFLOAT4X4 portalLocalToWorld, linkedPortalWorldToLocal, playerCamLocalToWorld, portalCamTransform;
-	playerCamLocalToWorld = playerCam->GetLocalToWorldMatrix();
-	linkedPortalWorldToLocal = m_pLinkedPortal->GetTransform()->GetWorldToLocal();
-	portalLocalToWorld = GetTransform()->GetLocalToWorld();
-
-	MatrixUtil::MultiplyMatrices(playerCamLocalToWorld, linkedPortalWorldToLocal, portalLocalToWorld, portalCamTransform);
-
-	m_pPortalCameraObject->GetTransform()->Translate(MatrixUtil::GetPositionFromMatrix(portalCamTransform));
-	m_pPortalCameraObject->GetTransform()->Rotate(MatrixUtil::GetRotationFromMatrix(portalCamTransform));
+	std::cout << "this shouldnt happen" << std::endl;
 }
 
 void PortalComponent::Render(const SceneContext&)
 {
 	// Add your Render code here
 
-	m_pScene->PortalDraw();
+	//m_pScene->PortalDraw();
 }
 
 void PortalComponent::PostPortalRender(const SceneContext& context)

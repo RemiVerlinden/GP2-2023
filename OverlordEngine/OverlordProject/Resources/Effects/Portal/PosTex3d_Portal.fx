@@ -9,19 +9,14 @@ SamplerState samLinear
     AddressV = Wrap;// or Mirror or Clamp or Border
 };
 
-RasterizerState Solid
-{
-	FillMode = SOLID;
-	CullMode = BACK;
-};
-
 struct VS_INPUT{
 	float3 pos : POSITION;
 	float2 texCoord : TEXCOORD;
 };
 struct VS_OUTPUT{
 	float4 pos : SV_POSITION;
-	float2 texCoord : TEXCOORD;
+	float2 texCoord : TEXCOORD0;
+	float4 screenPos : TEXCOORD1;
 };
 
 DepthStencilState EnableDepth
@@ -32,7 +27,7 @@ DepthStencilState EnableDepth
 
 RasterizerState NoCulling
 {
-	CullMode = FRONT;
+	CullMode = NONE;
 };
 
 BlendState NoBlending
@@ -46,12 +41,11 @@ BlendState NoBlending
 VS_OUTPUT VS(VS_INPUT input){
 
 	VS_OUTPUT output;
-	// Step 1:	convert position into float4 and multiply with matWorldViewProj
+	
 	output.pos = mul ( float4(input.pos,1.0f), gWorldViewProj );
-	// Step 2:	rotate the normal: NO TRANSLATION
-	//			this is achieved by clipping the 4x4 to a 3x3 matrix, 
-	//			thus removing the postion row of the matrix
 	output.texCoord = input.texCoord;
+	output.screenPos = output.pos;
+	
 	return output;
 }
 
@@ -60,7 +54,12 @@ VS_OUTPUT VS(VS_INPUT input){
 //--------------------------------------------------------------------------------------
 float4 PS(VS_OUTPUT input) : SV_TARGET{
 
-	float4 diffuseColor = gPortalMap.Sample( samLinear,input.texCoord );
+	float4 screenPos = input.screenPos;
+	float2 uv;
+	uv.x = screenPos.x / screenPos.w / 2.0f + 0.5f;
+	uv.y = -screenPos.y / screenPos.w / 2.0f + 0.5f;
+
+	float4 diffuseColor = gPortalMap.Sample( samLinear,uv );
 	float3 color_rgb = diffuseColor.rgb;
 	float color_a = 1;
 	

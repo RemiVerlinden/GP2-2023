@@ -15,12 +15,13 @@ void Character::Initialize(const SceneContext& /*sceneContext*/)
 	//Controller
 	m_pControllerComponent = AddComponent(new ControllerComponent(m_CharacterDesc.controller));
 
+	m_pCameraHolder = AddChild(new GameObject());
 	//Camera
-	const auto pCamera = AddChild(new FixedCamera());
+	const auto pCamera = m_pCameraHolder->AddChild(new FixedCamera());
 	m_pCameraComponent = pCamera->GetComponent<CameraComponent>();
 	m_pCameraComponent->SetActive(true); //Uncomment to make this camera the active camera
 	m_pCameraComponent->SetFieldOfView(60 * DirectX::XM_PI / 180.f);
-	pCamera->GetTransform()->Translate(0.f, m_CharacterDesc.controller.height * .5f, 0.f);
+	m_pCameraHolder->GetTransform()->Translate(0.f, m_CharacterDesc.controller.height * .5f, 0.f);
 }
 void Character::InitCharacterSettings()
 {
@@ -79,7 +80,7 @@ void Character::Update(const SceneContext& sceneContext)
 		//Retrieve the TransformComponent
 		//Retrieve the forward & right vector (as XMVECTOR) from the TransformComponent
 
-		TransformComponent* transform = GetTransform();
+		TransformComponent* transform = m_pCameraHolder->GetTransform();
 
 		XMVECTOR forward = XMLoadFloat3(&transform->GetForward());
 		XMVECTOR right = XMLoadFloat3(&transform->GetRight());

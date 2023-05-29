@@ -20,7 +20,7 @@ DepthStencilState EnableDepth
 
 RasterizerState NoCulling
 {
-	CullMode = NONE;
+	CullMode = FRONT;
 };
 
 BlendState EnableBlending

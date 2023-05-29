@@ -52,6 +52,7 @@ protected:
 private:
 	void InitCharacterSettings();
 private:
+	GameObject* m_pCameraHolder{};
 	CameraComponent* m_pCameraComponent{};
 	ControllerComponent* m_pControllerComponent{};
 

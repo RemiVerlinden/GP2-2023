@@ -7,11 +7,11 @@
 #include <memory>
 #include <algorithm>
 class GameObject;
-
+class Character;
 class PortalComponent final: public BaseComponent
 {
 public:
-	PortalComponent(CameraComponent* playerCamera, bool orangePortal);
+	PortalComponent(Character* playerCharacter, bool orangePortal);
 	virtual ~PortalComponent();
 
 	PortalComponent(const PortalComponent& other) = delete;
@@ -24,7 +24,7 @@ public:
 	void Render(const SceneContext& context);
 	void PostPortalRender(const SceneContext& context);
 	CameraComponent* GetPortalCamera() const { return m_pPortalCam; }
-	PortalComponent* m_pLinkedPortal;
+	GameObject* GetCameraRotator() const { return m_pPortalCameraRotator; }
 protected:
 
 	void Initialize(const SceneContext& sceneContext) override;
@@ -48,6 +48,8 @@ private:
 	//bool SameSideOfPortal(const XMFLOAT3& posA, const XMFLOAT3& posB);
 	//XMFLOAT3 PortalCamPos();
 
+	PortalComponent* m_pLinkedPortal;
+	Character* m_pPlayerCharacter;
 	CameraComponent* m_pPlayerCam;
 	GameObject* m_pPortalCameraHolder;
 	GameObject* m_pPortalCameraRotator;

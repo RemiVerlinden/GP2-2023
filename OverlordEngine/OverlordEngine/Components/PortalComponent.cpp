@@ -3,9 +3,11 @@
 #include "PortalComponent.h"
 #include "Graphics/CameraViewMapRenderer.h"
 #include "Components\ControllerComponent.h"
-PortalComponent::PortalComponent(CameraComponent* playerCamera, bool color)
+#include "../OverlordProject/Prefabs/Character.h"
+PortalComponent::PortalComponent(Character* playerCharacter, bool color)
 	: m_pLinkedPortal(nullptr)
-	, m_pPlayerCam(playerCamera)
+	, m_pPlayerCharacter(playerCharacter)
+	, m_pPlayerCam(playerCharacter->GetCameraComponent())
 	, m_pPortalCam(nullptr)
 	,m_pPortalCameraHolder(nullptr)
 {
@@ -50,7 +52,7 @@ void PortalComponent::Update(const SceneContext& /*sceneContext*/)
 	XMFLOAT4X4 portalLocalToWorld, linkedPortalWorldToLocal, playerCamLocalToWorld, portalCamTransform;
 	XMMATRIX portalLocalToWorldMatrix, linkedPortalWorldToLocalMatrix, playerCamLocalToWorldMatrix, portalCamTransformMatrix;
 
-	playerCamLocalToWorld = playerCam->GetTransform()->GetLocalToWorld();
+	playerCamLocalToWorld = playerCam->GetLocalToWorldMatrix();
 	linkedPortalWorldToLocal = m_pLinkedPortal->GetTransform()->GetWorldToLocal();
 	portalLocalToWorld = GetTransform()->GetLocalToWorld();
 
@@ -66,7 +68,21 @@ void PortalComponent::Update(const SceneContext& /*sceneContext*/)
 	//MatrixUtil::MultiplyMatrices(portalLocalToWorld, linkedPortalWorldToLocal, playerCamLocalToWorld, portalCamTransform);
 
 	m_pPortalCameraHolder->GetTransform()->TranslateWorld(MatrixUtil::GetPositionFromMatrix(portalCamTransform));
-	m_pPortalCameraRotator->GetTransform()->RotateWorld(MatrixUtil::GetRotationFromMatrix(portalCamTransform));
+
+	// Get the world rotations
+	XMVECTOR PortalRotation = XMLoadFloat4(&m_pLinkedPortal->GetTransform()->GetWorldRotation()); // Assume this returns XMVECTOR
+	XMVECTOR playerCamRotation = XMLoadFloat4(&playerCam->GetTransform()->GetWorldRotation()); // Assume this returns XMVECTOR
+
+	// Compute the conjugate (inverse for unit quaternions) of the second rotation
+	XMVECTOR invPlayerCamRotation = XMQuaternionConjugate(PortalRotation);
+
+
+	// Compute the relative rotation
+	XMVECTOR relativeRotation = XMQuaternionMultiply(playerCamRotation, invPlayerCamRotation);
+	m_pPortalCameraRotator->GetTransform()->Rotate(relativeRotation);
+
+	//m_pPortalCameraRotator->GetTransform()->RotateWorld(MatrixUtil::GetRotationFromMatrix(portalCamTransform));
+	//m_pPortalCameraRotator->GetTransform()->Rotate(m_pPlayerCharacter->GetPitch(), m_pPlayerCharacter->GetYaw(), 0);
 
  	//m_pPortalCameraHolder->GetTransform()->SetTransform(portalCamTransform);
 

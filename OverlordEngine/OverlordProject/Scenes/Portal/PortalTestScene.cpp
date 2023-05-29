@@ -73,7 +73,7 @@ void PortalTestScene::Initialize()
 
 	// portal map
 
-	//LoadMap();
+	LoadMap();
 
 	//Input
 	auto inputAction = InputAction(CharacterMoveLeft, InputState::down, 'A');
@@ -328,7 +328,7 @@ void PortalTestScene::CreatePortals(CameraComponent* playerCamera)
 	for (UINT currentPortal = 0; currentPortal < m_pPortals.size(); ++currentPortal)
 	{
 		GameObject* pPortal = m_pPortals.at(currentPortal);
-		pPortal->AddComponent(new PortalComponent(playerCamera, (bool)currentPortal));
+		pPortal->AddComponent(new PortalComponent(m_pCharacter, (bool)currentPortal));
 
 		const auto pPortalMesh = pPortal->AddComponent(new ModelComponent(L"blender/portal.ovm"));
 
@@ -363,8 +363,8 @@ void PortalTestScene::CreatePortals(CameraComponent* playerCamera)
 	orangePortal->SetLinkedPortal(bluePortal);
 	bluePortal->SetLinkedPortal(orangePortal);
 
-	orangePortal->GetTransform()->TranslateWorld({-5, 0.f, 0});
-	bluePortal->GetTransform()->TranslateWorld({ 0, 0, 0 });
+	orangePortal->GetTransform()->TranslateWorld({-5, 0.f, 5});
+	bluePortal->GetTransform()->TranslateWorld({ 5, 0, 5 });
 
 	//orangePortal->GetTransform()->Rotate( 0,20,0 );
 	//bluePortal->GetTransform()->Rotate(0,90,0 );
@@ -384,9 +384,9 @@ void PortalTestScene::MovePortal(Portal portal)
 	m_pPortals[portal]->GetTransform()->Translate(m_pCharacter->GetTransform()->GetPosition());
 	//m_pPortals[portal]->GetTransform()->Translate(10,10,10);
 	
-	//auto rotation = m_pCharacter->GetTransform()->GetWorldRotation();
-	//m_pPortals[portal]->GetTransform()->RotateWorld(XMLoadFloat4(&rotation));
-	m_pPortals[portal]->GetTransform()->Rotate(0, m_pCharacter->GetYaw(), 0);
+	auto rotation = m_pCharacter->GetCameraComponent()->GetTransform()->GetWorldRotation();
+	m_pPortals[portal]->GetTransform()->RotateWorld(XMLoadFloat4(&rotation));
+	//m_pPortals[portal]->GetTransform()->Rotate(0, m_pCharacter->GetYaw(), 0);
 }
 
 
@@ -404,10 +404,21 @@ void PortalTestScene::OnGUI()
 
 	float pos[] = { testObjectPos.x, testObjectPos.y, testObjectPos.z };
 
-	if (ImGui::SliderFloat3("TestObject Position", pos, -10.0f, 10.0f))
+	if (ImGui::SliderFloat3("blue portal camera rotation", pos, -XM_PIDIV2, XM_PIDIV2))
 		testObjectPos = { pos[0], pos[1], pos[2] };
 
-	pTestObject->GetTransform()->Translate(testObjectPos);
+	XMVECTOR rotationQuat = XMQuaternionRotationRollPitchYaw(pos[0], pos[1], pos[2]);
+
+	m_pPortals[Portal::Blue]->GetComponent<PortalComponent>()->GetCameraRotator()->GetTransform()->Rotate(rotationQuat);
+
+
+
+	float vectorArray[4] = {};
+	XMStoreFloat4((XMFLOAT4*)vectorArray, rotationQuat);
+	if (ImGui::InputFloat4("My Vector", vectorArray))
+	{
+	}
+
 
 
 	//m_pMap->GetTransform()->Scale(scale);
@@ -427,8 +438,7 @@ void PortalTestScene::Update()
 	}
 	static float rotator = 0;
 	rotator += 0.3f;
-	//m_pPortals[Portal::Orange]->GetTransform()->Rotate(0, rotator, 0);
-	TransformComponent* pCamera1, * pCamera2/*, *pCamera3*/;
+	TransformComponent* pCamera1, * pCamera2;
 
 	pCamera1 = m_pPortals[Portal::Orange]->GetComponent<PortalComponent>()->GetPortalCamera()->GetTransform();
 	pCamera2 = m_pPortals[Portal::Blue]->GetComponent<PortalComponent>()->GetPortalCamera()->GetTransform();
@@ -466,6 +476,21 @@ void PortalTestScene::Update()
 	euler.x *= 180.0f / DirectX::XM_PI;
 	euler.y *= 180.0f / DirectX::XM_PI;
 	euler.z *= 180.0f / DirectX::XM_PI;
+
+	auto temp = m_pCharacter->GetCameraComponent()->GetTransform()->GetLocalToWorld();
+	if (XMMatrixDecompose(&scale, &rot, &pos, XMLoadFloat4x4(&temp)))
+	{
+		XMFLOAT3 rotation;
+		XMStoreFloat3(&rotation, rot);
+
+		//std::cout << std::format("{} {} {}", rotation.x, rotation.y, rotation.z) << std::endl;	
+	}
+	{
+		XMFLOAT4 rotation = m_pCharacter->GetCameraComponent()->GetTransform()->GetWorldRotation();
+
+		//std::cout << std::format("{} {} {}", rotation.x, rotation.y, rotation.z) << std::endl;
+	}
+
 
 	//std::cout << "Rotation in Degrees: (" << euler.x << ", " << euler.y << ")" << std::endl;
 

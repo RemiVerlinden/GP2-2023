@@ -101,7 +101,7 @@ void PortalRenderer::Begin(PortalRenderingContext& renderContext)
 
 	m_GameContext.pGame->SetRenderTarget(renderContext.pRenderTarget);
 	renderContext.pRenderTarget->Clear();
-}
+ }
 
 void PortalRenderer::Render(PortalRenderingContext& renderContext)
 {
@@ -113,6 +113,9 @@ void PortalRenderer::End(PortalRenderingContext& renderContext)
 	renderContext.pCurrentScene->SetActiveCamera(renderContext.playerCamera);
 	m_GameContext.pGame->SetRenderTarget(nullptr);
 	m_CurrentlyRenderingPortals = false;
+
+	constexpr ID3D11ShaderResourceView* const pSRV[] = { nullptr };
+	renderContext.sceneContext.d3dContext.pDeviceContext->PSSetShaderResources(0, 1, pSRV);
 
 
 	//// Create a device context
@@ -148,8 +151,8 @@ void PortalRenderer::InitializeRenderTarget(Portal type)
 
 	RENDERTARGET_DESC desc;
 
-	desc.enableDepthBuffer = false;
-	desc.enableDepthSRV = false;
+	desc.enableDepthBuffer = true;
+	desc.enableDepthSRV = true;
 	desc.enableColorBuffer = true;
 	desc.enableColorSRV = true;
 	desc.generateMipMaps_Color = false;

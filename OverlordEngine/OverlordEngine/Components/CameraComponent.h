@@ -22,11 +22,15 @@ public:
 	void SetActive(bool active = true);
 	bool IsActive() const {return m_IsActive;}
 
+	void CalculateObliqueMatrix(DirectX::XMFLOAT4 inputClipPlaneCameraSpace);
 	const XMFLOAT4X4& GetView() const {return m_View;}
 	const XMFLOAT4X4& GetProjection() const {return m_Projection;}
 	const XMFLOAT4X4& GetViewProjection() const {return m_ViewProjection;}
 	const XMFLOAT4X4& GetViewInverse() const {return m_ViewInverse;}
 	const XMFLOAT4X4& GetViewProjectionInverse() const {return m_ViewProjectionInverse;}
+
+	void SetProjection(const XMFLOAT4X4& newProjection);
+	void SetProjection(const XMMATRIX& newProjection);
 
 	// same as GetViewInverse and GetViewProjectionInverse, I just like these names better
 	const XMFLOAT4X4& GetWorldToLocalMatrix() const { return m_View; }

@@ -133,10 +133,10 @@ public:
 protected:
 	virtual void Initialize(const SceneContext&) {};
 	virtual void PostInitialize(const SceneContext& ) {}
-	virtual void PreDraw(const SceneContext&) {}
 	virtual void Draw(const SceneContext&) {}
 	virtual void PostDraw(const SceneContext&) {}
 	virtual void Update(const SceneContext&) {}
+	virtual void PostUpdate(const SceneContext&) {}
 	virtual void OnParentAttach(GameObject* /*pParent*/) {}
 	virtual void OnParentDetach(GameObject* /*pPreviousParent*/) {}
 	virtual void OnSceneAttach(GameScene* /*pScene*/){}
@@ -148,7 +148,7 @@ private:
 	void RootInitialize(const SceneContext& sceneContext);
 	void RootPostInitialize(const SceneContext& sceneContext);
 	void RootUpdate(const SceneContext& sceneContext);
-	void RootPreDraw(const SceneContext& sceneContext);
+	void RootPostUpdate(const SceneContext& sceneContext);
 	void RootDraw(const SceneContext& sceneContext);
 	void RootPostDraw(const SceneContext& sceneContext); //TODO: collapse in single Draw with context
 	void RootShadowMapDraw(const SceneContext& sceneContext) const; //TODO: collapse in single Draw with context

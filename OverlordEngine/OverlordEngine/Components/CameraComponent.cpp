@@ -48,6 +48,7 @@ void CameraComponent::Update(const SceneContext& sceneContext)
 	XMStoreFloat4x4(&m_ViewProjectionInverse, viewProjectionInv);
 }
 
+
 void CameraComponent::SetActive(bool active)
 {
 	if (m_IsActive == active) return;
@@ -61,6 +62,16 @@ void CameraComponent::SetActive(bool active)
 
 	m_IsActive = active;
 	pScene->SetActiveCamera(active?this:nullptr); //Switch to default camera if active==false
+}
+
+void CameraComponent::SetProjection(const XMFLOAT4X4& newProjection)
+{
+	SetProjection(XMLoadFloat4x4(&newProjection));
+}
+
+void CameraComponent::SetProjection(const XMMATRIX& newProjection)
+{
+	XMStoreFloat4x4(&m_Projection, newProjection);
 }
 
 GameObject* CameraComponent::Pick(CollisionGroup ignoreGroups) const
@@ -113,4 +124,30 @@ GameObject* CameraComponent::Pick(CollisionGroup ignoreGroups) const
 
 	//return nullptr if no hit was found
 	return nullptr;
+}
+
+
+void CameraComponent::CalculateObliqueMatrix(DirectX::XMFLOAT4 inputClipPlaneCameraSpace)
+{
+	DirectX::XMVECTOR Q;
+	DirectX::XMMATRIX ProjectionMatrix = XMLoadFloat4x4(&GetProjection());
+	// Calculate the clip-space corner point opposite the clipping plane
+	// as (sgn(clipPlaneCameraSpace.x), sgn(clipPlaneCameraSpace.y), 1, 1) and
+	// transform it into camera space by multiplying it by the inverse of
+	// the projection matrix
+	XMVECTOR clipPlaneCameraSpace = XMLoadFloat4(&inputClipPlaneCameraSpace);
+
+	Q = DirectX::XMVectorSet(
+		(DirectX::XMVectorGetX(clipPlaneCameraSpace) < 0.f) ? -1.0f : 1.0f,
+		(DirectX::XMVectorGetY(clipPlaneCameraSpace) < 0.f) ? -1.0f : 1.0f,
+		1.0f, 1.0f);
+	Q = DirectX::XMVector4Transform(Q, DirectX::XMMatrixInverse(nullptr, ProjectionMatrix));
+	// Calculate the scaled plane vector
+	DirectX::XMVECTOR clipPlane = clipPlaneCameraSpace;
+	DirectX::XMVECTOR scaledPlane = DirectX::XMVectorScale(clipPlane, DirectX::XMVectorGetX(DirectX::XMVector4Dot(clipPlane, Q)));
+	// Replace the third row of the projection matrix
+	DirectX::XMMATRIX modifiedProj = ProjectionMatrix;
+	modifiedProj.r[2] = DirectX::XMVectorAdd(modifiedProj.r[2], scaledPlane);
+
+	SetProjection(modifiedProj);
 }

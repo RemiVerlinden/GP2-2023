@@ -148,13 +148,18 @@ void GameScene::RootUpdate()
 		pChild->RootUpdate(m_SceneContext);
 	}
 
+	PostUpdate();
+
+	for (const auto pChild : m_pChildren)
+	{
+		pChild->RootPostUpdate(m_SceneContext);
+	}
+
 	m_pPhysxProxy->Update(m_SceneContext);
 }
 
 void GameScene::SimpleDrawMeshes()
 {
-	//Draw();
-
 	//Object-Scene Draw
 	for (const auto pChild : m_pChildren)
 	{
@@ -188,6 +193,8 @@ void GameScene::RootDraw()
 	//USER_PASS
 	//+++++++++
 	//User-Scene Draw
+	Draw();
+
 	SimpleDrawMeshes();
 
 	//SpriteRenderer Draw

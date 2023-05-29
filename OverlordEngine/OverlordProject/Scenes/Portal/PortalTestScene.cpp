@@ -482,8 +482,6 @@ void PortalTestScene::Update()
 	{
 		XMFLOAT3 rotation;
 		XMStoreFloat3(&rotation, rot);
-
-		//std::cout << std::format("{} {} {}", rotation.x, rotation.y, rotation.z) << std::endl;	
 	}
 	{
 		XMFLOAT4 rotation = m_pCharacter->GetCameraComponent()->GetTransform()->GetWorldRotation();

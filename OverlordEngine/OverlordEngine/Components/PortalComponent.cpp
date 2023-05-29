@@ -25,14 +25,11 @@ void PortalComponent::Initialize(const SceneContext& /*sceneContext*/)
 	m_pPortalCameraRotator = m_pPortalCameraHolder->AddChild(new GameObject);
 
 	m_pPortalCam = m_pPortalCameraRotator->AddComponent(new CameraComponent());
+
+
 }
 
-void PortalComponent::PreDraw(const SceneContext& context)
-{
-	PrePortalRender(context);
-	Render(context);
-	PostPortalRender(context);
-}
+
 
 void PortalComponent::Update(const SceneContext& /*sceneContext*/)
 {
@@ -81,6 +78,7 @@ void PortalComponent::Update(const SceneContext& /*sceneContext*/)
 	XMVECTOR relativeRotation = XMQuaternionMultiply(playerCamRotation, invPlayerCamRotation);
 	m_pPortalCameraRotator->GetTransform()->Rotate(relativeRotation);
 
+
 	//m_pPortalCameraRotator->GetTransform()->RotateWorld(MatrixUtil::GetRotationFromMatrix(portalCamTransform));
 	//m_pPortalCameraRotator->GetTransform()->Rotate(m_pPlayerCharacter->GetPitch(), m_pPlayerCharacter->GetYaw(), 0);
 
@@ -101,6 +99,14 @@ void PortalComponent::Update(const SceneContext& /*sceneContext*/)
 	//m_pPortalCameraHolder->GetTransform()->Rotate(playerCamera->GetTransform()->GetWorldRotation());
 }
 
+void PortalComponent::PostUpdate(const SceneContext& /*sceneContext*/)
+{
+	m_pPortalCam->SetProjection(m_pPlayerCam->GetProjection());
+
+	
+	//HandlePortalCameraClipPlane();
+}
+
 void PortalComponent::PortalMapDraw(const SceneContext& /*context*/)
 {
 
@@ -108,24 +114,58 @@ void PortalComponent::PortalMapDraw(const SceneContext& /*context*/)
 	
 }
 
-void PortalComponent::PrePortalRender(const SceneContext& /*context*/)
+inline static int CalculateDot(const XMFLOAT3& inputClipPlaneForward, const XMFLOAT3& inputTransformPosition, const XMFLOAT3& inputPortalCamPosition)
 {
-	std::cout << "this shouldnt happen" << std::endl;
-}
+	// Assuming clipPlaneForward, transformPosition and portalCamPosition are DirectX::XMVECTOR or DirectX::XMFLOAT3 objects
+	DirectX::XMVECTOR clipPlaneForward = XMLoadFloat3(&inputClipPlaneForward);
+	DirectX::XMVECTOR transformPosition = XMLoadFloat3(&inputTransformPosition);
+	DirectX::XMVECTOR portalCamPosition = XMLoadFloat3(&inputPortalCamPosition);
 
-void PortalComponent::Render(const SceneContext&)
+	// Subtract portalCamPosition from transformPosition
+	DirectX::XMVECTOR difference = DirectX::XMVectorSubtract(transformPosition, portalCamPosition);
+
+	// Compute dot product
+	DirectX::XMVECTOR dotProduct = DirectX::XMVector3Dot(clipPlaneForward, difference);
+
+	// Extract the first component of the dotProduct XMVECTOR to a float
+	float dotProductFloat = DirectX::XMVectorGetX(dotProduct);
+
+	// Determine the sign
+	int dot = (dotProductFloat > 0) - (dotProductFloat < 0);
+
+	return dot;
+};
+
+void PortalComponent::HandlePortalCameraClipPlane()
 {
-	// Add your Render code here
+	// Learning resource:
+	// http://www.terathon.com/lengyel/Lengyel-Oblique.pdf
 
-	//m_pScene->PortalDraw();
-}
+	TransformComponent* clipPlane = GetTransform();  // Assuming GetTransform() returns the object's TransformComponent
+	int dot = CalculateDot(clipPlane->GetForward(), clipPlane->GetPosition(), m_pPortalCam->GetTransform()->GetPosition());
 
-void PortalComponent::PostPortalRender(const SceneContext& context)
-{
-	// Add your PostPortalRender code here
-	CameraViewMapRenderer::Get()->End(context);
-	m_pGameObject->GetScene()->SetActiveCamera(m_pPlayerCam);
+	// To multiply a point or vector by a matrix in DirectX, we can use XMVector3TransformCoord or XMVector3TransformNormal
+	DirectX::XMMATRIX worldToCameraMatrix = DirectX::XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_pPortalCam->GetView()));
 
+	DirectX::XMVECTOR camSpacePos = DirectX::XMVector3TransformCoord(XMLoadFloat3(&clipPlane->GetPosition()), worldToCameraMatrix);
+	DirectX::XMVECTOR camSpaceNormal = DirectX::XMVector3TransformNormal(XMLoadFloat3(&clipPlane->GetForward()), worldToCameraMatrix) * static_cast<float>(dot);
+	float camSpaceDst = -XMVectorGetX(DirectX::XMVector3Dot(camSpacePos, camSpaceNormal)) + m_NearClipPlaneOffset;
+
+	// Don't use oblique clip plane if very close to portal as it seems this can cause some visual artifacts
+	if (fabs(camSpaceDst) > m_NearClipPlaneLimit)
+	{
+		DirectX::XMFLOAT4 clipPlaneCameraSpace;
+		DirectX::XMStoreFloat4(&clipPlaneCameraSpace, camSpaceNormal);
+		clipPlaneCameraSpace.w = camSpaceDst;
+
+		// Update projection based on new clip plane
+		// Calculate matrix with player cam so that player camera settings (fov, etc) are used
+		m_pPortalCam->CalculateObliqueMatrix(clipPlaneCameraSpace);  // You will need to implement CalculateObliqueMatrix yourself
+	}
+	else
+	{
+		m_pPortalCam->SetProjection(m_pPlayerCam->GetProjection());
+	}
 }
 
 void PortalComponent::SetLinkedPortal(PortalComponent* pPortal)

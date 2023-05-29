@@ -20,21 +20,19 @@ public:
 	PortalComponent& operator=(PortalComponent&& other) noexcept = delete;
 
 	void SetLinkedPortal(PortalComponent* pPortal);
-	void PrePortalRender(const SceneContext& context);
-	void Render(const SceneContext& context);
-	void PostPortalRender(const SceneContext& context);
 	CameraComponent* GetPortalCamera() const { return m_pPortalCam; }
 	GameObject* GetCameraRotator() const { return m_pPortalCameraRotator; }
 protected:
 
 	void Initialize(const SceneContext& sceneContext) override;
-	void PreDraw(const SceneContext&) override;
 	void Update(const SceneContext& sceneContext) override;
+	void PostUpdate(const SceneContext& sceneContext) override;
 	//void OnTriggerEnter(Collider* other);
 	//void OnTriggerExit(Collider* other);
 
 private:
 	virtual void PortalMapDraw(const SceneContext& context);
+	void HandlePortalCameraClipPlane();
 
 	//void HandleTravellers();
 	//void CreateViewTexture();
@@ -55,6 +53,9 @@ private:
 	GameObject* m_pPortalCameraRotator;
 	CameraComponent* m_pPortalCam;
 	bool bluePortal;
+
+	float m_NearClipPlaneOffset = 0.05f;
+	float m_NearClipPlaneLimit = 0.2f;
 
 	//std::shared_ptr<RenderTexture> m_pViewTexture;
 	//std::vector<std::shared_ptr<PortalTraveller>> m_TrackedTravellers;

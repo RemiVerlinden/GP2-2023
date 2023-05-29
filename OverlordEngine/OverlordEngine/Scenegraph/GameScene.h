@@ -42,6 +42,7 @@ protected:
 	virtual void Initialize() = 0;
 	virtual void PostInitialize() {};
 	virtual void Update() {};
+	virtual void PostUpdate() {};
 	virtual void Draw() {};
 	virtual void PostDraw() {};
 	virtual void ShadowDraw() {};

@@ -49,6 +49,7 @@
     <ClCompile Include="Materials\Portal\Glass\RefractingGlassMaterial.cpp" />
     <ClCompile Include="Scenes\Portal\TestPortalAnimations.cpp" />
     <ClCompile Include="Scenes\Portal\PortalProps.cpp" />
+    <ClCompile Include="Materials\Portal\PhongMaterial_Skinned.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainGame.h" />
@@ -99,5 +100,6 @@
     <ClInclude Include="Materials\Portal\Glass\RefractingGlassMaterial.h" />
     <ClInclude Include="Scenes\Portal\TestPortalAnimations.h" />
     <ClInclude Include="Scenes\Portal\PortalProps.h" />
+    <ClInclude Include="Materials\Portal\PhongMaterial_Skinned.h" />
   </ItemGroup>
 </Project>

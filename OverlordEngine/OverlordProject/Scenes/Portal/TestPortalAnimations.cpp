@@ -3,7 +3,7 @@
 
 #include "Materials/DiffuseMaterial_Skinned.h"
 #include "Materials/ColorMaterial.h"
-
+  
 TestPortalAnimations::~TestPortalAnimations()
 {
 	for (UINT i{ 0 }; i < m_ClipCount; ++i)
@@ -18,11 +18,12 @@ void TestPortalAnimations::Initialize()
 {
 	m_SceneContext.settings.enableOnGUI = true;
 
-	const auto pSkinnedMaterial = MaterialManager::Get()->CreateMaterial<ColorMaterial>();
-	pSkinnedMaterial->SetColor({ 1,0,0,1 });
+
+	const auto pSkinnedMaterial = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Skinned>();
+	pSkinnedMaterial->SetDiffuseTexture(L"Textures/Maps/chamber02_static/materials_models_props_door_01.dds");
 
 	const auto pObject = AddChild(new GameObject);
-	const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/DynamicProps/button_top.ovm"));
+	const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/DynamicProps/door.ovm"));
 	pModel->SetMaterial(pSkinnedMaterial);
 
 	pObject->GetTransform()->Scale(0.15f);

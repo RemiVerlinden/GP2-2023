@@ -17,10 +17,10 @@ protected:
 	void Update() override;
 private:
 	ModelComponent* pModelTop{};
-	PhongMaterial* m_pPhong{};
+	PhongMaterial* pPhong{};
 	ButtonAnimComponent* m_pButtonAnim;
-	int m_AnimationClipId{ 0 };
-	float m_AnimationSpeed{ 1.f };
+
+	GameObject* m_pCube;
 
 	char** m_ClipNames{};
 	UINT m_ClipCount{};

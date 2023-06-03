@@ -99,6 +99,7 @@
     <ClCompile Include="Materials\Portal\Glass\FrostedGlassMaterial.cpp" />
     <ClCompile Include="Materials\Portal\NoDrawMaterial.cpp" />
     <ClCompile Include="Materials\Portal\PhongMaterial.cpp" />
+    <ClCompile Include="Materials\Portal\PhongMaterial_Skinned.cpp" />
     <ClCompile Include="Materials\Portal\PortalMaterial.cpp" />
     <ClCompile Include="Materials\Portal\Glass\RefractingGlassMaterial.cpp" />
     <ClCompile Include="Materials\Portal\StaticMapMaterial.cpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="Materials\Portal\Glass\FrostedGlassMaterial.h" />
     <ClInclude Include="Materials\Portal\NoDrawMaterial.h" />
     <ClInclude Include="Materials\Portal\PhongMaterial.h" />
+    <ClInclude Include="Materials\Portal\PhongMaterial_Skinned.h" />
     <ClInclude Include="Materials\Portal\PortalMaterial.h" />
     <ClInclude Include="Materials\Portal\Glass\RefractingGlassMaterial.h" />
     <ClInclude Include="Materials\Portal\StaticMapMaterial.h" />

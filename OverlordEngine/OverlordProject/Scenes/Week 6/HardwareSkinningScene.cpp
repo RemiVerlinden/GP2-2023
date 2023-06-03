@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "HardwareSkinningScene.h"
-
 #include "Materials/DiffuseMaterial_Skinned.h"
 
 HardwareSkinningScene::~HardwareSkinningScene()

@@ -2,7 +2,7 @@
 class ButtonAnimComponent : public BaseComponent
 {
 public:
-	ButtonAnimComponent(GameObject* button);
+	ButtonAnimComponent();
 	~ButtonAnimComponent() override = default;
 
 	void SetPressed(bool pressed);
@@ -12,7 +12,6 @@ protected:
 	void Update(const SceneContext&) override;
 
 private:
-	GameObject* m_pButton;
 
 	bool m_IsPressed = false;
 	float buttonState = 0; // this is in percentage float [0-1] -> [0-100%] on how much the button is pressed

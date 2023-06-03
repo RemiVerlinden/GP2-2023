@@ -5,6 +5,7 @@
 #include "Materials\Portal\DecalMaterial.h"
 #include "Materials\Portal\StaticMapMaterial.h"
 #include "Materials\Portal\PhongMaterial.h"
+#include "Materials\Portal\PhongMaterial_Skinned.h"
 #include "Materials\ColorMaterial.h"
 #include "Materials\Portal\NoDrawMaterial.h"
 #include "ThreadPool.h"
@@ -20,16 +21,17 @@ GameObject* MapLoader::LoadMap(const std::wstring& mapName)
 
 	const auto pMapObject = m_Scene.AddChild(new GameObject());
 
-	const auto pMapMesh = pMapObject->AddComponent(new ModelComponent(L"Meshes/Maps/" + mapName + L".ovm"));
+	const auto pMapMesh = pMapObject->AddComponent(new ModelComponent(L"Meshes/Maps/" + mapName + L"_static.ovm"));
 #ifdef _DEBUG
 	LoadMapTexturesDebug(mapName, pMapMesh);
 #else
 	LoadMapTexturesRelease(mapName, pMapMesh);
 #endif
 
+	LoadDynamicProps(mapName);
 
 	const auto pMapActor = pMapObject->AddComponent(new RigidBodyComponent(true));
-	const auto pPxTriangleMesh = ContentManager::Load<PxTriangleMesh>(L"Meshes/Maps/chamber_02_collision2.ovpt");
+	const auto pPxTriangleMesh = ContentManager::Load<PxTriangleMesh>(L"Meshes/Maps/" + mapName + L"_collision2.ovpt");
 	pMapActor->AddCollider(PxTriangleMeshGeometry(pPxTriangleMesh, PxMeshScale({ 1,1,1 })), *pDefaultMaterial);
 
 	return pMapObject;
@@ -45,7 +47,7 @@ void MapLoader::LoadMapTexturesDebug(const std::wstring& mapName, ModelComponent
 	ThreadPool pool(4); // more than this pretty much doesnt help
 
 	// I need to get each submesh name and this is the only way I know how to do it
-	const auto pMeshFilter = ContentManager::Load<MeshFilter>(L"Meshes/Maps/" + mapName + L".ovm");
+	const auto pMeshFilter = ContentManager::Load<MeshFilter>(L"Meshes/Maps/" + mapName + L"_static.ovm");
 	pMeshFilter->BuildIndexBuffer(m_Scene.GetSceneContext());
 
 	const auto meshList = pMeshFilter->GetMeshes();
@@ -53,7 +55,7 @@ void MapLoader::LoadMapTexturesDebug(const std::wstring& mapName, ModelComponent
 
 	std::vector<std::future<SubmeshShaderInfo>> shaderInfoFutures;
 
-	fs::path mapPath(L"Resources/Textures/Maps/" + mapName);
+	fs::path mapPath(L"Resources/Textures/Maps/" + mapName + L"_static");
 	for (const auto submesh : meshList)
 	{
 		// this is all local info that I use as input for functions
@@ -347,3 +349,79 @@ MapLoader::ShaderType MapLoader::IdentifyShaderType(const std::wstring& submeshN
 
 	return ShaderType::diffuse;
 }
+
+void MapLoader::LoadDynamicProps(const std::wstring& mapName)
+{
+	fs::path mapPath = L"Resources/Models/Map/" + mapName + L"_dynamic-props";
+
+
+}
+
+
+void MapLoader::SpawnButton(const XMFLOAT3& position)
+{
+	static ButtonProperties props;
+
+	auto pPhong = MaterialManager::Get()->CreateMaterial<PhongMaterial>();
+	pPhong->SetDiffuseTexture(props.diffuseMapPath);
+	pPhong->SetNormalTexture(props.normalMapPath);
+
+	const auto pButton = m_Scene.AddChild(new GameObject());
+	ModelComponent* pModel = pButton->AddComponent(new ModelComponent(props.modelPath));
+	pModel->SetMaterial(pPhong);
+
+	ButtonAnimComponent* pButtonAnim = pButton->AddComponent(new ButtonAnimComponent());
+
+	pButton->GetTransform()->Translate(position);
+}
+
+void MapLoader::SpawnElevator(const XMFLOAT3& position)
+{
+}
+
+void MapLoader::SpawnDoor(const XMFLOAT3& position)
+{
+	static DoorProperties props;
+
+	static PxMaterial* pMaterial = PxGetPhysics().createMaterial(props.pxMaterial[0], props.pxMaterial[1], props.pxMaterial[2]);
+
+	auto pPhongSkinned = MaterialManager::Get()->CreateMaterial<PhongMaterial_Skinned>();
+	pPhongSkinned->SetDiffuseTexture(props.diffuseMapPath);
+	pPhongSkinned->SetNormalTexture(props.normalMapPath);
+
+	GameObject* pDoor = m_Scene.AddChild(new GameObject());
+	ModelComponent* pModel = pDoor->AddComponent(new ModelComponent(props.modelPath));
+	pModel->SetMaterial(pPhongSkinned);
+
+
+	PxConvexMesh* pConvexMesh = ContentManager::Load<PxConvexMesh>(props.rigidBodyPath);
+	RigidBodyComponent* pRigidBody = pDoor->AddComponent(new RigidBodyComponent(true));
+	pRigidBody->AddCollider(PxConvexMeshGeometry{ pConvexMesh}, *pMaterial, false);
+
+	pDoor->GetTransform()->Translate(position);
+}
+
+void MapLoader::SpawnCube(const XMFLOAT3& position)
+{
+	static CubeProperties props;
+
+	static PxMaterial* pMaterial = PxGetPhysics().createMaterial(props.pxMaterial[0], props.pxMaterial[1], props.pxMaterial[2]);
+	auto pPhong = MaterialManager::Get()->CreateMaterial<PhongMaterial>();
+	pPhong->SetDiffuseTexture(props.diffuseMapPath);
+	pPhong->SetNormalTexture(props.normalMapPath);
+
+	GameObject* pCube = m_Scene.AddChild(new GameObject);
+	ModelComponent* pModelTop = pCube->AddComponent(new ModelComponent(props.modelPath));
+	pModelTop->SetMaterial(pPhong);
+
+
+	PxConvexMesh* pConvexMesh = ContentManager::Load<PxConvexMesh>(props.rigidBodyPath);
+	RigidBodyComponent* pRigidBody = pCube->AddComponent(new RigidBodyComponent());
+	pRigidBody->AddCollider(PxConvexMeshGeometry{ pConvexMesh }, *pMaterial, false);
+
+	PxRigidBodyExt::updateMassAndInertia(*pRigidBody->GetPxRigidActor()->is<PxRigidBody>(), props.mass);
+
+	pCube->GetTransform()->Translate(position);
+}
+
+

@@ -1,9 +1,8 @@
 #include "stdafx.h"
 #include "ButtonAnimComponent.h"
-ButtonAnimComponent::ButtonAnimComponent(GameObject* button)
-	: m_pButton(button)
-	, m_IsPressed(false)
-	,m_OriginalPosition(button->GetTransform()->GetPosition())
+ButtonAnimComponent::ButtonAnimComponent()
+	: m_IsPressed(false)
+	,m_OriginalPosition(m_pGameObject->GetTransform()->GetPosition())
 	, m_AnimInfo({0.8f,0.35f})
 { 
 }
@@ -36,7 +35,7 @@ void ButtonAnimComponent::Update(const SceneContext& context)
 	XMFLOAT3 pressPosition = m_OriginalPosition;
 	pressPosition.y -= buttonState * m_AnimInfo.pressDepth;
 
-	m_pButton->GetTransform()->Translate(pressPosition);
+	m_pGameObject->GetTransform()->Translate(pressPosition);
 }
 
 

@@ -26,7 +26,7 @@ void PortalProps::Initialize()
 	//	pModelTop = pButtonTop->AddComponent(new ModelComponent(L"Meshes/DynamicProps/button_top.ovm"));
 	//	pModelTop->SetMaterial(m_pPhong);
 
-	//	m_pButtonAnim = pButtonTop->AddComponent(new ButtonAnimComponent(pButtonTop));
+	//	m_pButtonAnim = pButtonTop->AddComponent(new ButtonAnimComponent());
 
 	//	pButtonTop->GetTransform()->Scale(scale);
 

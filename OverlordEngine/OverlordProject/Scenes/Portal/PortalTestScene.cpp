@@ -60,7 +60,7 @@ void PortalTestScene::Initialize()
 	PortalRenderer::Get()->InitializePortalComponents(portalComponents);
 
 	MapLoader maploader{ *this };
-	maploader.LoadMap(L"chamber02_static");
+	maploader.LoadMap(L"chamber02");
 
 	//Input
 	auto inputAction = InputAction(CharacterMoveLeft, InputState::down, 'A');

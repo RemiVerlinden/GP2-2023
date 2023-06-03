@@ -15,6 +15,8 @@ public:
 	void Update(const SceneContext& sceneContext);
 	void Reset(bool pause = true);
 	void Play() { m_IsPlaying = true; }
+	void PlayOnce();
+
 	void Pause() { m_IsPlaying = false; }
 	void SetPlayReversed(bool reverse) { m_Reversed = reverse; }
 	void SetAnimationSpeed(float speedPercentage) { m_AnimationSpeed = speedPercentage; }
@@ -31,7 +33,7 @@ private:
 	AnimationClip m_CurrentClip{};
 	MeshFilter* m_pMeshFilter{};
 	std::vector<XMFLOAT4X4> m_Transforms{};
-	bool m_IsPlaying{}, m_Reversed{}, m_ClipSet{};
+	bool m_IsPlaying{}, m_PlayOnce{}, m_Reversed{}, m_ClipSet{};
 	float m_TickCount{}, m_AnimationSpeed{ 1.f };
 };
 

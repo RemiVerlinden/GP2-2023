@@ -58,12 +58,12 @@ private:
 
 	struct CubeProperties
 	{
-		std::array<float, 3> pxMaterial{0.2f, 0.2f, 0.27f};
+		std::array<float, 3> pxMaterial{0.5f, 0.5f, .0f};
 		std::wstring diffuseMapPath = L"Textures/Maps/chamber02_static/materials_models_props_metal_box.dds";
 		std::wstring normalMapPath = L"Textures/Maps/chamber02_static/materials_models_props_metal_box_normal.dds";
 
 		std::wstring modelPath = L"Meshes/DynamicProps/cube.ovm";
-		std::wstring rigidBodyPath = L"Meshes/DynamicProps/cube.ovpm";
+		std::wstring rigidBodyPath = L"Meshes/DynamicProps/cube.ovpc";
 		float mass = 10.f;
 	};
 
@@ -74,7 +74,7 @@ private:
 		std::wstring normalMapPath = L"Textures/Maps/chamber02_static/materials_models_props_button_normal.dds";
 
 		std::wstring modelPath = L"Meshes/DynamicProps/button_top.ovm";
-		std::wstring rigidBodyPath = L"Meshes/DynamicProps/button_top.ovpm";
+		std::wstring rigidBodyPath = L"Meshes/DynamicProps/button_top.ovpc";
 		float mass = 10.f;
 	};
 
@@ -84,8 +84,16 @@ private:
 		std::wstring diffuseMapPath = L"Textures/Maps/chamber02_static/materials_models_props_door_01.dds";
 		std::wstring normalMapPath = L"Textures/Maps/chamber02_static/materials_models_props_door_01_normal.dds";
 
-		std::wstring modelPath = L"Meshes/DynamicProps/door.ovm";
-		std::wstring rigidBodyPath = L"Meshes/DynamicProps/door.ovpc";
+		std::wstring modelPath = L"Meshes/DynamicProps/door2.ovm";
+		std::wstring rigidBodyPath = L"Meshes/DynamicProps/door2.ovpc";
+	};
+
+	struct DynamicPropsParseNames
+	{
+		std::wstring button = L"button";
+		std::wstring elevator = L"elevator";
+		std::wstring door = L"door";
+		std::wstring cube = L"cube";
 	};
 
 	void SpawnButton(const XMFLOAT3& position);

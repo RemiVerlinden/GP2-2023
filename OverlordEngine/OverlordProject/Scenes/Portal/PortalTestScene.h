@@ -50,11 +50,6 @@ private:
 
 	Character* m_pCharacter{};
 	std::array<GameObject*,2> m_pPortals{};
-	GameObject* pBall1;
-	GameObject* pBall2;
-	GameObject* pBall3;
-	GameObject* pBall4;
-	GameObject* pTestObject;
 
 	GameObject* m_pMap;
 };

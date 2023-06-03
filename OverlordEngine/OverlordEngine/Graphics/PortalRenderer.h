@@ -1,7 +1,7 @@
 #pragma once
 #include <array>
 
-//#define ENABLEPORTALRENDERER // comment this if you want to play any scene that doesnt have anything to do with portals
+#define ENABLEPORTALRENDERER // comment this if you want to play any scene that doesnt have anything to do with portals
 
 class PortalComponent;
 

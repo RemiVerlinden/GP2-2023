@@ -26,6 +26,7 @@ void Character::Initialize(const SceneContext& /*sceneContext*/)
 void Character::InitCharacterSettings()
 {
 	m_CharacterDesc.rotationSpeed = 5;
+	m_TotalYaw = 90.f;
 }
 void Character::Update(const SceneContext& sceneContext)
 {

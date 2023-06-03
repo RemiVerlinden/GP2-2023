@@ -126,7 +126,7 @@ void MapLoader::LoadMapTexturesDebug(const std::wstring& mapName, ModelComponent
 void MapLoader::LoadMapTexturesRelease(const std::wstring& mapName, ModelComponent* pMapModel)
 {
 	// I need to get each submesh name and this is the only way I know how to do it
-	const auto pMeshFilter = ContentManager::Load<MeshFilter>(L"Meshes/Maps/" + mapName + L".ovm");
+	const auto pMeshFilter = ContentManager::Load<MeshFilter>(L"Meshes/Maps/" + mapName + L"_static.ovm");
 	pMeshFilter->BuildIndexBuffer(m_Scene.GetSceneContext());
 
 	const auto meshList = pMeshFilter->GetMeshes();
@@ -134,7 +134,7 @@ void MapLoader::LoadMapTexturesRelease(const std::wstring& mapName, ModelCompone
 
 	std::vector<SubmeshShaderInfo> submeshShaderInfoList;
 
-	fs::path mapPath(L"Resources/Textures/Maps/" + mapName);
+	fs::path mapPath(L"Resources/Textures/Maps/" + mapName + L"_static");
 	for (const auto submesh : meshList)
 	{
 		// this is all local info that I use as input for functions
@@ -352,15 +352,57 @@ MapLoader::ShaderType MapLoader::IdentifyShaderType(const std::wstring& submeshN
 
 void MapLoader::LoadDynamicProps(const std::wstring& mapName)
 {
-	fs::path mapPath = L"Resources/Models/Map/" + mapName + L"_dynamic-props";
+	DynamicPropsParseNames parserNames;
+	// Prepare the map of names to functions
+	std::map<std::wstring, void(MapLoader::*)(const XMFLOAT3&)> spawnFuncs = 
+	{
+		{parserNames.button, &MapLoader::SpawnButton},
+		{parserNames.elevator, &MapLoader::SpawnElevator},
+		{parserNames.door, &MapLoader::SpawnDoor},
+		{parserNames.cube, &MapLoader::SpawnCube}
+	};
 
+	fs::path mapPath = L"Resources/Meshes/Maps/" + mapName + L"_dynamic-props.txt";
+	std::wifstream file(mapPath);
 
+	if (!file.is_open())
+	{
+		throw std::runtime_error("Could not open file");
+	}
+
+	std::wstring line;
+	std::wstring itemName;
+	while (std::getline(file, line))
+	{
+		if (line == L"END")
+		{
+			itemName = L"";
+		}
+		else
+		{
+			std::wstringstream ss(line);
+			float x, y, z;
+			if (ss >> x && ss >> y && ss >> z)
+			{
+				auto spawnFuncIt = spawnFuncs.find(itemName);
+				if (spawnFuncIt != spawnFuncs.end())
+				{
+					(this->*spawnFuncIt->second)(XMFLOAT3(x, y, z));
+				}
+			}
+			else
+				itemName = line;
+		}
+	}
 }
 
 
 void MapLoader::SpawnButton(const XMFLOAT3& position)
 {
 	static ButtonProperties props;
+
+	static PxMaterial* pMaterial = PxGetPhysics().createMaterial(props.pxMaterial[0], props.pxMaterial[1], props.pxMaterial[2]);
+
 
 	auto pPhong = MaterialManager::Get()->CreateMaterial<PhongMaterial>();
 	pPhong->SetDiffuseTexture(props.diffuseMapPath);
@@ -370,12 +412,18 @@ void MapLoader::SpawnButton(const XMFLOAT3& position)
 	ModelComponent* pModel = pButton->AddComponent(new ModelComponent(props.modelPath));
 	pModel->SetMaterial(pPhong);
 
-	ButtonAnimComponent* pButtonAnim = pButton->AddComponent(new ButtonAnimComponent());
+	[[maybe_unused]]ButtonAnimComponent* pButtonAnim = pButton->AddComponent(new ButtonAnimComponent());
 
 	pButton->GetTransform()->Translate(position);
+
+	PxConvexMesh* pConvexMesh = ContentManager::Load<PxConvexMesh>(props.rigidBodyPath);
+	RigidBodyComponent* pRigidBody = pButton->AddComponent(new RigidBodyComponent(true));
+	pRigidBody->AddCollider(PxConvexMeshGeometry{ pConvexMesh }, *pMaterial, false);
+
+	m_InteractiveElements.buttons.emplace_back(pButton);
 }
 
-void MapLoader::SpawnElevator(const XMFLOAT3& position)
+void MapLoader::SpawnElevator(const XMFLOAT3& /*position*/)
 {
 }
 
@@ -389,16 +437,33 @@ void MapLoader::SpawnDoor(const XMFLOAT3& position)
 	pPhongSkinned->SetDiffuseTexture(props.diffuseMapPath);
 	pPhongSkinned->SetNormalTexture(props.normalMapPath);
 
-	GameObject* pDoor = m_Scene.AddChild(new GameObject());
-	ModelComponent* pModel = pDoor->AddComponent(new ModelComponent(props.modelPath));
-	pModel->SetMaterial(pPhongSkinned);
+	auto CreateDoor = [&](bool front) ->GameObject*
+	{
+		float scale = 0.041f; // I was unable to scale my object in 3d program without breaking the animation for OVM converter so this will have to do for now
+
+		GameObject* pDoor = m_Scene.AddChild(new GameObject());
+		ModelComponent* pModel = pDoor->AddComponent(new ModelComponent(props.modelPath));
+		pModel->SetMaterial(pPhongSkinned);
+
+		ModelAnimator* pAnimator = pModel->GetAnimator();
+		pAnimator->SetAnimation(0);
+		pAnimator->PlayOnce();
 
 
-	PxConvexMesh* pConvexMesh = ContentManager::Load<PxConvexMesh>(props.rigidBodyPath);
-	RigidBodyComponent* pRigidBody = pDoor->AddComponent(new RigidBodyComponent(true));
-	pRigidBody->AddCollider(PxConvexMeshGeometry{ pConvexMesh}, *pMaterial, false);
+		PxConvexMesh* pConvexMesh = ContentManager::Load<PxConvexMesh>(props.rigidBodyPath);
+		RigidBodyComponent* pRigidBody = pDoor->AddComponent(new RigidBodyComponent(true));
+		pRigidBody->AddCollider(PxConvexMeshGeometry{ pConvexMesh, PxMeshScale{scale} }, *pMaterial, false);
 
-	pDoor->GetTransform()->Translate(position);
+		pDoor->GetTransform()->Translate(position);
+		pDoor->GetTransform()->Scale(scale, scale, scale);
+
+		if (front) pDoor->GetTransform()->Rotate(0.f, 180.f, 0.f); // should be clear
+
+		return pDoor;
+	};
+
+	m_InteractiveElements.doors.emplace_back(CreateDoor(false), CreateDoor(true), false);
+
 }
 
 void MapLoader::SpawnCube(const XMFLOAT3& position)
@@ -422,6 +487,8 @@ void MapLoader::SpawnCube(const XMFLOAT3& position)
 	PxRigidBodyExt::updateMassAndInertia(*pRigidBody->GetPxRigidActor()->is<PxRigidBody>(), props.mass);
 
 	pCube->GetTransform()->Translate(position);
+
+	m_InteractiveElements.cubes.emplace_back(pCube);
 }
 
 

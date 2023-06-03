@@ -8,43 +8,57 @@ ModelAnimator::ModelAnimator(MeshFilter* pMeshFilter) :
 
 void ModelAnimator::Update(const SceneContext& sceneContext)
 {
+
+
 	if (m_IsPlaying && m_ClipSet)
 	{
+		// speaks for it self
 		float passedTicks = fmodf(sceneContext.pGameTime->GetElapsed() * m_CurrentClip.ticksPerSecond * m_AnimationSpeed, m_CurrentClip.duration);
-		m_TickCount = fmodf((m_Reversed ? m_TickCount - passedTicks : m_TickCount + passedTicks) + m_CurrentClip.duration, m_CurrentClip.duration);
 
-		AnimationKey keyA{}, keyB{};
-		for (int i = 0; i < m_CurrentClip.keys.size(); ++i)
+		if (m_PlayOnce && ((m_TickCount + passedTicks) >= (m_CurrentClip.duration - 1)))
 		{
-			if (m_CurrentClip.keys[i].tick > m_TickCount)
-			{
-				keyB = m_CurrentClip.keys[i];
-				keyA = m_CurrentClip.keys[i - 1];
-				break;
-			}
+			Pause();
+			m_PlayOnce = false;
+			m_TickCount = 12.f;
 		}
-
-		float blendFactor = (m_TickCount - keyA.tick) / (keyB.tick - keyA.tick);
-
-		size_t boneCount = m_CurrentClip.keys[0].boneTransforms.size();
-		m_Transforms.resize(boneCount);
-
-		for (int i = 0; i < boneCount; ++i)
+		else 
 		{
-			XMMATRIX transformA = XMLoadFloat4x4(&keyA.boneTransforms[i]);
-			XMMATRIX transformB = XMLoadFloat4x4(&keyB.boneTransforms[i]);
-
-			XMVECTOR scaleA, rotationA, translationA, scaleB, rotationB, translationB;
-			XMMatrixDecompose(&scaleA, &rotationA, &translationA, transformA);
-			XMMatrixDecompose(&scaleB, &rotationB, &translationB, transformB);
-
-			XMVECTOR scaleLerp = XMVectorLerp(scaleA, scaleB, blendFactor);
-			XMVECTOR rotationSlerp = XMQuaternionSlerp(rotationA, rotationB, blendFactor);
-			XMVECTOR translationLerp = XMVectorLerp(translationA, translationB, blendFactor);
-
-			XMMATRIX resultMatrix = XMMatrixScalingFromVector(scaleLerp) * XMMatrixRotationQuaternion(rotationSlerp) * XMMatrixTranslationFromVector(translationLerp);
-			XMStoreFloat4x4(&m_Transforms[i], resultMatrix);
+			// we check if new TickCount is bigger than duration, then we just store the remainder -> duration = 12 | totalTickCount = 14 -> newTickCount = 2
+			m_TickCount = fmodf((m_Reversed ? m_TickCount - passedTicks : m_TickCount + passedTicks) + m_CurrentClip.duration, m_CurrentClip.duration);
 		}
+	}
+	AnimationKey keyA{}, keyB{};
+	for (int i = 0; i < m_CurrentClip.keys.size(); ++i)
+	{
+		if (m_CurrentClip.keys[i].tick >= m_TickCount)
+		{
+			keyB = m_CurrentClip.keys[i];
+			keyA = m_CurrentClip.keys[i - 1];
+			break;
+		}
+	}
+
+	float blendFactor = (m_TickCount - keyA.tick) / (keyB.tick - keyA.tick);
+
+	size_t boneCount = m_CurrentClip.keys[0].boneTransforms.size();
+	m_Transforms.resize(boneCount);
+
+
+	for (int i = 0; i < boneCount; ++i)
+	{
+		XMMATRIX transformA = XMLoadFloat4x4(&keyA.boneTransforms[i]);
+		XMMATRIX transformB = XMLoadFloat4x4(&keyB.boneTransforms[i]);
+
+		XMVECTOR scaleA, rotationA, translationA, scaleB, rotationB, translationB;
+		XMMatrixDecompose(&scaleA, &rotationA, &translationA, transformA);
+		XMMatrixDecompose(&scaleB, &rotationB, &translationB, transformB);
+
+		XMVECTOR scaleLerp = XMVectorLerp(scaleA, scaleB, blendFactor);
+		XMVECTOR rotationSlerp = XMQuaternionSlerp(rotationA, rotationB, blendFactor);
+		XMVECTOR translationLerp = XMVectorLerp(translationA, translationB, blendFactor);
+
+		XMMATRIX resultMatrix = XMMatrixScalingFromVector(scaleLerp) * XMMatrixRotationQuaternion(rotationSlerp) * XMMatrixTranslationFromVector(translationLerp);
+		XMStoreFloat4x4(&m_Transforms[i], resultMatrix);
 	}
 }
 
@@ -104,4 +118,11 @@ void ModelAnimator::Reset(bool pause)
 		};
 		m_Transforms.assign(m_pMeshFilter->m_BoneCount, identity);
 	}
+}
+
+void ModelAnimator::PlayOnce()
+{
+	Reset(false);
+	m_PlayOnce = true;
+	m_IsPlaying = true;
 }

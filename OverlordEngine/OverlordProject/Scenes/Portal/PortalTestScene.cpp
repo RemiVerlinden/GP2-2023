@@ -15,22 +15,6 @@ void PortalTestScene::Initialize()
 	m_SceneContext.settings.enableOnGUI = true;
 	m_SceneContext.settings.drawGrid = false;
 
-	auto MakeArrowObject = [&](const XMFLOAT4& color) -> GameObject*
-	{
-		GameObject* pArrowObject = AddChild(new GameObject());
-		auto pMeshComponent = pArrowObject->AddComponent(new ModelComponent(L"Meshes/Arrow.ovm"));
-		auto pArrowMaterial = MaterialManager::Get()->CreateMaterial<ColorMaterial>();
-		pArrowMaterial->SetColor(color);
-		pMeshComponent->SetMaterial(pArrowMaterial);
-		
-		return pArrowObject;
-	};
-
-	pBall1 = MakeArrowObject(XMFLOAT4(Colors::Orange));
-	pBall2 = MakeArrowObject( XMFLOAT4(Colors::Blue));
-	pBall3 = MakeArrowObject( XMFLOAT4(Colors::Red));
-	pBall4 = MakeArrowObject( XMFLOAT4(Colors::Green));
-	pTestObject = MakeArrowObject(XMFLOAT4(Colors::White));
 
 	/*	pBall1 = AddChild(new SpherePrefab(0.5f, 10, XMFLOAT4(Colors::Orange)));
 	pBall2 = AddChild(new SpherePrefab(0.5f, 10, XMFLOAT4(Colors::Blue)));*/
@@ -49,7 +33,7 @@ void PortalTestScene::Initialize()
 	characterDesc.actionId_Jump = CharacterJump;
 
 	m_pCharacter = AddChild(new Character(characterDesc));
-	m_pCharacter->GetTransform()->Translate(0,2,0);
+	m_pCharacter->GetTransform()->Translate(-35,1,7.5f);
 
 	//Create portals
 	CreatePortals(m_pCharacter->GetCameraComponent());

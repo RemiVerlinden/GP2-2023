@@ -2,13 +2,13 @@
 #include "ButtonAnimComponent.h"
 ButtonAnimComponent::ButtonAnimComponent()
 	: m_IsPressed(false)
-	,m_OriginalPosition(m_pGameObject->GetTransform()->GetPosition())
 	, m_AnimInfo({0.8f,0.35f})
 { 
 }
 
 void ButtonAnimComponent::Initialize(const SceneContext&)
 {
+	m_OriginalPosition = m_pGameObject->GetTransform()->GetPosition();
 }
 
 void ButtonAnimComponent::SetPressed(bool pressed)
@@ -35,7 +35,8 @@ void ButtonAnimComponent::Update(const SceneContext& context)
 	XMFLOAT3 pressPosition = m_OriginalPosition;
 	pressPosition.y -= buttonState * m_AnimInfo.pressDepth;
 
-	m_pGameObject->GetTransform()->Translate(pressPosition);
+	GameObject* pButton = m_pGameObject; // just for clarity
+	pButton->GetTransform()->Translate(pressPosition);
 }
 
 

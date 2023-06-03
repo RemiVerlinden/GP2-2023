@@ -95,7 +95,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Materials\DiffuseMaterial_Skinned.cpp" />
+    <ClCompile Include="Materials\Portal\DecalMaterial.cpp" />
+    <ClCompile Include="Materials\Portal\Glass\FrostedGlassMaterial.cpp" />
+    <ClCompile Include="Materials\Portal\NoDrawMaterial.cpp" />
+    <ClCompile Include="Materials\Portal\PhongMaterial.cpp" />
     <ClCompile Include="Materials\Portal\PortalMaterial.cpp" />
+    <ClCompile Include="Materials\Portal\Glass\RefractingGlassMaterial.cpp" />
+    <ClCompile Include="Materials\Portal\StaticMapMaterial.cpp" />
     <ClCompile Include="Materials\Post\PostBlur.cpp" />
     <ClCompile Include="Materials\Post\PostGrayscale.cpp" />
     <ClCompile Include="Materials\Shadow\DiffuseMaterial_Shadow.cpp" />
@@ -104,8 +110,20 @@
     <ClCompile Include="Materials\DiffuseMaterial.cpp" />
     <ClCompile Include="Materials\SpikyMaterial.cpp" />
     <ClCompile Include="Materials\UberMaterial.cpp" />
+    <ClCompile Include="Portal\MapLoader.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
+      <IntrinsicFunctions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</IntrinsicFunctions>
+      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Neither</FavorSizeOrSpeed>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <FunctionLevelLinking Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </FunctionLevelLinking>
+    </ClCompile>
     <ClCompile Include="Prefabs\BoneObject.cpp" />
     <ClCompile Include="Prefabs\Character.cpp" />
+    <ClCompile Include="Scenes\Portal\PortalProps.cpp" />
     <ClCompile Include="Scenes\Portal\PortalTestScene.cpp" />
     <ClCompile Include="Scenes\Week 10\PostProcessingScene.cpp" />
     <ClCompile Include="Scenes\Week 3\PongScene.cpp" />
@@ -124,6 +142,7 @@
     <ClCompile Include="Scenes\Week 5\SoftwareSkinningScene_2.cpp" />
     <ClCompile Include="Scenes\Week 5\SoftwareSkinningScene_3.cpp" />
     <ClCompile Include="Scenes\Week 6\HardwareSkinningScene.cpp" />
+    <ClCompile Include="Scenes\Portal\TestPortalAnimations.cpp" />
     <ClCompile Include="Scenes\Week 7\CharacterScene.cpp" />
     <ClCompile Include="Scenes\Week 7\FontTestScene.cpp" />
     <ClCompile Include="Scenes\Week 7\PickingScene.cpp" />
@@ -153,7 +172,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Materials\DiffuseMaterial_Skinned.h" />
+    <ClInclude Include="Materials\Portal\DecalMaterial.h" />
+    <ClInclude Include="Materials\Portal\Glass\FrostedGlassMaterial.h" />
+    <ClInclude Include="Materials\Portal\NoDrawMaterial.h" />
+    <ClInclude Include="Materials\Portal\PhongMaterial.h" />
     <ClInclude Include="Materials\Portal\PortalMaterial.h" />
+    <ClInclude Include="Materials\Portal\Glass\RefractingGlassMaterial.h" />
+    <ClInclude Include="Materials\Portal\StaticMapMaterial.h" />
+    <ClInclude Include="Portal\ThreadPool.h" />
     <ClInclude Include="Materials\Post\PostBlur.h" />
     <ClInclude Include="Materials\Post\PostGrayscale.h" />
     <ClInclude Include="Materials\Shadow\DiffuseMaterial_Shadow.h" />
@@ -162,8 +188,10 @@
     <ClInclude Include="Materials\DiffuseMaterial.h" />
     <ClInclude Include="Materials\SpikyMaterial.h" />
     <ClInclude Include="Materials\UberMaterial.h" />
+    <ClInclude Include="Portal\MapLoader.h" />
     <ClInclude Include="Prefabs\BoneObject.h" />
     <ClInclude Include="Prefabs\Character.h" />
+    <ClInclude Include="Scenes\Portal\PortalProps.h" />
     <ClInclude Include="Scenes\Portal\PortalTestScene.h" />
     <ClInclude Include="Scenes\Week 10\PostProcessingScene.h" />
     <ClInclude Include="Scenes\Week 3\PongScene.h" />
@@ -182,6 +210,7 @@
     <ClInclude Include="Scenes\Week 5\SoftwareSkinningScene_2.h" />
     <ClInclude Include="Scenes\Week 5\SoftwareSkinningScene_3.h" />
     <ClInclude Include="Scenes\Week 6\HardwareSkinningScene.h" />
+    <ClInclude Include="Scenes\Portal\TestPortalAnimations.h" />
     <ClInclude Include="Scenes\Week 7\CharacterScene.h" />
     <ClInclude Include="Scenes\Week 7\FontTestScene.h" />
     <ClInclude Include="Scenes\Week 7\PickingScene.h" />

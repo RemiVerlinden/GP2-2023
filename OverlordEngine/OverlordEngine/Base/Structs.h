@@ -25,7 +25,7 @@ struct SceneSettings
 	bool drawUserDebug{ true };
 
 	bool vSyncEnabled{ true };
-	XMFLOAT4 clearColor{ Colors::CornflowerBlue };
+	XMFLOAT4 clearColor{ Colors::Black };
 
 	void Toggle_ShowInfoOverlay() { showInfoOverlay = !showInfoOverlay; }
 	bool Toggle_DrawPhysXDebug() { drawPhysXDebug = !drawPhysXDebug; }

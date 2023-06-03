@@ -31,11 +31,7 @@ private:
 	};
 
 	friend PortalComponent;
-	void PortalDraw();
 
-	void LoadMap();
-	void LoadMapTextures(const std::wstring& mapname, ModelComponent* pMapModel);
-	std::filesystem::path SearchForMatchingFile(fs::path directory, std::wregex pattern);
 
 	//std::wstring ConstructTextureFileName(const std::wstring& submeshName) const;
 	void CreatePortals(CameraComponent* playerCamera);

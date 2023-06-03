@@ -54,12 +54,13 @@ void BaseMaterial::UpdateEffectVariables(const SceneContext& sceneContext, const
 		// this function will be calles a lot of times during a single frame,
 		// in order to optimize, there was originally a check to see if the effect
 		// has already been updated once 
+#ifdef ENABLEPORTALRENDERER
 		if (PortalRenderer::Get()->IsRenderingPortals())
 		{
 			if (PortalRenderer::Get()->IsGameObjectPortal(pModelComponent->GetGameObject()))
 				return;
 		}
-
+#endif
 		m_LastUpdateFrame = sceneContext.frameNumber;
 		m_LastUpdateID = pModelComponent->GetComponentId();
 

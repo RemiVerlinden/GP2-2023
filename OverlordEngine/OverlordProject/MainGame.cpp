@@ -10,7 +10,8 @@
  //#define W8
  //#define W9
  //#define W10
-#define PORTAL
+//#define PORTAL
+#define PORTALTESTANIMATIONS
 
 /*MILESTONE Content*/
  //#define MILESTONE_1
@@ -63,6 +64,11 @@
 
 #ifdef PORTAL
 #include "Scenes\Portal\PortalTestScene.h"
+#endif
+
+#ifdef PORTALTESTANIMATIONS
+#include "Scenes\Portal\TestPortalAnimations.h"
+#include "Scenes\Portal\PortalProps.h"
 #endif
 
 #ifdef MILESTONE_1
@@ -147,6 +153,11 @@ void MainGame::Initialize()
 
 #ifdef PORTAL
 	SceneManager::Get()->AddGameScene(new PortalTestScene());
+#endif
+
+#ifdef PORTALTESTANIMATIONS
+	//SceneManager::Get()->AddGameScene(new TestPortalAnimations());
+	SceneManager::Get()->AddGameScene(new PortalProps());
 #endif
 
 #ifdef MILESTONE_1

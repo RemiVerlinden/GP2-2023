@@ -27,7 +27,10 @@ OverlordGame::~OverlordGame()
 	TextRenderer::Destroy();
 	ShadowMapRenderer::Destroy();
 	//CameraViewMapRenderer::Destroy();
+#ifdef ENABLEPORTALRENDERER
 	PortalRenderer::Destroy();
+#endif
+
 	Logger::Release(); //TODO > Singleton
 
 	//ImGui Cleanup
@@ -331,7 +334,9 @@ HRESULT OverlordGame::InitializeGame()
 	SpriteRenderer::Create(m_GameContext);
 	TextRenderer::Create(m_GameContext);
 	ShadowMapRenderer::Create(m_GameContext);
+#ifdef ENABLEPORTALRENDERER
 	PortalRenderer::Create(m_GameContext);
+#endif
 	//***************
 	//GAME INITIALIZE
 	Initialize();

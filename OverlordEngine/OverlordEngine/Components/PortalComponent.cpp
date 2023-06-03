@@ -101,6 +101,7 @@ void PortalComponent::Update(const SceneContext& /*sceneContext*/)
 
 void PortalComponent::PostUpdate(const SceneContext& /*sceneContext*/)
 {
+	// I dont understand why but this makes my portal cameras work, I havent looked at why this works yet
 	m_pPortalCam->SetProjection(m_pPlayerCam->GetProjection());
 
 	
@@ -142,14 +143,15 @@ void PortalComponent::HandlePortalCameraClipPlane()
 	// http://www.terathon.com/lengyel/Lengyel-Oblique.pdf
 
 	TransformComponent* clipPlane = GetTransform();  // Assuming GetTransform() returns the object's TransformComponent
-	int dot = CalculateDot(clipPlane->GetForward(), clipPlane->GetPosition(), m_pPortalCam->GetTransform()->GetPosition());
-
+	int dot = CalculateDot(clipPlane->GetForward(), clipPlane->GetWorldPosition(), m_pPortalCam->GetTransform()->GetWorldPosition());
 	// To multiply a point or vector by a matrix in DirectX, we can use XMVector3TransformCoord or XMVector3TransformNormal
-	DirectX::XMMATRIX worldToCameraMatrix = DirectX::XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_pPortalCam->GetView()));
+	XMMATRIX worldToCameraMatrix = DirectX::XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_pPortalCam->GetView()));
 
-	DirectX::XMVECTOR camSpacePos = DirectX::XMVector3TransformCoord(XMLoadFloat3(&clipPlane->GetPosition()), worldToCameraMatrix);
-	DirectX::XMVECTOR camSpaceNormal = DirectX::XMVector3TransformNormal(XMLoadFloat3(&clipPlane->GetForward()), worldToCameraMatrix) * static_cast<float>(dot);
-	float camSpaceDst = -XMVectorGetX(DirectX::XMVector3Dot(camSpacePos, camSpaceNormal)) + m_NearClipPlaneOffset;
+	XMVECTOR camSpacePos = XMVector3TransformCoord(XMLoadFloat3(&clipPlane->GetWorldPosition()), worldToCameraMatrix);
+	XMVECTOR camSpaceNormal = XMVector3TransformNormal(XMLoadFloat3(&clipPlane->GetForward()), worldToCameraMatrix) * static_cast<float>(dot);
+	float camSpaceDst = -XMVectorGetX(XMVector3Dot(camSpacePos, camSpaceNormal)) + m_NearClipPlaneOffset;
+
+	std::cout << camSpaceDst << std::endl;
 
 	// Don't use oblique clip plane if very close to portal as it seems this can cause some visual artifacts
 	if (fabs(camSpaceDst) > m_NearClipPlaneLimit)

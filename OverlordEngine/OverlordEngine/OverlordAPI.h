@@ -38,6 +38,10 @@
 #include "Components/SpriteComponent.h" //Week 4
 #include "Components/ControllerComponent.h" //Week 5
 #include "Components/ParticleEmitterComponent.h" //Week 9
+#include "Components/ParticleEmitterComponent.h" //Week 9
+
+#include "Components/ButtonAnimComponent.h"
+
 
 #include "Content/ContentLoader.h"
 #include "Content/EffectLoader.h"

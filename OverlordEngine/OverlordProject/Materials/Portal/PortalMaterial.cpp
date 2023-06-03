@@ -13,7 +13,7 @@ void PortalMaterial::InitializeEffectVariables()
 
 void PortalMaterial::OnUpdateModelVariables(const SceneContext&, const ModelComponent* /*pModel*/) const
 {
-	////  2. Update the ShadowMap texture
+	////  2. Update the portal texture
 	RenderTarget* portalRenderTarget = PortalRenderer::Get()->GetPortalRenderTarget(m_Portal);
 	SetVariable_Texture(L"gPortalMap", portalRenderTarget->GetColorShaderResourceView());
 }

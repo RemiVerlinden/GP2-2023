@@ -40,6 +40,15 @@
     <ClCompile Include="Scenes\Week 10\PostProcessingScene.cpp" />
     <ClCompile Include="Materials\Post\PostGrayscale.cpp" />
     <ClCompile Include="Materials\Post\PostBlur.cpp" />
+    <ClCompile Include="Materials\Portal\StaticMapMaterial.cpp" />
+    <ClCompile Include="Materials\Portal\DecalMaterial.cpp" />
+    <ClCompile Include="Portal\MapLoader.cpp" />
+    <ClCompile Include="Materials\Portal\PhongMaterial.cpp" />
+    <ClCompile Include="Materials\Portal\NoDrawMaterial.cpp" />
+    <ClCompile Include="Materials\Portal\Glass\FrostedGlassMaterial.cpp" />
+    <ClCompile Include="Materials\Portal\Glass\RefractingGlassMaterial.cpp" />
+    <ClCompile Include="Scenes\Portal\TestPortalAnimations.cpp" />
+    <ClCompile Include="Scenes\Portal\PortalProps.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainGame.h" />
@@ -80,5 +89,15 @@
     <ClInclude Include="Scenes\Week 10\PostProcessingScene.h" />
     <ClInclude Include="Materials\Post\PostGrayscale.h" />
     <ClInclude Include="Materials\Post\PostBlur.h" />
+    <ClInclude Include="Materials\Portal\StaticMapMaterial.h" />
+    <ClInclude Include="Materials\Portal\DecalMaterial.h" />
+    <ClInclude Include="Portal\MapLoader.h" />
+    <ClInclude Include="Portal\ThreadPool.h" />
+    <ClInclude Include="Materials\Portal\PhongMaterial.h" />
+    <ClInclude Include="Materials\Portal\NoDrawMaterial.h" />
+    <ClInclude Include="Materials\Portal\Glass\FrostedGlassMaterial.h" />
+    <ClInclude Include="Materials\Portal\Glass\RefractingGlassMaterial.h" />
+    <ClInclude Include="Scenes\Portal\TestPortalAnimations.h" />
+    <ClInclude Include="Scenes\Portal\PortalProps.h" />
   </ItemGroup>
 </Project>

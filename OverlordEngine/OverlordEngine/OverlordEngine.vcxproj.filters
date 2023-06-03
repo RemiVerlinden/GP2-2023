@@ -58,6 +58,7 @@
     <ClCompile Include="Misc\CameraViewMapMaterial.cpp" />
     <ClCompile Include="Components\PortalComponent.cpp" />
     <ClCompile Include="Graphics\PortalRenderer.cpp" />
+    <ClCompile Include="Components\ButtonAnimComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -130,5 +131,6 @@
     <ClInclude Include="Misc\CameraViewMapMaterial.h" />
     <ClInclude Include="Components\PortalComponent.h" />
     <ClInclude Include="Graphics\PortalRenderer.h" />
+    <ClInclude Include="Components\ButtonAnimComponent.h" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ModelComponent.h"
 
+
 ModelComponent::ModelComponent(const std::wstring& assetFile, bool castShadows) :
 	m_AssetFile(assetFile),
 	m_CastShadows(castShadows)
@@ -64,11 +65,13 @@ void ModelComponent::Draw(const SceneContext& sceneContext)
 		Logger::LogWarning(L"ModelComponent::Draw() > No Default Material Set!");
 		return;
 	}
+#ifdef ENABLEPORTALRENDERER
 	if (PortalRenderer::Get()->IsRenderingPortals())
 	{
 		if (PortalRenderer::Get()->IsGameObjectPortal(this->GetGameObject()))
 			return;
 	}
+#endif
 	//Update Materials
 	BaseMaterial* pCurrMaterial = nullptr;
 	for (const auto& subMesh : m_pMeshFilter->GetMeshes())

@@ -186,7 +186,9 @@ void GameScene::RootDraw()
 #pragma endregion
 
 #pragma region PORTAL STUFF
+#ifdef ENABLEPORTALRENDERER
 	PortalRenderer::Get()->RenderPortals(m_SceneContext, this);
+#endif // DEBUG
 #pragma endregion
 
 #pragma region USER PASS

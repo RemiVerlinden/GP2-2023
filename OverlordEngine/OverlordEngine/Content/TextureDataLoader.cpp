@@ -30,7 +30,6 @@ TextureData* TextureDataLoader::LoadContent(const ContentLoadInfo& loadInfo)
 		HANDLE_ERROR(LoadFromWICFile(assetPath.c_str(), DirectX::WIC_FLAGS_NONE, &info, *image));
 	}
 	
-
 	HANDLE_ERROR(CreateTexture(m_GameContext.d3dContext.pDevice, image->GetImages(), image->GetImageCount(),image->GetMetadata(), &pTexture));
 	HANDLE_ERROR(CreateShaderResourceView(m_GameContext.d3dContext.pDevice, image->GetImages(), image->GetImageCount(), image->GetMetadata(), &pShaderResourceView));
 

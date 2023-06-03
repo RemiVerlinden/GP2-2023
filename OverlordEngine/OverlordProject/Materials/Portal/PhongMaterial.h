@@ -13,7 +13,6 @@ public:
 	void SetDiffuseTexture(const std::wstring& assetFile);
 	void SetNormalTexture(const std::wstring& assetFile);
 	void SetSpecularTexture(const std::wstring& assetFile);
-
 	bool UsingSpecularTexture() const { return m_UseSpecularTexture; }
 protected:
 	void InitializeEffectVariables() override {};

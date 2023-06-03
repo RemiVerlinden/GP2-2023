@@ -1,4 +1,6 @@
 #pragma once
+class ModelComponent;
+class PhongMaterial;
 class PortalProps: public GameScene
 {
 public:
@@ -14,7 +16,8 @@ protected:
 	void OnGUI() override;
 	void Update() override;
 private:
-	ModelComponent* pModel{};
+	ModelComponent* pModelTop{};
+	PhongMaterial* m_pPhong{};
 	ButtonAnimComponent* m_pButtonAnim;
 	int m_AnimationClipId{ 0 };
 	float m_AnimationSpeed{ 1.f };

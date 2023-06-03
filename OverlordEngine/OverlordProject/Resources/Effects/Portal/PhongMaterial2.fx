@@ -180,26 +180,23 @@ float3 CalculateSpecular(float3 viewDirection, float3 normal, float2 texCoord)
 
 float3 CalculateNormal(float3 tangent, float3 normal, float2 texCoord)
 {
-	if (gUseTextureNormal)
-	{
-		float3 binormal = normalize(cross(normal, tangent));
-		const float3x3 localAxis = float3x3(tangent,binormal,normal);
+    if (gUseTextureNormal)
+    {
+        float3 binormal = normalize(cross(normal, tangent));
+        const float3x3 localAxis = float3x3(tangent, binormal, normal);
 
-		//extract normal from normal map and transform to [-1,1] range
-		float3 sampledNormal = gTextureNormal.Sample(gTextureSampler, texCoord).rgb;
-		sampledNormal = sampledNormal*2-1;
-		
-		// Flip the green channel of the sampled normal if necessary
-		if (gFlipGreenChannel)
-		{
-			sampledNormal.g = -sampledNormal.g;
+        float3 sampledNormal = gTextureNormal.Sample(gTextureSampler, texCoord).rgb;
+        sampledNormal = sampledNormal * 2 - 1;
 
-		}
+        if (gFlipGreenChannel)
+        {
+            sampledNormal.g = -sampledNormal.g;
+        }
 
-		normal = normalize(mul(sampledNormal, localAxis));
-	}
+        normal = normalize(mul(sampledNormal, localAxis));
+    }
 
-	return normal;
+    return normalize(normal); // Normalize the transformed normal
 }
 
 float3 CalculateDiffuse(float3 normal, float2 texCoord)
@@ -295,7 +292,7 @@ float4 MainPS(VS_Output input) : SV_TARGET {
 	float3 diffColor = CalculateDiffuse(newNormal, input.TexCoord);
 		
 	//AMBIENT
-	float3 ambientColor = gColorAmbient * gAmbientIntensity;
+	float3 gAmbientColor = gColorAmbient * gAmbientIntensity;
 		
 	//ENVIRONMENT MAPPING
 	float3 environmentColor = CalculateEnvironment(viewDirection, newNormal);
@@ -304,7 +301,7 @@ float4 MainPS(VS_Output input) : SV_TARGET {
 	environmentColor = CalculateFresnelFalloff(newNormal, viewDirection, environmentColor);
 		
 	//FINAL COLOR CALCULATION
-	float3 finalColor = diffColor + specColor + environmentColor + ambientColor;
+	float3 finalColor = diffColor + specColor + environmentColor + gAmbientColor;
 	
 	//OPACITY
 	float opacity = CalculateOpacity(input.TexCoord);

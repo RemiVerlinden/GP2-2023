@@ -1,4 +1,7 @@
+// #define FLIP_TEXTURE_Y
+
 float4x4 gWorldViewProj : WORLDVIEWPROJECTION; 
+float4x4 gWorldInverseTranspose : WORLDINVERSETRANSPOSE;
 float4x4 gWorld : WORLD;
 float4x4 gViewInverse : VIEWINVERSE;
 
@@ -10,16 +13,19 @@ float4 light1Color = float4( 1.0f, 1.0f, 1.0f, 1.0f );
 
 
 /************* TWEAKABLES **************/
-float4 AmbientColor = {0.25f, 0.25f, 0.25f, 1.0f};
-float4 DiffuseColor = {1.0f, 1.0f, 1.0f, 1.0f};
-float4 SpecularColor = {1.0f, 1.0f, 1.0f, 1.0f};
-float Glossiness = 20.0;
+float3 gAmbientColor = {0.07f, 0.07f, 0.07f};
+float4 gDiffuseColor = {1.0f, 1.0f, 1.0f, 1.0f};
+float gSpecularPower = 55.0;
+float gSpecular = 0.5;
+float gNormal = 1.0;
 
+
+bool gUseTextureNormal = false;
+bool gUseTextureDiffuse = false;
 
 Texture2D gDiffuseMap;
 Texture2D gNormalMap;
 Texture2D gSpecularMap;
-bool gUseSpecular = false;
 
 
 /****************************************************/
@@ -54,10 +60,10 @@ struct VertexOutput
         float4 position    		: SV_POSITION;
 		float2 texCoord    		: TEXCOORD0;
 		float3 lightVec   		: TEXCOORD1;
-		float3 eyeVec   		: TEXCOORD2;
-		float3 worldNormal		: TEXCOORD3;
-		float3 worldBinormal	: TEXCOORD4;
-		float3 worldTangent		: TEXCOORD5;
+        float3 WorldNormal	    : TEXCOORD2;
+        float3 WorldTangent	    : TEXCOORD3;
+        float3 WorldBinormal    : TEXCOORD4;
+        float3 WorldView	    : TEXCOORD5;
 };
 
 
@@ -82,59 +88,26 @@ BlendState NoBlending
 };
 
 
-/****************************************************/
-/******************** HELPER ************************/
-/****************************************************/
-
-float4x4 CalculateInverse(float4x4 m)
-{
-    float3 cofactors0 = cross(m[1].yzw, m[2].yzw);
-    float3 cofactors1 = cross(m[2].yzw, m[0].yzw);
-    float3 cofactors2 = cross(m[0].yzw, m[1].yzw);
-
-    float3 signs = float3(1.0, -1.0, 1.0);
-
-    float3x3 cofactorMatrix = float3x3(
-        signs[0] * cofactors0,
-        signs[1] * cofactors1,
-        signs[2] * cofactors2
-    );
-
-    float determinant = dot(m[0].xyz, cofactors0);
-
-    float invDeterminant = 1.0 / determinant;
-
-    float4x4 inverseMatrix = float4x4(
-        float4(cofactorMatrix[0] * invDeterminant, 0.0),
-        float4(cofactorMatrix[1] * invDeterminant, 0.0),
-        float4(cofactorMatrix[2] * invDeterminant, 0.0),
-        float4(0.0, 0.0, 0.0, 1.0)
-    );
-
-    return transpose(inverseMatrix);
-}
-
-
 /**************************************/
 /***** VERTEX SHADER ******************/
 /**************************************/
 
-VertexOutput VS(VertexInput In)
-{
-    float4x4 worldInverse = CalculateInverse(gWorld);
-    float4x4 worldInverseTranspose = transpose(worldInverse);
-
-	VertexOutput Out; 															//create the output struct
-    Out.worldNormal = mul(float4(In.normal,1.0), worldInverseTranspose).xyz;		//put the normal in world space pass it to the pixel shader
-    Out.worldBinormal = mul(float4(In.binormal,1.0), worldInverseTranspose).xyz;	//put the binormal in world space pass it to the pixel shader
-    Out.worldTangent = mul(float4(In.tangent,1.0), worldInverseTranspose).xyz;		//put the tangent in world space pass it to the pixel shader
-    float3 worldSpacePos = mul(float4(In.position,1.0), gWorld).xyz;				//put the vertex in world space
-    // Out.lightVec = lightPosition - worldSpacePos;
-    Out.lightVec = gLightDirection;					                    //create the world space light vector and pass it to the pixel shader
-	Out.eyeVec = (float3)gViewInverse[3] - worldSpacePos; 						//create the eye vector in world space and pass it to the pixel shader
-	Out.texCoord.xy = In.texCoord;										//pass the UV coordinates to the pixel shader
-    Out.position = mul(float4(In.position,1.0), gWorldViewProj);				//put the vertex position in clip space and pass it to the pixel shader
-    return Out;
+VertexOutput VS(VertexInput IN) {	
+    VertexOutput OUT = (VertexOutput)0;
+    OUT.WorldNormal = mul(float4(IN.normal,1.0),gWorldInverseTranspose).xyz;
+    OUT.WorldTangent = mul(float4(IN.tangent,1.0),gWorldInverseTranspose).xyz;
+    OUT.WorldBinormal = mul(float4(IN.binormal,1.0),gWorldInverseTranspose).xyz;
+    float4 Po = float4(IN.position.xyz,1);
+    float3 Pw = mul(Po,gWorld).xyz;
+    OUT.lightVec = -normalize(gLightDirection);
+#ifdef FLIP_TEXTURE_Y
+    OUT.texCoord = float2(IN.texCoord.x,(1.0-IN.texCoord.y));
+#else /* !FLIP_TEXTURE_Y */
+    OUT.texCoord = IN.texCoord.xy;
+#endif /* !FLIP_TEXTURE_Y */
+    OUT.WorldView = normalize(gViewInverse[3].xyz - Pw);
+    OUT.position = mul(Po,gWorldViewProj);
+    return OUT;
 }
 
 
@@ -142,48 +115,49 @@ VertexOutput VS(VertexInput In)
 /***** FRAGMENT PROGRAM ***************/
 /**************************************/
 
-float4 PS(VertexOutput In,uniform float4 lightColor) : SV_TARGET
+void phong_shading(VertexOutput IN,
+		    float3 LightColor,
+		    float3 Nn,
+		    float3 Ln,
+		    float3 Vn,
+		    out float3 DiffuseContrib,
+		    out float3 SpecularContrib)
 {
-// Fetch the diffuse and normal maps
-float4 ColorTexture = gDiffuseMap.Sample(TextureSampler, In.texCoord.xy);
-float4 SpecularTexture = gSpecularMap.Sample(TextureSampler, In.texCoord.xy);
-float3 normal = gNormalMap.Sample(TextureSampler, In.texCoord.xy).xyz * 2.0 - 1.0;
-
-// Create tangent space vectors
-float3 Nn = In.worldNormal;
-float3 Bn = In.worldBinormal;
-float3 Tn = In.worldTangent;
-
-// Offset world space normal with normal map values
-float3 N = (normal.z * Nn) + (normal.x * Bn) + (normal.y * -Tn);
-N = normalize(N);
-
-// Create lighting vectors - view vector and light vector
-float3 L = normalize(In.lightVec.xyz);
-float3 V = normalize(In.eyeVec.xyz);
-
-// Lighting
-
-// Ambient light
-float4 Ambient = AmbientColor * ColorTexture;
-
-// Diffuse light
-float diffuselight = saturate(dot(Nn, -L));
-float4 Diffuse = DiffuseColor * ColorTexture * diffuselight;
-
-// Specular light
-float4 Specular;
-if(gUseSpecular)
-{
-    float3 R = -reflect(L, N);
-    float RdotV = saturate(dot(R, V));
-    float gloss = Glossiness * SpecularTexture.a;
-    float SpecPower = pow(RdotV, gloss);
-    Specular = SpecPower * SpecularColor * SpecularTexture;
+    float3 Hn = normalize(Vn + Ln);
+    float4 litV = lit(dot(Ln,Nn),dot(Hn,Nn),gSpecularPower);
+    DiffuseContrib = litV.y * LightColor;
+    SpecularContrib = litV.y * litV.z * gSpecular * LightColor;
 }
 
-return (Ambient + Diffuse + Specular) * lightColor;
 
+float4 PS(VertexOutput IN) : SV_TARGET {
+    float3 diffContrib;
+    float3 specContrib;
+
+    // make everything correct for calulation
+    float3 Ln = normalize(IN.lightVec);
+    float3 Vn = normalize(IN.WorldView);
+    float3 Nn = normalize(IN.WorldNormal);
+    float3 Tn = normalize(IN.WorldTangent);
+    float3 Bn = normalize(IN.WorldBinormal);
+    
+    // get normal map if present
+    if(gUseTextureNormal)
+    { 
+        float3 bump = gNormal * (gNormalMap.Sample(TextureSampler, IN.texCoord).rgb - float3(0.5, 0.5, 0.5));
+        Nn = Nn + bump.x * Tn + bump.y * Bn;
+        Nn = normalize(Nn);
+    }
+    phong_shading(IN, light1Color, Nn, Ln, Vn, diffContrib, specContrib);
+
+    // diffuse
+    float3 diffuseColor = gDiffuseColor;
+    if(gUseTextureDiffuse) diffuseColor = gDiffuseMap.Sample(TextureSampler, IN.texCoord).rgb; 
+
+    // final combine
+    float3 result = specContrib + (diffuseColor * (diffContrib + gAmbientColor));
+
+    return float4(result, 1.0);
 }
 
 /****************************************************/
@@ -198,9 +172,9 @@ technique11 Default
 		SetDepthStencilState(EnableDepth, 0);
 		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
 
-		SetVertexShader( CompileShader( vs_4_0, VS() ) );
+		SetVertexShader( CompileShader( vs_5_0, VS() ) );
 		SetGeometryShader( NULL );
-		SetPixelShader( CompileShader( ps_4_0, PS(light1Color) ) );
+		SetPixelShader( CompileShader( ps_5_0, PS() ) );
     }
 }
 

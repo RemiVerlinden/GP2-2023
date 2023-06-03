@@ -1,30 +1,3 @@
-/*
-******************
-* DAE Ubershader *
-******************
-
-**This Shader Contains:
-
-- Diffuse (Texture & Color)
-	- Regular Diffuse
-- Specular
-	- Specular Level (Texture & Value)
-	- Shininess (Value)
-	- Models
-		- Blinn
-		- Phong
-- Ambient (Color)
-- EnvironmentMapping (CubeMap)
-	- Reflection + Fresnel Falloff
-	- Refraction
-- Normal (Texture)
-- Opacity (Texture & Value)
-
--Techniques
-	- WithAlphaBlending
-	- WithoutAlphaBlending
-*/
-
 //GLOBAL MATRICES
 //***************
 // The World View Projection Matrix
@@ -68,58 +41,7 @@ float3 gLightDirection :DIRECTION
 
 //DIFFUSE
 //*******
-bool gUseHalfLambert
-<
-	string UIName = "Half Lambert";
-	string UIWidget = "Bool";
-> = false;
-
-bool gUseTextureDiffuse
-<
-	string UIName = "Diffuse Texture";
-	string UIWidget = "Bool";
-> = false;
-
-float4 gColorDiffuse
-<
-	string UIName = "Diffuse Color";
-	string UIWidget = "Color";
-> = float4(1,1,1,1);
-
-Texture2D gTextureDiffuse
-<
-	string UIName = "Diffuse Texture";
-	string UIWidget = "Texture";
->;
-
-//SPECULAR
-//********
-float4 gColorSpecular
-<
-	string UIName = "Specular Color";
-	string UIWidget = "Color";
-> = float4(1,1,1,1);
-
-Texture2D gTextureSpecularIntensity
-<
-	string UIName = "Specular Level Texture";
-	string UIWidget = "Texture";
->;
-
-bool gUseTextureSpecularIntensity
-<
-	string UIName = "Specular Level Texture";
-	string UIWidget = "Bool";
-> = false;
-
-int gShininess
-<
-	string UIName = "Shininess";
-	string UIWidget = "Slider";
-	float UIMin = 1;
-	float UIMax = 100;
-	float UIStep = 0.1f;
-> = 15;
+bool gUseHalfLambert = false;
 
 //AMBIENT
 //*******
@@ -474,7 +396,8 @@ VS_Output MainVS(VS_Input input) {
 }
 
 // The main pixel shader
-float4 MainPS(VS_Output input) : SV_TARGET {
+float4 MainPS(VS_Output input) : SV_TARGET 
+{
 	// NORMALIZE
 	float3 normal = normalize(input.Normal);
 	float3 tangent = normalize(input.Tangent);
@@ -484,28 +407,19 @@ float4 MainPS(VS_Output input) : SV_TARGET {
 	//NORMAL
 	float3 newNormal = CalculateNormal(tangent, normal, input.TexCoord);
 			
-	//SPECULAR
-	float3 specColor = CalculateSpecular(viewDirection, newNormal, input.TexCoord);
-		
-	//DIFFUSE
-	float3 diffColor = CalculateDiffuse(newNormal, input.TexCoord);
-		
 	//AMBIENT
-	float3 ambientColor = gColorAmbient * gAmbientIntensity;
+	float3 gAmbientColor = gColorAmbient * gAmbientIntensity;
 		
-	//ENVIRONMENT MAPPING
-	float3 environmentColor = CalculateEnvironment(viewDirection, newNormal);
-	
 	//FRESNEL FALLOFF
 	environmentColor = CalculateFresnelFalloff(newNormal, viewDirection, environmentColor);
 		
 	//FINAL COLOR CALCULATION
-	float3 finalColor = diffColor + specColor + environmentColor + ambientColor;
+	float3 finalColor = diffColor + gAmbientColor;
 	
 	//OPACITY
-	float opacity = CalculateOpacity(input.TexCoord);
+	// float opacity = CalculateOpacity(input.TexCoord);
 	
-	return float4(finalColor,opacity);
+	return float4(finalColor,1.f);
 }
 
 // Default Technique

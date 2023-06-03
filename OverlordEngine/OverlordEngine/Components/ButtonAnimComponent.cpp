@@ -4,7 +4,7 @@ ButtonAnimComponent::ButtonAnimComponent(GameObject* button)
 	: m_pButton(button)
 	, m_IsPressed(false)
 	,m_OriginalPosition(button->GetTransform()->GetPosition())
-	, m_AnimInfo({1.f,0.35f})
+	, m_AnimInfo({0.8f,0.35f})
 { 
 }
 
@@ -25,7 +25,7 @@ void ButtonAnimComponent::Update(const SceneContext& context)
 	{
 			buttonState += timestep / m_AnimInfo.animationTime;
 	}
-	else if(buttonState > 0.f)
+	else if(!m_IsPressed && buttonState > 0.f)
 	{
 			buttonState -= timestep / m_AnimInfo.animationTime;
 	}

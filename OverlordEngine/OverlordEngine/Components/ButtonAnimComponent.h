@@ -6,7 +6,7 @@ public:
 	~ButtonAnimComponent() override = default;
 
 	void SetPressed(bool pressed);
-
+	bool GetPressed() { return m_IsPressed; }
 protected:
 	void Initialize(const SceneContext& sceneContext) override;
 	void Update(const SceneContext&) override;

@@ -1,6 +1,6 @@
 float4x4 gWorld;
 float4x4 gLightViewProj;
-float4x4 gBones[70];
+float4x4 gBones[125];
  
 DepthStencilState depthStencilState
 {

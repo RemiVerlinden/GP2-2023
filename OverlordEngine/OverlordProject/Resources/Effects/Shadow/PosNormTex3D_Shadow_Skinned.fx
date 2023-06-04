@@ -3,7 +3,7 @@ float4x4 gWorldViewProj : WORLDVIEWPROJECTION;
 float4x4 gWorldViewProj_Light;
 float3 gLightDirection = float3(-0.577f, -0.577f, 0.577f);
 float gShadowMapBias = 0.01f;
-float4x4 gBones[70];
+float4x4 gBones[125];
 
 Texture2D gDiffuseMap;
 Texture2D gShadowMap;

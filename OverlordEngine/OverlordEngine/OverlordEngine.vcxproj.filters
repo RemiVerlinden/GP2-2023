@@ -60,6 +60,7 @@
     <ClCompile Include="Graphics\PortalRenderer.cpp" />
     <ClCompile Include="Components\Portal\ButtonAnimComponent.cpp" />
     <ClCompile Include="Components\Portal\DoorComponent.cpp" />
+    <ClCompile Include="Components\Portal\PlayerAnimComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -134,5 +135,6 @@
     <ClInclude Include="Graphics\PortalRenderer.h" />
     <ClInclude Include="Components\Portal\ButtonAnimComponent.h" />
     <ClInclude Include="Components\Portal\DoorComponent.h" />
+    <ClInclude Include="Components\Portal\PlayerAnimComponent.h" />
   </ItemGroup>
 </Project>

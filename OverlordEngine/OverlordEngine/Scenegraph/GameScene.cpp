@@ -222,7 +222,6 @@ void GameScene::RootDraw()
 #pragma region POST-PROCESSING PASS
 	//POST-PROCESSING_PASS
 	//++++++++++++++++++++
-
 	TODO_W10(L"Add Post-Processing PASS logic")
 
 	//No need to swap RenderTargets is there aren't any PP Effects...

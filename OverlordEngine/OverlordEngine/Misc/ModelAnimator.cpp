@@ -24,7 +24,7 @@ void ModelAnimator::Update(const SceneContext& sceneContext)
 		{
 			Pause();
 			m_PlayOnce = false;
-			m_TickCount = finalAnimationTick;
+			m_TickCount = finalAnimationTick-0.001f;
 		}
 
 		else 
@@ -36,7 +36,7 @@ void ModelAnimator::Update(const SceneContext& sceneContext)
 	AnimationKey keyA{}, keyB{};
 	for (int i = 0; i < m_CurrentClip.keys.size(); ++i)
 	{
-		if (m_CurrentClip.keys[i].tick >= m_TickCount)
+		if (m_CurrentClip.keys[i].tick > m_TickCount)
 		{
 			keyB = m_CurrentClip.keys[i];
 			keyA = m_CurrentClip.keys[i - 1];

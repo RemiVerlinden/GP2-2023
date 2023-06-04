@@ -5,7 +5,7 @@ float4x4 gWorldInverseTranspose : WORLDINVERSETRANSPOSE;
 float4x4 gWorld : WORLD;
 float4x4 gViewInverse : VIEWINVERSE;
 
-float4x4 gBones[70];
+float4x4 gBones[125];
 
 /************** light info **************/
 float3 gLightDirection = float3(-0.577f, -0.577f, 0.577f);

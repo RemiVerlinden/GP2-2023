@@ -22,12 +22,62 @@ void Character::Initialize(const SceneContext& /*sceneContext*/)
 	m_pCameraComponent->SetActive(true); //Uncomment to make this camera the active camera
 	m_pCameraComponent->SetFieldOfView(60 * DirectX::XM_PI / 180.f);
 	m_pCameraHolder->GetTransform()->Translate(0.f, m_CharacterDesc.controller.halfHeight * 0.5f , 0.f);
+
+	// character model and animations
+	m_pPlayerAnimObject = AddChild(new GameObject());
+	m_pPlayerAnimObject->GetTransform()->Translate(0, -m_CharacterDesc.controller.halfHeight, 0);
+
+	m_pPlayerAnimComponent = m_pPlayerAnimObject->AddComponent(new PlayerAnimComponent(this));
+	m_pPlayerAnimComponent->SetAnimation(PlayerAnimComponent::NoGun_StandingIdle);
 }
 void Character::InitCharacterSettings()
 {
 	m_CharacterDesc.rotationSpeed = 5;
 	m_TotalYaw = 90.f;
 }
+
+// very extremely terrible but no time for better
+void Character::UpdateAnimationState(const SceneContext& sceneContext, bool isGrounded)
+{
+	if (!isGrounded)
+	{
+		m_pPlayerAnimComponent->SetAnimation(PlayerAnimComponent::NoGun_StandingJump);
+		return;
+	}
+
+	bool back = sceneContext.pInput->IsActionTriggered(m_CharacterDesc.actionId_MoveBackward);
+	bool forward = sceneContext.pInput->IsActionTriggered(m_CharacterDesc.actionId_MoveForward);
+	bool left = sceneContext.pInput->IsActionTriggered(m_CharacterDesc.actionId_MoveLeft);
+	bool right = sceneContext.pInput->IsActionTriggered(m_CharacterDesc.actionId_MoveRight);
+
+	if (forward && !back)
+	{
+		if (right && !left)
+			m_pPlayerAnimComponent->SetAnimation(PlayerAnimComponent::NoGun_RunNE);
+		else if (left && !right)
+			m_pPlayerAnimComponent->SetAnimation(PlayerAnimComponent::NoGun_RunNW);
+		else
+			m_pPlayerAnimComponent->SetAnimation(PlayerAnimComponent::NoGun_RunN);
+	}
+	else if (back && !forward)
+	{
+		if (right && !left)
+			m_pPlayerAnimComponent->SetAnimation(PlayerAnimComponent::NoGun_RunSE);
+		else if (left && !right)
+			m_pPlayerAnimComponent->SetAnimation(PlayerAnimComponent::NoGun_RunSW);
+		else
+			m_pPlayerAnimComponent->SetAnimation(PlayerAnimComponent::NoGun_RunS);
+	}
+	else if (right && !left)
+		m_pPlayerAnimComponent->SetAnimation(PlayerAnimComponent::NoGun_RunE);
+	else if (left && !right)
+		m_pPlayerAnimComponent->SetAnimation(PlayerAnimComponent::NoGun_RunW);
+
+	if (!(back || forward || left || right))
+		m_pPlayerAnimComponent->SetAnimation(PlayerAnimComponent::NoGun_StandingIdle);
+
+}
+
 void Character::Update(const SceneContext& sceneContext)
 {
 	if (m_pCameraComponent->IsActive())
@@ -163,7 +213,8 @@ void Character::Update(const SceneContext& sceneContext)
 		PxVec3 direction{ footPos.x - centerPos.x, footPos.y - centerPos.y, footPos.z - centerPos.z };
 		direction.y -= 0.001f;
 
-		if (!(m_pControllerComponent->GetCollisionFlags() & PxControllerCollisionFlag::eCOLLISION_DOWN))
+		bool isGrounded = m_pControllerComponent->GetCollisionFlags() & PxControllerCollisionFlag::eCOLLISION_DOWN;
+		if (!isGrounded)
 		{
 			m_TotalVelocity.y -= m_FallAcceleration * timeStep;
 			m_TotalVelocity.y = std::max(m_TotalVelocity.y, -m_CharacterDesc.maxFallSpeed);
@@ -198,6 +249,8 @@ void Character::Update(const SceneContext& sceneContext)
 		m_pControllerComponent->Move(outputVelocity);
 		//The above is a simple implementation of Movement Dynamics, adjust the code to further improve the movement logic and behaviour.
 		//Also, it can be usefull to use a seperate RayCast to check if the character is grounded (more responsive)
+
+		UpdateAnimationState(sceneContext, isGrounded);
 	}
 }
 
@@ -237,6 +290,8 @@ void Character::DrawImGui()
 		if (ImGui::Checkbox("Character Camera", &isActive))
 		{
 			m_pCameraComponent->SetActive(isActive);
+			auto pModel = m_pPlayerAnimObject->GetComponent<ModelComponent>();
+			pModel->SetRenderOnlyThroughPortal(isActive);
 		}
 	}
 }

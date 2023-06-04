@@ -65,11 +65,20 @@ void ModelComponent::Draw(const SceneContext& sceneContext)
 		Logger::LogWarning(L"ModelComponent::Draw() > No Default Material Set!");
 		return;
 	}
+	
+
 #ifdef ENABLEPORTALRENDERER
 	if (PortalRenderer::Get()->IsRenderingPortals())
 	{
 		if (PortalRenderer::Get()->IsGameObjectPortal(this->GetGameObject()))
 			return;
+	}
+	else
+	{
+		if (m_RenderModelPortalOnly)
+		{
+			return;
+		}
 	}
 #endif
 	//Update Materials

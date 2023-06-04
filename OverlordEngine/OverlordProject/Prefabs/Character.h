@@ -14,12 +14,12 @@ struct CharacterDesc
 		controller.contactOffset = .01f;
 	}
 
-	float maxMoveSpeed{ 15.f };
+	float maxMoveSpeed{ 7.f };
 	float maxFallSpeed{ 15.f };
 
 	float JumpSpeed{ 15.f };
 
-	float moveAccelerationTime{ .3f };
+	float moveAccelerationTime{ .2f };
 	float fallAccelerationTime{ .3f };
 
 	PxBoxControllerDesc controller{};
@@ -46,6 +46,7 @@ public:
 
 	float GetPitch() const { return m_TotalPitch; }
 	float GetYaw() const { return m_TotalYaw; }
+	float GetCharacterHalfHeight() const { return m_CharacterDesc.controller.halfHeight; }
 	void DrawImGui();
 	CameraComponent* GetCameraComponent() const { return m_pCameraComponent; }
 protected:
@@ -54,9 +55,13 @@ protected:
 private:
 	void InitCharacterSettings();
 private:
+	void UpdateAnimationState(const SceneContext& sceneContext,  bool isGrounded);
 	GameObject* m_pCameraHolder{};
 	CameraComponent* m_pCameraComponent{};
 	ControllerComponent* m_pControllerComponent{};
+
+	GameObject* m_pPlayerAnimObject{};
+	PlayerAnimComponent* m_pPlayerAnimComponent{};
 
 	CharacterDesc m_CharacterDesc;
 	float m_TotalPitch{}, m_TotalYaw{};				//Total camera Pitch(X) and Yaw(Y) rotation

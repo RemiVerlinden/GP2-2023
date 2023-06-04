@@ -39,6 +39,9 @@ void PostProcessingMaterial::InitializeBase(const GameContext& gameContext, UINT
 	rtDesc.height = gameContext.windowHeight;
 	rtDesc.enableColorSRV = true;
 	rtDesc.enableColorBuffer = true;
+	rtDesc.enableDepthBuffer = true;
+	rtDesc.enableDepthSRV = true;
+	rtDesc.generateMipMaps_Color = false;
 
 	m_pOutputTarget = new RenderTarget(gameContext.d3dContext);
 	m_pOutputTarget->Create(rtDesc);

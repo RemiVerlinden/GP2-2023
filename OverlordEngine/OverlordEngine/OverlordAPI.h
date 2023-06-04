@@ -42,6 +42,7 @@
 
 #include "Components/Portal/ButtonAnimComponent.h"
 #include "Components/Portal/DoorComponent.h"
+#include "Components/Portal/PlayerAnimComponent.h"
 
 
 #include "Content/ContentLoader.h"

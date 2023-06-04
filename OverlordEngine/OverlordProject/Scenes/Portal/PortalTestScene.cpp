@@ -14,15 +14,12 @@ void PortalTestScene::Initialize()
 {
 	m_SceneContext.settings.enableOnGUI = true;
 	m_SceneContext.settings.drawGrid = false;
-
-
-	/*	pBall1 = AddChild(new SpherePrefab(0.5f, 10, XMFLOAT4(Colors::Orange)));
-	pBall2 = AddChild(new SpherePrefab(0.5f, 10, XMFLOAT4(Colors::Blue)));*/
+	m_SceneContext.settings.drawPhysXDebug = false;
 
 
 	//Ground Plane
 	const auto pDefaultMaterial = PxGetPhysics().createMaterial(0.5f, 0.5f, 0.5f);
-	GameSceneExt::CreatePhysXGroundPlane(*this, pDefaultMaterial);
+	//GameSceneExt::CreatePhysXGroundPlane(*this, pDefaultMaterial);
 
 	//Character
 	CharacterDesc characterDesc{ pDefaultMaterial };
@@ -118,8 +115,8 @@ void PortalTestScene::CreatePortals(CameraComponent* playerCamera)
 	orangePortal->SetLinkedPortal(bluePortal);
 	bluePortal->SetLinkedPortal(orangePortal);
 
-	orangePortal->GetTransform()->TranslateWorld({-5, 0.f, 5});
-	bluePortal->GetTransform()->TranslateWorld({ 5, 0, 5 });
+	orangePortal->GetTransform()->TranslateWorld({3, -10.f, -2});
+	bluePortal->GetTransform()->TranslateWorld({ -3, -10, -2 });
 
 	//orangePortal->GetTransform()->Rotate( 0,20,0 );
 	//bluePortal->GetTransform()->Rotate(0,90,0 );
@@ -133,17 +130,38 @@ void PortalTestScene::MovePortal(Portal portal)
 		assert(false);
 	}
 
-	//if (!m_pPortals[portal])
-	//	InitializePortal(portal);
+	XMFLOAT3 newPortalPos = m_pCharacter->GetCameraComponent()->GetTransform()->GetWorldPosition();
+	XMFLOAT3 cameraForwardVec = m_pCharacter->GetCameraComponent()->GetTransform()->GetForward();
 
-	m_pPortals[portal]->GetTransform()->Translate(m_pCharacter->GetTransform()->GetPosition());
+	const float distanceFromCamera = 5.f;
+
+	XMVECTOR forwardVec = XMLoadFloat3(&cameraForwardVec) * distanceFromCamera;
+	XMFLOAT3 forwardFloat3;
+	XMStoreFloat3(&forwardFloat3, forwardVec);
+
+	newPortalPos.x += forwardFloat3.x;
+	newPortalPos.y += forwardFloat3.y;
+	newPortalPos.z += forwardFloat3.z;
+	newPortalPos.y -= 1.5f;
+
+	m_pPortals[portal]->GetTransform()->Translate(newPortalPos);
 	//m_pPortals[portal]->GetTransform()->Translate(10,10,10);
 	
-	auto rotation = m_pCharacter->GetCameraComponent()->GetTransform()->GetWorldRotation();
+	XMFLOAT4 rotation = m_pCharacter->GetCameraComponent()->GetTransform()->GetWorldRotation();
+	if (portal == Orange)
+	{
+		XMVECTOR axis = XMVectorSet(0, 1, 0, 0);
+		float angle = XM_PI;
+		XMVECTOR rotationVec = XMQuaternionRotationAxis(axis, angle);
+		XMVECTOR newRotation = XMQuaternionMultiply(rotationVec, XMLoadFloat4(&rotation));
+		XMFLOAT4 newRotationFloat4;
+		XMStoreFloat4(&newRotationFloat4, newRotation);
+		rotationVec = XMQuaternionNormalize(newRotation);
+		XMStoreFloat4(&rotation, newRotation);
+	}
 	m_pPortals[portal]->GetTransform()->RotateWorld(XMLoadFloat4(&rotation));
-	//m_pPortals[portal]->GetTransform()->Rotate(0, m_pCharacter->GetYaw(), 0);
 }
-
+//I want to multiply cameraForwardVec with distanceFromCamera and afterwards add it to newPortalPos and set the new portal transform as this position
 
 void PortalTestScene::OnGUI()
 {
@@ -197,16 +215,7 @@ void PortalTestScene::Update()
 	{
 		XMFLOAT3 characterPos = m_pCharacter->GetTransform()->GetPosition();
 		XMFLOAT3 newCubePos = characterPos;
-		newCubePos.y += 5;
+		newCubePos.y += 3;
 		m_pCube->GetTransform()->Translate(newCubePos);
 	}
-
-
-	if (m_SceneContext.pInput->IsKeyboardKey(InputState::pressed, 'G'))
-	{
-		static bool open = false;
-		open = !open;
-		m_pDoor->StartInteraction();
-	}
-
 }

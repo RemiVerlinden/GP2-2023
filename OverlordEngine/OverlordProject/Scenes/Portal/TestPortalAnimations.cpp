@@ -2,6 +2,7 @@
 #include "TestPortalAnimations.h"
 
 #include "Materials/DiffuseMaterial_Skinned.h"
+#include "Materials/Portal/PhongMaterial_Skinned.h"
 #include "Materials/ColorMaterial.h"
   
 TestPortalAnimations::~TestPortalAnimations()
@@ -19,12 +20,24 @@ void TestPortalAnimations::Initialize()
 	m_SceneContext.settings.enableOnGUI = true;
 
 
-	const auto pSkinnedMaterial = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Skinned>();
-	pSkinnedMaterial->SetDiffuseTexture(L"Textures/Maps/chamber02_static/materials_models_props_door_01.dds");
+	const auto pSkinnedMaterialFrame = MaterialManager::Get()->CreateMaterial<PhongMaterial_Skinned>();
+	pSkinnedMaterialFrame->SetDiffuseTexture(L"Textures/Player/BallBot/ballbot_frame.dds");
+	pSkinnedMaterialFrame->SetNormalTexture(L"Textures/Player/BallBot/ballbot_frame_normal.dds");
+
+	const auto pSkinnedMaterialShell = MaterialManager::Get()->CreateMaterial<PhongMaterial_Skinned>();
+	pSkinnedMaterialShell->SetDiffuseTexture(L"Textures/Player/BallBot/ballbot_shell.dds");
+	pSkinnedMaterialShell->SetNormalTexture(L"Textures/Player/BallBot/ballbot_shell_normal.dds");
+
+	const auto pSkinnedMaterialEye = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Skinned>();
+	pSkinnedMaterialEye->SetDiffuseTexture(L"Textures/Player/BallBot/bot_eye_ring_lights.dds");
 
 	const auto pObject = AddChild(new GameObject);
-	const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/DynamicProps/door.ovm"));
-	pModel->SetMaterial(pSkinnedMaterial);
+	const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/Player/BallBot.ovm"));
+
+
+	pModel->SetMaterial(pSkinnedMaterialShell, 0);
+	pModel->SetMaterial(pSkinnedMaterialFrame, 1);
+	pModel->SetMaterial(pSkinnedMaterialEye, 2);
 
 	pObject->GetTransform()->Scale(0.15f);
 

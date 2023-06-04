@@ -6,7 +6,8 @@
 class Character;
 class ModelComponent;
 class PortalComponent;
-
+class PostColorGrading;
+class PostSSAO;
 class PortalTestScene : public GameScene
 {
 public:
@@ -49,6 +50,7 @@ private:
 	};
 
 	Character* m_pCharacter{};
+	GameObject* m_pPlayerAnimObject{};
 	std::array<GameObject*,2> m_pPortals{};
 
 	GameObject* m_pCube{};

@@ -2,7 +2,7 @@ float4x4 gWorld : WORLD;
 float4x4 gWorldViewProj : WORLDVIEWPROJECTION; 
 float3 gLightDirection = float3(-0.577f, -0.577f, 0.577f);
 
-float4x4 gBones[70];
+float4x4 gBones[125];
 
 Texture2D gDiffuseMap;
 SamplerState samLinear

@@ -103,6 +103,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Components\Portal\PlayerAnimComponent.h" />
     <ClInclude Include="Components\Portal\ButtonAnimComponent.h" />
     <ClInclude Include="Components\ControllerComponent.h" />
     <ClInclude Include="Components\ParticleEmitterComponent.h" />
@@ -182,6 +183,7 @@
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Components\Portal\PlayerAnimComponent.cpp" />
     <ClCompile Include="Components\Portal\ButtonAnimComponent.cpp" />
     <ClCompile Include="Components\ControllerComponent.cpp" />
     <ClCompile Include="Components\ParticleEmitterComponent.cpp" />

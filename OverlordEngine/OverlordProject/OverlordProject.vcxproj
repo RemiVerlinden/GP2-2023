@@ -104,7 +104,9 @@
     <ClCompile Include="Materials\Portal\Glass\RefractingGlassMaterial.cpp" />
     <ClCompile Include="Materials\Portal\StaticMapMaterial.cpp" />
     <ClCompile Include="Materials\Post\PostBlur.cpp" />
+    <ClCompile Include="Materials\Post\PostColorGrading.cpp" />
     <ClCompile Include="Materials\Post\PostGrayscale.cpp" />
+    <ClCompile Include="Materials\Post\PostSSAO.cpp" />
     <ClCompile Include="Materials\Shadow\DiffuseMaterial_Shadow.cpp" />
     <ClCompile Include="Materials\Shadow\DiffuseMaterial_Shadow_Skinned.cpp" />
     <ClCompile Include="Materials\SkullBallUberMaterial.cpp" />
@@ -181,6 +183,8 @@
     <ClInclude Include="Materials\Portal\PortalMaterial.h" />
     <ClInclude Include="Materials\Portal\Glass\RefractingGlassMaterial.h" />
     <ClInclude Include="Materials\Portal\StaticMapMaterial.h" />
+    <ClInclude Include="Materials\Post\PostColorGrading.h" />
+    <ClInclude Include="Materials\Post\PostSSAO.h" />
     <ClInclude Include="Portal\ThreadPool.h" />
     <ClInclude Include="Materials\Post\PostBlur.h" />
     <ClInclude Include="Materials\Post\PostGrayscale.h" />

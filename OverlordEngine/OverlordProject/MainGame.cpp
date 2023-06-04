@@ -156,8 +156,8 @@ void MainGame::Initialize()
 #endif
 
 #ifdef PORTALTESTANIMATIONS
-	//SceneManager::Get()->AddGameScene(new TestPortalAnimations());
-	SceneManager::Get()->AddGameScene(new PortalProps());
+	SceneManager::Get()->AddGameScene(new TestPortalAnimations());
+	//SceneManager::Get()->AddGameScene(new PortalProps());
 #endif
 
 #ifdef MILESTONE_1

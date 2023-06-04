@@ -21,6 +21,8 @@ public:
 	ModelAnimator* GetAnimator() const { return m_pAnimator; }
 	bool HasAnimator() const { return m_pAnimator != nullptr; }
 
+	void SetRenderOnlyThroughPortal(bool renderOnlyThroughPortal) { m_RenderModelPortalOnly = renderOnlyThroughPortal; }
+
 protected:
 	void Initialize(const SceneContext& sceneContext) override;
 	void Update(const SceneContext&) override;
@@ -38,6 +40,8 @@ private:
 	bool m_MaterialChanged{};
 
 	ModelAnimator* m_pAnimator{};
+
+	bool m_RenderModelPortalOnly = false;
 
 	//W9
 	bool m_CastShadows{ true };

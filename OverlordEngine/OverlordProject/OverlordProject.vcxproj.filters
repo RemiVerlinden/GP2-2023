@@ -50,6 +50,8 @@
     <ClCompile Include="Scenes\Portal\TestPortalAnimations.cpp" />
     <ClCompile Include="Scenes\Portal\PortalProps.cpp" />
     <ClCompile Include="Materials\Portal\PhongMaterial_Skinned.cpp" />
+    <ClCompile Include="Materials\Post\PostColorGrading.cpp" />
+    <ClCompile Include="Materials\Post\PostSSAO.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainGame.h" />
@@ -101,5 +103,7 @@
     <ClInclude Include="Scenes\Portal\TestPortalAnimations.h" />
     <ClInclude Include="Scenes\Portal\PortalProps.h" />
     <ClInclude Include="Materials\Portal\PhongMaterial_Skinned.h" />
+    <ClInclude Include="Materials\Post\PostColorGrading.h" />
+    <ClInclude Include="Materials\Post\PostSSAO.h" />
   </ItemGroup>
 </Project>

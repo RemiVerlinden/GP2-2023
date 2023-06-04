@@ -32,7 +32,7 @@ void DoorComponent::SetDoorState(bool open)
 void DoorComponent::SetDoorCollision(bool enable)
 {
 	// I DID NOT WANT TO DO IT LIKE THIS BUT YOU GIVE ME NO OTHER OPTION
-	const static XMFLOAT3 disabledCollisionPos{ D3D11_FLOAT32_MAX, D3D11_FLOAT32_MAX, D3D11_FLOAT32_MAX };
+	const static XMFLOAT3 disabledCollisionPos{ D3D11_FLOAT32_MAX/2, D3D11_FLOAT32_MAX/2, D3D11_FLOAT32_MAX/2 };
 
 	const static XMFLOAT3 originalCollisionPos = m_pGameObject->GetTransform()->GetPosition();
 

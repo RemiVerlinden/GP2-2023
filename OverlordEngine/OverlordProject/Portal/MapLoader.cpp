@@ -259,7 +259,7 @@ void MapLoader::LoadNoDrawShaderForSubmesh(SubmeshShaderInfo& shaderInfo)
 	NoDrawMaterial* pNoDrawMaterial = MaterialManager::Get()->CreateMaterial<NoDrawMaterial>();
 
 #ifdef _DEBUG
-	pNoDrawMaterial->SetDebugRendering(false);
+	pNoDrawMaterial->SetDebugRendering(true);
 #else
 	pNoDrawMaterial->SetDebugRendering(false);
 #endif

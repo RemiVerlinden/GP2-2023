@@ -1,7 +1,7 @@
 #pragma once
 class ModelComponent;
 class PhongMaterial;
-class PortalProps: public GameScene
+class PortalProps final: public GameScene
 {
 public:
 	PortalProps() : GameScene(L"PortalProps") {}

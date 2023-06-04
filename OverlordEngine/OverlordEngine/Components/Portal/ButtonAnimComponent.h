@@ -2,7 +2,7 @@
 #include <variant>
 #include "Components\Portal\DoorComponent.h"
 
-class ButtonAnimComponent : public BaseComponent
+class ButtonAnimComponent final : public BaseComponent
 {
 public:
 	using InteractionComponent = std::variant<DoorComponent*>; // all components that can interact with the button

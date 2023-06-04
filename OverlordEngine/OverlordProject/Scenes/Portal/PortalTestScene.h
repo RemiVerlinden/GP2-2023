@@ -11,7 +11,7 @@ class PostSSAO;
 class PortalTestScene : public GameScene
 {
 public:
-	PortalTestScene() :GameScene(L"PortalTestScene") {}
+	PortalTestScene() :GameScene(L"Chamber 02") {}
 	~PortalTestScene() override = default;
 	PortalTestScene(const PortalTestScene& other) = delete;
 	PortalTestScene(PortalTestScene&& other) noexcept = delete;
@@ -34,9 +34,7 @@ private:
 	friend PortalComponent;
 
 
-	//std::wstring ConstructTextureFileName(const std::wstring& submeshName) const;
 	void CreatePortals(CameraComponent* playerCamera);
-	//void InitializePortal(Portal portal);
 	void MovePortal(Portal portal);
 
 

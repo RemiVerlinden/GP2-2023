@@ -47,16 +47,19 @@ void DoorComponent::SetDoorCollision(bool enable)
 	}
 }
 
+// start interaction with button pressed
 void DoorComponent::StartInteraction() 
 {
 	SetDoorState(true);
 }
 
+// end interaction with button released
 void DoorComponent::EndInteraction()
 {
 	SetDoorState(false);
 }
 
+// disable collision when door is open
 void DoorComponent::Update(const SceneContext& /*context*/)
 {
 	static bool wasOpen = m_IsOpen;
@@ -68,6 +71,7 @@ void DoorComponent::Update(const SceneContext& /*context*/)
 	}
 }
 
+// there are door sides so I have to create 1 normally and 1 flipped 180 degrees
 GameObject* DoorComponent::CreateDoorSide(bool front)
 {
 	float scale = 0.041f; // I was unable to scale my object in 3d program without breaking the animation for OVM converter so this will have to do for now

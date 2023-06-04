@@ -12,7 +12,8 @@
 
 void PortalTestScene::Initialize()
 {
-	m_SceneContext.settings.enableOnGUI = true;
+	m_SceneContext.settings.showInfoOverlay = true;
+	m_SceneContext.settings.enableOnGUI = false;
 	m_SceneContext.settings.drawGrid = false;
 	m_SceneContext.settings.drawPhysXDebug = false;
 
@@ -118,8 +119,6 @@ void PortalTestScene::CreatePortals(CameraComponent* playerCamera)
 	orangePortal->GetTransform()->TranslateWorld({3, -10.f, -2});
 	bluePortal->GetTransform()->TranslateWorld({ -3, -10, -2 });
 
-	//orangePortal->GetTransform()->Rotate( 0,20,0 );
-	//bluePortal->GetTransform()->Rotate(0,90,0 );
 }
 
 void PortalTestScene::MovePortal(Portal portal)
@@ -145,7 +144,6 @@ void PortalTestScene::MovePortal(Portal portal)
 	newPortalPos.y -= 1.5f;
 
 	m_pPortals[portal]->GetTransform()->Translate(newPortalPos);
-	//m_pPortals[portal]->GetTransform()->Translate(10,10,10);
 	
 	XMFLOAT4 rotation = m_pCharacter->GetCameraComponent()->GetTransform()->GetWorldRotation();
 	if (portal == Orange)
@@ -161,36 +159,14 @@ void PortalTestScene::MovePortal(Portal portal)
 	}
 	m_pPortals[portal]->GetTransform()->RotateWorld(XMLoadFloat4(&rotation));
 }
-//I want to multiply cameraForwardVec with distanceFromCamera and afterwards add it to newPortalPos and set the new portal transform as this position
 
 void PortalTestScene::OnGUI()
 {
 	m_pCharacter->DrawImGui();
 
-	static float scale = 1.f;
 
 	ImGui::Begin("PortalTestScene");
 
-	ImGui::DragFloat("Scale", &scale, 0.1f, 0.1f, 2.f);
-
-	static XMFLOAT3 testObjectPos{};
-
-	float pos[] = { testObjectPos.x, testObjectPos.y, testObjectPos.z };
-
-	if (ImGui::SliderFloat3("blue portal camera rotation", pos, -XM_PIDIV2, XM_PIDIV2))
-		testObjectPos = { pos[0], pos[1], pos[2] };
-
-	XMVECTOR rotationQuat = XMQuaternionRotationRollPitchYaw(pos[0], pos[1], pos[2]);
-
-	m_pPortals[Portal::Blue]->GetComponent<PortalComponent>()->GetCameraRotator()->GetTransform()->Rotate(rotationQuat);
-
-
-
-	float vectorArray[4] = {};
-	XMStoreFloat4((XMFLOAT4*)vectorArray, rotationQuat);
-	if (ImGui::InputFloat4("My Vector", vectorArray))
-	{
-	}
 
 	ImGui::End();
 }

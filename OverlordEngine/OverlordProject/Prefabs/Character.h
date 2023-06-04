@@ -7,9 +7,11 @@ struct CharacterDesc
 		float height = 2.f)
 	{
 		controller.setToDefault();
-		controller.radius = radius;
-		controller.height = height;
+		controller.halfSideExtent = radius;
+		controller.halfForwardExtent = radius;
+		controller.halfHeight = height / 2.f + radius;
 		controller.material = pMaterial;
+		controller.contactOffset = .01f;
 	}
 
 	float maxMoveSpeed{ 15.f };
@@ -20,7 +22,7 @@ struct CharacterDesc
 	float moveAccelerationTime{ .3f };
 	float fallAccelerationTime{ .3f };
 
-	PxCapsuleControllerDesc controller{};
+	PxBoxControllerDesc controller{};
 
 	float rotationSpeed{ 60.f };
 

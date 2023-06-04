@@ -37,6 +37,11 @@ GameObject* MapLoader::LoadMap(const std::wstring& mapName)
 	return pMapObject;
 }
 
+const std::vector<GameObject*>& MapLoader::GetCubes() const
+{
+	return m_InteractiveElements.cubes;
+}
+
 // in debug mode the "std::regex_search" is a literal olympic gold medalist for the "shit performance" category
 // so I tried to optimise it with a thread pool (barely doubles the speed but is still something)
 //
@@ -416,9 +421,37 @@ void MapLoader::SpawnButton(const XMFLOAT3& position)
 
 	pButton->GetTransform()->Translate(position);
 
+	RigidBodyComponent* pButtonRigidBody = pButton->AddComponent(new RigidBodyComponent(false));
+	pButtonRigidBody->SetKinematic(true);
+	pButtonRigidBody->SetCollisionGroup(CollisionGroup::Group2);
+
+
 	PxConvexMesh* pConvexMesh = ContentManager::Load<PxConvexMesh>(props.rigidBodyPath);
-	RigidBodyComponent* pRigidBody = pButton->AddComponent(new RigidBodyComponent(true));
-	pRigidBody->AddCollider(PxConvexMeshGeometry{ pConvexMesh }, *pMaterial, false);
+	PxConvexMeshGeometry buttonMeshGeometry{ pConvexMesh };
+	pButtonRigidBody->AddCollider(buttonMeshGeometry, *pMaterial, false);
+
+	// trigger for button
+	RigidBodyComponent* pButtonTriggeRigidBody = pButton->AddComponent(new RigidBodyComponent(true));
+	pButtonTriggeRigidBody->SetCollisionIgnoreGroups(CollisionGroup::Group2);
+
+	buttonMeshGeometry.scale = PxMeshScale(1.06f); // just make the trigger a little bigger because I like it that way
+	pButtonTriggeRigidBody->AddCollider(buttonMeshGeometry, *pMaterial, true, { 0,0.4f,0 }); // third parameter set to true for trigger
+	pButton->SetOnTriggerCallBack([pButtonAnim](GameObject*, GameObject*, PxTriggerAction action)
+	{
+		static size_t objectInTrigger = 0;
+
+		if (action == PxTriggerAction::ENTER)
+		{
+			++objectInTrigger;
+			pButtonAnim->SetPressed(true);
+		}
+		if (action == PxTriggerAction::LEAVE)
+		{
+			--objectInTrigger;
+			if (objectInTrigger == 0) pButtonAnim->SetPressed(false);
+		}
+	});
+	
 
 	m_InteractiveElements.buttons.emplace_back(pButton);
 }
@@ -462,7 +495,7 @@ void MapLoader::SpawnDoor(const XMFLOAT3& position)
 		return pDoor;
 	};
 
-	m_InteractiveElements.doors.emplace_back(CreateDoor(false), CreateDoor(true), false);
+	m_InteractiveElements.doors.emplace_back(std::make_pair(CreateDoor(false), CreateDoor(true)), false);
 
 }
 

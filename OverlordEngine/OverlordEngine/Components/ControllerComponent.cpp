@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ControllerComponent.h"
 
-ControllerComponent::ControllerComponent(const PxCapsuleControllerDesc& controllerDesc):
+ControllerComponent::ControllerComponent(const PxBoxControllerDesc& controllerDesc):
 	m_ControllerDesc{ controllerDesc }
 {
 }
@@ -16,6 +16,7 @@ void ControllerComponent::Initialize(const SceneContext& /*sceneContext*/)
 			m_ControllerDesc.userData = this;
 
 			PxControllerManager* controllerManager = GetScene()->GetPhysxProxy()->GetControllerManager();
+			controllerManager->setTessellation(true, 5);
 			m_pController = controllerManager->createController(m_ControllerDesc);
 			assert(m_pController);
 

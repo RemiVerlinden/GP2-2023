@@ -3,7 +3,7 @@
 class ControllerComponent : public BaseComponent
 {
 public:
-	ControllerComponent(const PxCapsuleControllerDesc& controllerDesc);
+	ControllerComponent(const PxBoxControllerDesc& controllerDesc);
 	~ControllerComponent() override = default;
 
 	ControllerComponent(const ControllerComponent& other) = delete;
@@ -31,7 +31,7 @@ protected:
 
 private:
 
-	PxCapsuleControllerDesc m_ControllerDesc{};
+	PxBoxControllerDesc m_ControllerDesc{};
 
 	PxController* m_pController{};
 	PxControllerCollisionFlags m_CollisionFlag{};

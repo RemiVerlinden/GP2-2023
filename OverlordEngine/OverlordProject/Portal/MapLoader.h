@@ -29,6 +29,7 @@ public:
 	MapLoader(GameScene& gamescene);
 
 	[[maybe_unused]]GameObject* LoadMap(const std::wstring& mapName);
+	const std::vector<GameObject*>& GetCubes() const;
 
 private:
 	void LoadMapTexturesDebug(const std::wstring& mapName, ModelComponent* pMapModel);
@@ -103,11 +104,19 @@ private:
 
 	GameScene& m_Scene;
 
+	struct Door
+	{
+		std::pair<GameObject*, GameObject*> pDoor;
+		bool isOpen = false;
+	};
+
 	struct InteractiveElements 
 	{
 		std::vector<GameObject*> buttons;
 		std::vector<GameObject*> elevators;
-		std::vector<GameObject*> doors;
+		std::vector<GameObject*> cubes;
+		std::vector<Door> doors;
 	};
+
 	InteractiveElements m_InteractiveElements;
 };

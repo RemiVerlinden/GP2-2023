@@ -51,6 +51,8 @@ private:
 	Character* m_pCharacter{};
 	std::array<GameObject*,2> m_pPortals{};
 
+	GameObject* m_pCube{};
+
 	GameObject* m_pMap;
 };
 

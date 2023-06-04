@@ -46,6 +46,8 @@ void PortalTestScene::Initialize()
 	MapLoader maploader{ *this };
 	maploader.LoadMap(L"chamber02");
 
+	m_pCube = maploader.GetCubes()[0];
+
 	//Input
 	auto inputAction = InputAction(CharacterMoveLeft, InputState::down, 'A');
 	m_SceneContext.pInput->AddInputAction(inputAction);
@@ -185,5 +187,13 @@ void PortalTestScene::Update()
 	{
 		const auto pCameraTransform = m_SceneContext.pCamera->GetTransform();
 		m_SceneContext.pLights->SetDirectionalLight(pCameraTransform->GetPosition(), pCameraTransform->GetForward());
+	}
+
+	if (m_SceneContext.pInput->IsKeyboardKey(InputState::pressed, 'F'))
+	{
+		XMFLOAT3 characterPos = m_pCharacter->GetTransform()->GetPosition();
+		XMFLOAT3 newCubePos = characterPos;
+		newCubePos.y += 5;
+		m_pCube->GetTransform()->Translate(newCubePos);
 	}
 }

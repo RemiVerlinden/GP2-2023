@@ -464,38 +464,13 @@ void MapLoader::SpawnDoor(const XMFLOAT3& position)
 {
 	static DoorProperties props;
 
-	static PxMaterial* pMaterial = PxGetPhysics().createMaterial(props.pxMaterial[0], props.pxMaterial[1], props.pxMaterial[2]);
+	GameObject* pDoor = m_Scene.AddChild(new GameObject);
+
+	m_InteractiveElements.doors.push_back(pDoor);
+
 
 	auto pPhongSkinned = MaterialManager::Get()->CreateMaterial<PhongMaterial_Skinned>();
-	pPhongSkinned->SetDiffuseTexture(props.diffuseMapPath);
-	pPhongSkinned->SetNormalTexture(props.normalMapPath);
 
-	auto CreateDoor = [&](bool front) ->GameObject*
-	{
-		float scale = 0.041f; // I was unable to scale my object in 3d program without breaking the animation for OVM converter so this will have to do for now
-
-		GameObject* pDoor = m_Scene.AddChild(new GameObject());
-		ModelComponent* pModel = pDoor->AddComponent(new ModelComponent(props.modelPath));
-		pModel->SetMaterial(pPhongSkinned);
-
-		ModelAnimator* pAnimator = pModel->GetAnimator();
-		pAnimator->SetAnimation(0);
-		pAnimator->PlayOnce();
-
-
-		PxConvexMesh* pConvexMesh = ContentManager::Load<PxConvexMesh>(props.rigidBodyPath);
-		RigidBodyComponent* pRigidBody = pDoor->AddComponent(new RigidBodyComponent(true));
-		pRigidBody->AddCollider(PxConvexMeshGeometry{ pConvexMesh, PxMeshScale{scale} }, *pMaterial, false);
-
-		pDoor->GetTransform()->Translate(position);
-		pDoor->GetTransform()->Scale(scale, scale, scale);
-
-		if (front) pDoor->GetTransform()->Rotate(0.f, 180.f, 0.f); // should be clear
-
-		return pDoor;
-	};
-
-	m_InteractiveElements.doors.emplace_back(std::make_pair(CreateDoor(false), CreateDoor(true)), false);
 
 }
 

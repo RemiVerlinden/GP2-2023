@@ -58,7 +58,8 @@
     <ClCompile Include="Misc\CameraViewMapMaterial.cpp" />
     <ClCompile Include="Components\PortalComponent.cpp" />
     <ClCompile Include="Graphics\PortalRenderer.cpp" />
-    <ClCompile Include="Components\ButtonAnimComponent.cpp" />
+    <ClCompile Include="Components\Portal\ButtonAnimComponent.cpp" />
+    <ClCompile Include="Components\Portal\DoorComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -131,6 +132,7 @@
     <ClInclude Include="Misc\CameraViewMapMaterial.h" />
     <ClInclude Include="Components\PortalComponent.h" />
     <ClInclude Include="Graphics\PortalRenderer.h" />
-    <ClInclude Include="Components\ButtonAnimComponent.h" />
+    <ClInclude Include="Components\Portal\ButtonAnimComponent.h" />
+    <ClInclude Include="Components\Portal\DoorComponent.h" />
   </ItemGroup>
 </Project>

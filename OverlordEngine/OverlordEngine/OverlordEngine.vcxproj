@@ -103,10 +103,11 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Components\ButtonAnimComponent.h" />
+    <ClInclude Include="Components\Portal\ButtonAnimComponent.h" />
     <ClInclude Include="Components\ControllerComponent.h" />
     <ClInclude Include="Components\ParticleEmitterComponent.h" />
     <ClInclude Include="Components\PortalComponent.h" />
+    <ClInclude Include="Components\Portal\DoorComponent.h" />
     <ClInclude Include="Graphics\CameraViewMapRenderer.h" />
     <ClInclude Include="Graphics\PortalRenderer.h" />
     <ClInclude Include="Graphics\ShadowMapRenderer.h" />
@@ -181,10 +182,11 @@
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Components\ButtonAnimComponent.cpp" />
+    <ClCompile Include="Components\Portal\ButtonAnimComponent.cpp" />
     <ClCompile Include="Components\ControllerComponent.cpp" />
     <ClCompile Include="Components\ParticleEmitterComponent.cpp" />
     <ClCompile Include="Components\PortalComponent.cpp" />
+    <ClCompile Include="Components\Portal\DoorComponent.cpp" />
     <ClCompile Include="Graphics\CameraViewMapRenderer.cpp" />
     <ClCompile Include="Graphics\PortalRenderer.cpp" />
     <ClCompile Include="Graphics\ShadowMapRenderer.cpp" />

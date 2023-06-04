@@ -196,4 +196,10 @@ void PortalTestScene::Update()
 		newCubePos.y += 5;
 		m_pCube->GetTransform()->Translate(newCubePos);
 	}
+
+
+	if (m_SceneContext.pInput->IsKeyboardKey(InputState::pressed, 'G'))
+	{
+
+	}
 }

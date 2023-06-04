@@ -1,4 +1,6 @@
 #pragma once
+#include "Door\Door.h"
+
 class MapLoader final
 {
 	enum class ShaderType
@@ -79,6 +81,7 @@ private:
 		float mass = 10.f;
 	};
 
+	friend class DoorComponent;
 	struct DoorProperties
 	{
 		std::array<float, 3> pxMaterial{0.7f, 0.7f, 0.0f};
@@ -104,18 +107,14 @@ private:
 
 	GameScene& m_Scene;
 
-	struct Door
-	{
-		std::pair<GameObject*, GameObject*> pDoor;
-		bool isOpen = false;
-	};
+
 
 	struct InteractiveElements 
 	{
 		std::vector<GameObject*> buttons;
 		std::vector<GameObject*> elevators;
 		std::vector<GameObject*> cubes;
-		std::vector<Door> doors;
+		std::vector<GameObject* > doors;
 	};
 
 	InteractiveElements m_InteractiveElements;

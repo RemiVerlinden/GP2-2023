@@ -1,6 +1,5 @@
 #pragma once
-#include "Door\Door.h"
-
+#include <array>
 class MapLoader final
 {
 	enum class ShaderType
@@ -31,7 +30,16 @@ public:
 	MapLoader(GameScene& gamescene);
 
 	[[maybe_unused]]GameObject* LoadMap(const std::wstring& mapName);
-	const std::vector<GameObject*>& GetCubes() const;
+
+	struct InteractiveElements
+	{
+		std::vector<GameObject*> buttons;
+		std::vector<GameObject*> elevators;
+		std::vector<GameObject*> cubes;
+		std::vector<GameObject* > doors;
+	};
+
+	InteractiveElements& GetInteractiveElements();
 
 private:
 	void LoadMapTexturesDebug(const std::wstring& mapName, ModelComponent* pMapModel);
@@ -109,13 +117,7 @@ private:
 
 
 
-	struct InteractiveElements 
-	{
-		std::vector<GameObject*> buttons;
-		std::vector<GameObject*> elevators;
-		std::vector<GameObject*> cubes;
-		std::vector<GameObject* > doors;
-	};
+
 
 	InteractiveElements m_InteractiveElements;
 };

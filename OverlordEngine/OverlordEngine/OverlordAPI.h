@@ -40,8 +40,8 @@
 #include "Components/ParticleEmitterComponent.h" //Week 9
 #include "Components/ParticleEmitterComponent.h" //Week 9
 
-#include "Components/ButtonAnimComponent.h"
-#include "Components/ButtonAnimComponent.h"
+#include "Components/Portal/ButtonAnimComponent.h"
+#include "Components/Portal/DoorComponent.h"
 
 
 #include "Content/ContentLoader.h"

@@ -12,15 +12,21 @@ void ModelAnimator::Update(const SceneContext& sceneContext)
 
 	if (m_IsPlaying && m_ClipSet)
 	{
-		// speaks for it self
+		// speaks for it self (the variable name, not the calculation part)
 		float passedTicks = fmodf(sceneContext.pGameTime->GetElapsed() * m_CurrentClip.ticksPerSecond * m_AnimationSpeed, m_CurrentClip.duration);
 
-		if (m_PlayOnce && ((m_TickCount + passedTicks) >= (m_CurrentClip.duration - 1)))
+		// if we want to play the animation once until the end and keep it in that state
+		// we have get the final tick, this one is a little tricky because the actual final tick
+		// is not at the end but one tick before the end, so we have to subtract 1
+		// the final tick is actually the beginning position of the animation so if we were to
+		// loop the animation, everything would look smooth going from last tick to first tick
+		if (float finalAnimationTick = m_CurrentClip.duration - 1; m_PlayOnce && finalAnimationTick <= ((m_TickCount + passedTicks)))
 		{
 			Pause();
 			m_PlayOnce = false;
-			m_TickCount = 12.f;
+			m_TickCount = finalAnimationTick;
 		}
+
 		else 
 		{
 			// we check if new TickCount is bigger than duration, then we just store the remainder -> duration = 12 | totalTickCount = 14 -> newTickCount = 2

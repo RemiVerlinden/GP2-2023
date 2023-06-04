@@ -46,7 +46,11 @@ void PortalTestScene::Initialize()
 	MapLoader maploader{ *this };
 	maploader.LoadMap(L"chamber02");
 
-	m_pCube = maploader.GetCubes()[0];
+	MapLoader::InteractiveElements& interactiveElements = maploader.GetInteractiveElements();
+	m_pCube = interactiveElements.cubes[0];
+	m_pDoor = interactiveElements.doors[0]->GetComponent<DoorComponent>();
+
+	interactiveElements.buttons[0]->GetComponent<ButtonAnimComponent>()->AddInteractionComponent(m_pDoor);
 
 	//Input
 	auto inputAction = InputAction(CharacterMoveLeft, InputState::down, 'A');
@@ -200,6 +204,9 @@ void PortalTestScene::Update()
 
 	if (m_SceneContext.pInput->IsKeyboardKey(InputState::pressed, 'G'))
 	{
-
+		static bool open = false;
+		open = !open;
+		m_pDoor->StartInteraction();
 	}
+
 }

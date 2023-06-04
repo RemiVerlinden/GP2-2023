@@ -30,17 +30,19 @@ GameObject* MapLoader::LoadMap(const std::wstring& mapName)
 
 	LoadDynamicProps(mapName);
 
-	const auto pMapActor = pMapObject->AddComponent(new RigidBodyComponent(true));
+	const auto pMapRigidBody = pMapObject->AddComponent(new RigidBodyComponent(true));
 	const auto pPxTriangleMesh = ContentManager::Load<PxTriangleMesh>(L"Meshes/Maps/" + mapName + L"_collision2.ovpt");
-	pMapActor->AddCollider(PxTriangleMeshGeometry(pPxTriangleMesh, PxMeshScale({ 1,1,1 })), *pDefaultMaterial);
+	pMapRigidBody->AddCollider(PxTriangleMeshGeometry(pPxTriangleMesh, PxMeshScale({ 1,1,1 })), *pDefaultMaterial);
+
 
 	return pMapObject;
 }
 
-const std::vector<GameObject*>& MapLoader::GetCubes() const
+MapLoader::InteractiveElements& MapLoader::GetInteractiveElements()
 {
-	return m_InteractiveElements.cubes;
+	return m_InteractiveElements;	
 }
+
 
 // in debug mode the "std::regex_search" is a literal olympic gold medalist for the "shit performance" category
 // so I tried to optimise it with a thread pool (barely doubles the speed but is still something)
@@ -465,13 +467,10 @@ void MapLoader::SpawnDoor(const XMFLOAT3& position)
 	static DoorProperties props;
 
 	GameObject* pDoor = m_Scene.AddChild(new GameObject);
+	pDoor->GetTransform()->Translate(position);
+	pDoor->AddComponent(new DoorComponent());
 
 	m_InteractiveElements.doors.push_back(pDoor);
-
-
-	auto pPhongSkinned = MaterialManager::Get()->CreateMaterial<PhongMaterial_Skinned>();
-
-
 }
 
 void MapLoader::SpawnCube(const XMFLOAT3& position)
@@ -491,6 +490,8 @@ void MapLoader::SpawnCube(const XMFLOAT3& position)
 	PxConvexMesh* pConvexMesh = ContentManager::Load<PxConvexMesh>(props.rigidBodyPath);
 	RigidBodyComponent* pRigidBody = pCube->AddComponent(new RigidBodyComponent());
 	pRigidBody->AddCollider(PxConvexMeshGeometry{ pConvexMesh }, *pMaterial, false);
+
+
 
 	PxRigidBodyExt::updateMassAndInertia(*pRigidBody->GetPxRigidActor()->is<PxRigidBody>(), props.mass);
 

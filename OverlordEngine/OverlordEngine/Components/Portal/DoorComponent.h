@@ -1,27 +1,27 @@
 #pragma once
-class ButtonAnimComponent : public BaseComponent
+#include "../OverlordProject/Portal/MapLoader.h"
+class PhongMaterial_Skinned;
+class GameObject;
+class DoorComponent final : public BaseComponent
 {
 public:
-	ButtonAnimComponent();
-	~ButtonAnimComponent() override = default;
+	DoorComponent() = default;
+	~DoorComponent() override = default;
 
-	void SetPressed(bool pressed);
-	bool GetPressed() { return m_IsPressed; }
+	void StartInteraction();
+	void EndInteraction();
 protected:
 	void Initialize(const SceneContext& sceneContext) override;
 	void Update(const SceneContext&) override;
 
 private:
+	GameObject* CreateDoorSide(bool front);
+	void SetDoorState(bool open);
+	void SetDoorCollision(bool enable);
 
-	bool m_IsPressed = false;
-	float buttonState = 0; // this is in percentage float [0-1] -> [0-100%] on how much the button is pressed
-	XMFLOAT3 m_OriginalPosition;
 
-	struct ButtonAnimationInfo 
-	{
-		float pressDepth = 1.f;
-		float animationTime = 1.f; // in seconds
-	};
+	PhongMaterial_Skinned* m_pDoormaterial = nullptr;
+	bool m_IsOpen = false;
+	std::pair<GameObject*, GameObject*> m_pDoorSides;
 
-	ButtonAnimationInfo m_AnimInfo;
 };

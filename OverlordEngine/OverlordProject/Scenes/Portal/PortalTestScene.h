@@ -52,7 +52,7 @@ private:
 	std::array<GameObject*,2> m_pPortals{};
 
 	GameObject* m_pCube{};
-	GameObject* m_pCube{};
+	DoorComponent* m_pDoor{};
 
 	GameObject* m_pMap;
 };

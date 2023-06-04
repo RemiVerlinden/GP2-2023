@@ -21,7 +21,7 @@ void ControllerComponent::Initialize(const SceneContext& /*sceneContext*/)
 			assert(m_pController);
 
 			m_pController->getActor()->userData = this;
-			
+
 			SetCollisionGroup(static_cast<CollisionGroup>(m_CollisionGroups.word0));
 			SetCollisionIgnoreGroup(static_cast<CollisionGroup>(m_CollisionGroups.word1));
 	}

@@ -6,6 +6,8 @@
 #include "Materials\Portal\StaticMapMaterial.h"
 #include "Materials\Portal\PhongMaterial.h"
 #include "Materials\Portal\PhongMaterial_Skinned.h"
+#include "Materials\Portal\Glass\FrostedGlassMaterial.h"
+#include "Materials\Portal\Glass\RefractingGlassMaterial.h"
 #include "Materials\ColorMaterial.h"
 #include "Materials\Portal\NoDrawMaterial.h"
 #include "ThreadPool.h"
@@ -114,6 +116,14 @@ void MapLoader::LoadMapTexturesDebug(const std::wstring& mapName, ModelComponent
 			case  MapLoader::ShaderType::light:
 				LoadLightShaderForSubmesh(shaderInfo);
 				break;
+			case  MapLoader::ShaderType::frostedGlass:
+				LoadNoDrawShaderForSubmesh(shaderInfo);
+				//LoadFrostedGlassShaderForSubmesh(shaderInfo);
+				break;
+			case  MapLoader::ShaderType::refractingGlass:
+				LoadNoDrawShaderForSubmesh(shaderInfo);
+				//LoadRefractingGlassShaderForSubmesh(shaderInfo);
+				break;
 		}
 	}
 }
@@ -180,6 +190,12 @@ void MapLoader::LoadMapTexturesRelease(const std::wstring& mapName, ModelCompone
 			case  MapLoader::ShaderType::light:
 				LoadLightShaderForSubmesh(shaderInfo);
 				break;
+			case  MapLoader::ShaderType::frostedGlass:
+				LoadFrostedGlassShaderForSubmesh(shaderInfo);
+				break;
+			case  MapLoader::ShaderType::refractingGlass:
+				LoadRefractingGlassShaderForSubmesh(shaderInfo);
+				break;
 		}
 
 
@@ -226,7 +242,7 @@ void MapLoader::FindTexurePaths(SubmeshShaderInfo& shaderInfo)
 	{
 		fs::path filePathDiffuse = SearchForMatchingFile(mapPath, std::wregex(materialName));
 
-
+	
 		if (!std::filesystem::exists(filePathDiffuse) || filePathDiffuse.empty())
 		{
 			Logger::LogWarning(L"File path {} does not exist - material name: {}", filePathDiffuse.wstring(), materialName);
@@ -305,6 +321,36 @@ void MapLoader::LoadLightShaderForSubmesh(SubmeshShaderInfo& shaderInfo)
 	shaderInfo.pModel->SetMaterial(pLightMaterial, shaderInfo.submeshID);
 }
 
+void MapLoader::LoadFrostedGlassShaderForSubmesh(SubmeshShaderInfo& shaderInfo) 
+{
+	FrostedGlassMaterial* pFrostedGlassMaterial = MaterialManager::Get()->CreateMaterial<FrostedGlassMaterial>();
+	pFrostedGlassMaterial->SetDiffuseTexture(ShortenTexturePath(shaderInfo.diffusePath));
+	pFrostedGlassMaterial->SetOpacity(0.4f);
+
+	// dont know how to crash so will just use both.
+	assert(true);
+	assert(false);
+
+	// still need to look at the fx file and update it
+
+	shaderInfo.pModel->SetMaterial(pFrostedGlassMaterial, shaderInfo.submeshID);
+
+}
+void MapLoader::LoadRefractingGlassShaderForSubmesh(SubmeshShaderInfo& shaderInfo) 
+{
+	RefractingGlassMaterial* pRefractingGlassMaterial = MaterialManager::Get()->CreateMaterial<RefractingGlassMaterial>();
+
+	// dont know how to crash so will just use both.
+	assert(true);
+	assert(false);
+
+	//still need to set the diffuse , normal, possibly specular and opacity
+	// still need to look at the fx file and update it
+
+	shaderInfo.pModel->SetMaterial(pRefractingGlassMaterial, shaderInfo.submeshID);
+}
+
+
 // this has to be called each time because when loading in a texture with the texture loader,
 // we cant have the beginning "Rsources" part in the path.
 // this is not because of my code, its how the engine was given to me so I have to work around it
@@ -325,6 +371,19 @@ MapLoader::ShaderType MapLoader::IdentifyShaderType(const std::wstring& submeshN
 	{
 		return ShaderType::diffuse;
 	}
+
+	std::wregex searchRefractRegex{L"glasswindow_refract"};
+	if (std::regex_search(submeshName, searchRefractRegex))
+	{
+		return ShaderType::refractingGlass;
+	}
+
+	std::wregex searchFrostRegex{L"glasswindow_frosted"};
+	if (std::regex_search(submeshName, searchFrostRegex))
+	{
+		return ShaderType::frostedGlass;
+	}
+
 
 	if (!shaderInfo.normalPath.empty())
 	{

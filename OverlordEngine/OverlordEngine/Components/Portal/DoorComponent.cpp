@@ -36,15 +36,20 @@ void DoorComponent::SetDoorCollision(bool enable)
 
 	const static XMFLOAT3 originalCollisionPos = m_pGameObject->GetTransform()->GetPosition();
 
+	PxFilterData m_CollisionGroups{ static_cast<UINT32>(CollisionGroup::Group0), static_cast<UINT32>(CollisionGroup::Group1), 0, 0 };
 	for (GameObject* pDoor : { m_pDoorSides.first ,m_pDoorSides.second })
 	{
 		if (enable)
-			pDoor->GetComponent<RigidBodyComponent>()->Translate(originalCollisionPos);
+			pDoor->GetComponent<RigidBodyComponent>()->SetCollisionGroup(static_cast<CollisionGroup>(m_CollisionGroups.word0));
+			//pDoor->GetComponent<RigidBodyComponent>()->SetCollisionIgnoreGroups(static_cast<CollisionGroup>(m_CollisionGroups.word0));
+			//pDoor->GetComponent<RigidBodyComponent>()->Translate(originalCollisionPos);
 		else
-			pDoor->GetComponent<RigidBodyComponent>()->Translate(disabledCollisionPos);
-		
-
+			pDoor->GetComponent<RigidBodyComponent>()->SetCollisionGroup(static_cast<CollisionGroup>(m_CollisionGroups.word1));
+			//pDoor->GetComponent<RigidBodyComponent>()->Translate(disabledCollisionPos);
 	}
+
+
+
 }
 
 // start interaction with button pressed

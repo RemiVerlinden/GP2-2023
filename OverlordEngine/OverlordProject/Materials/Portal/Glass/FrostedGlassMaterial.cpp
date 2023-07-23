@@ -6,11 +6,17 @@ FrostedGlassMaterial::FrostedGlassMaterial() :
 {
 }
 
-void FrostedGlassMaterial::SetDecalTexture(const std::wstring& assetFile)
+void FrostedGlassMaterial::SetDiffuseTexture(const std::wstring& assetFile)
 {
-	m_pDecalTexture = ContentManager::Load<TextureData>(assetFile);
+	m_pDiffuseTexture = ContentManager::Load<TextureData>(assetFile);
 
-	SetVariable_Texture(L"gDecalTexture", m_pDecalTexture->GetShaderResourceView());
+	SetVariable_Texture(L"gDiffuseTexture", m_pDiffuseTexture->GetShaderResourceView());
+}
+
+void FrostedGlassMaterial::SetOpacity(const float opacity)
+{
+	m_Opacity = opacity;
+	SetVariable_Scalar(L"gOpacity", m_Opacity);
 }
 
 void FrostedGlassMaterial::InitializeEffectVariables()

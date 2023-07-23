@@ -30,10 +30,16 @@ public:
 	const std::vector<XMFLOAT4X4>& GetBoneTransforms() const { return m_Transforms; }
 
 private:
+	float CalculatePassedTicks(const SceneContext& sceneContext);
+	void UpdateTickCount(float passedTicks, float finalAnimationTick);
+	std::pair<AnimationKey, AnimationKey> FindKeys();
+	float CalculateBlendFactor(const AnimationKey& keyA, const AnimationKey& keyB);
+	void PerformTransform(const AnimationKey& keyA, const AnimationKey& keyB, float blendFactor);
+
 	AnimationClip m_CurrentClip{};
+	AnimationClip m_PreviousClip{};
 	MeshFilter* m_pMeshFilter{};
 	std::vector<XMFLOAT4X4> m_Transforms{};
-	bool m_IsPlaying{}, m_PlayOnce{}, m_Reversed{}, m_ClipSet{};
-	float m_TickCount{}, m_AnimationSpeed{ 1.f };
+	bool m_IsPlaying{}, m_PlayOnce{}, m_Reversed{}, m_ClipSet{}, m_IsAnimBlending{};
+	float m_TickCount{}, m_AnimationSpeed{ 1.f }, m_TransitionBlendFactor{};
 };
-

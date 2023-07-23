@@ -7,6 +7,8 @@ class MapLoader final
 		noDraw,
 		decal,
 		diffuse,
+		frostedGlass, // diffuse but with alpha
+		refractingGlass, //used on glass that uses normal as refraction map
 		light,
 		PhongProp, // phong props have a "normal" & "exponent" map
 		PhongBrush  // phong brushes only have an "exponent" map
@@ -52,6 +54,8 @@ private:
 	void LoadDiffuseShaderForSubmesh(SubmeshShaderInfo& shaderInfo);
 	void LoadPhongShaderForSubmesh(SubmeshShaderInfo& shaderInfo);
 	void LoadLightShaderForSubmesh(SubmeshShaderInfo& shaderInfo);
+	void LoadFrostedGlassShaderForSubmesh(SubmeshShaderInfo& shaderInfo);
+	void LoadRefractingGlassShaderForSubmesh(SubmeshShaderInfo& shaderInfo);
 
 	fs::path ShortenTexturePath(const fs::path& texturePath);
 

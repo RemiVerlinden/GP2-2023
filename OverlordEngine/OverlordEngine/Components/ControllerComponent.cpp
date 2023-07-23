@@ -71,6 +71,7 @@ void ControllerComponent::ApplyFilterData() const
 			shape->setSimulationFilterData(m_CollisionGroups);
 			shape->setQueryFilterData(m_CollisionGroups);
 		}
+
 		delete[] shapes;
 	}
 }
@@ -84,7 +85,11 @@ void ControllerComponent::Translate(const XMFLOAT3& pos) const
 void ControllerComponent::Move(const XMFLOAT3& displacement, float minDistance)
 {
 	ASSERT_NULL_(m_pController);
-	m_CollisionFlag = m_pController->move(PhysxHelper::ToPxVec3(displacement), minDistance, 0, nullptr, nullptr);
+
+	static PxControllerFilters filter;
+	filter.mFilterData = &m_CollisionGroups;
+
+	m_CollisionFlag = m_pController->move(PhysxHelper::ToPxVec3(displacement), minDistance, 0, filter, nullptr);
 }
 
 XMFLOAT3 ControllerComponent::GetPosition() const

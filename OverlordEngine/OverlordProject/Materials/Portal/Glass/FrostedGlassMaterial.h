@@ -10,10 +10,12 @@ public:
 	FrostedGlassMaterial& operator=(const FrostedGlassMaterial& other) = delete;
 	FrostedGlassMaterial& operator=(FrostedGlassMaterial&& other) noexcept = delete;
 
-	void SetDecalTexture(const std::wstring& assetFile);
+	void SetDiffuseTexture(const std::wstring& assetFile);
+	void SetOpacity(const float opacity);
 protected:
 	void InitializeEffectVariables() override;
 
 private:
-	TextureData* m_pDecalTexture{};
+	TextureData* m_pDiffuseTexture{};
+	float m_Opacity{};
 };

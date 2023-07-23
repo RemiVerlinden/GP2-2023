@@ -8,8 +8,6 @@ ModelAnimator::ModelAnimator(MeshFilter* pMeshFilter) :
 
 void ModelAnimator::Update(const SceneContext& sceneContext)
 {
-
-
 	if (m_IsPlaying && m_ClipSet)
 	{
 		// speaks for it self (the variable name, not the calculation part)

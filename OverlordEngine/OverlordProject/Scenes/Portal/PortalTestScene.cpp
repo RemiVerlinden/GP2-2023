@@ -13,7 +13,7 @@
 void PortalTestScene::Initialize()
 {
 	m_SceneContext.settings.showInfoOverlay = true;
-	m_SceneContext.settings.enableOnGUI = false;
+	m_SceneContext.settings.enableOnGUI = true;
 	m_SceneContext.settings.drawGrid = false;
 	m_SceneContext.settings.drawPhysXDebug = false;
 
@@ -177,15 +177,15 @@ void PortalTestScene::Update()
 	{
 		MovePortal(Blue);
 	}
-	if (m_SceneContext.pInput->IsMouseButton(InputState::pressed, VK_XBUTTON1))
+	if (m_SceneContext.pInput->IsMouseButton(InputState::pressed, VK_XBUTTON1) || m_SceneContext.pInput->IsKeyboardKey(InputState::pressed, 'R'))
 	{
 		MovePortal(Orange);
 	}
-	if (m_SceneContext.pInput->IsKeyboardKey(InputState::pressed, 'K'))
-	{
-		const auto pCameraTransform = m_SceneContext.pCamera->GetTransform();
-		m_SceneContext.pLights->SetDirectionalLight(pCameraTransform->GetPosition(), pCameraTransform->GetForward());
-	}
+	//if (m_SceneContext.pInput->IsKeyboardKey(InputState::pressed, 'K'))
+	//{
+	//	const auto pCameraTransform = m_SceneContext.pCamera->GetTransform();
+	//	m_SceneContext.pLights->SetDirectionalLight(pCameraTransform->GetPosition(), pCameraTransform->GetForward());
+	//}
 
 	if (m_SceneContext.pInput->IsKeyboardKey(InputState::pressed, 'F'))
 	{

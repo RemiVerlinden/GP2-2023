@@ -19,6 +19,8 @@ MapLoader::MapLoader(GameScene& gamescene)
 
 GameObject* MapLoader::LoadMap(const std::wstring& mapName)
 {
+	LoadDynamicProps(mapName);
+
 	const auto pDefaultMaterial = PxGetPhysics().createMaterial(0.5f, 0.5f, 0.5f);
 
 	const auto pMapObject = m_Scene.AddChild(new GameObject());
@@ -30,7 +32,6 @@ GameObject* MapLoader::LoadMap(const std::wstring& mapName)
 	LoadMapTexturesRelease(mapName, pMapMesh);
 #endif
 
-	LoadDynamicProps(mapName);
 
 	const auto pMapRigidBody = pMapObject->AddComponent(new RigidBodyComponent(true));
 	const auto pPxTriangleMesh = ContentManager::Load<PxTriangleMesh>(L"Meshes/Maps/" + mapName + L"_collision2.ovpt");
@@ -117,8 +118,7 @@ void MapLoader::LoadMapTexturesDebug(const std::wstring& mapName, ModelComponent
 				LoadLightShaderForSubmesh(shaderInfo);
 				break;
 			case  MapLoader::ShaderType::frostedGlass:
-				LoadNoDrawShaderForSubmesh(shaderInfo);
-				//LoadFrostedGlassShaderForSubmesh(shaderInfo);
+				LoadFrostedGlassShaderForSubmesh(shaderInfo);
 				break;
 			case  MapLoader::ShaderType::refractingGlass:
 				LoadNoDrawShaderForSubmesh(shaderInfo);
@@ -194,7 +194,8 @@ void MapLoader::LoadMapTexturesRelease(const std::wstring& mapName, ModelCompone
 				LoadFrostedGlassShaderForSubmesh(shaderInfo);
 				break;
 			case  MapLoader::ShaderType::refractingGlass:
-				LoadRefractingGlassShaderForSubmesh(shaderInfo);
+				LoadNoDrawShaderForSubmesh(shaderInfo);
+				//LoadRefractingGlassShaderForSubmesh(shaderInfo);
 				break;
 		}
 
@@ -325,11 +326,7 @@ void MapLoader::LoadFrostedGlassShaderForSubmesh(SubmeshShaderInfo& shaderInfo)
 {
 	FrostedGlassMaterial* pFrostedGlassMaterial = MaterialManager::Get()->CreateMaterial<FrostedGlassMaterial>();
 	pFrostedGlassMaterial->SetDiffuseTexture(ShortenTexturePath(shaderInfo.diffusePath));
-	pFrostedGlassMaterial->SetOpacity(0.4f);
-
-	// dont know how to crash so will just use both.
-	assert(true);
-	assert(false);
+	pFrostedGlassMaterial->SetOpacity(0.7f);
 
 	// still need to look at the fx file and update it
 

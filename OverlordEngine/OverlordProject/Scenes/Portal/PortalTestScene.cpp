@@ -83,7 +83,7 @@ void PortalTestScene::CreatePortals(CameraComponent* playerCamera)
 		GameObject* pPortal = m_pPortals.at(currentPortal);
 		pPortal->AddComponent(new PortalComponent(m_pCharacter, (bool)currentPortal));
 
-		const auto pPortalMesh = pPortal->AddComponent(new ModelComponent(L"blender/portal.ovm"));
+		const auto pPortalMesh = pPortal->AddComponent(new ModelComponent(L"blender/portal2.ovm"));
 
 		PortalMaterial* pPortalMaterial;
 
@@ -98,8 +98,8 @@ void PortalTestScene::CreatePortals(CameraComponent* playerCamera)
 		RigidBodyComponent* pRigidBody = pPortal->AddComponent(new RigidBodyComponent(true));
 		PxBoxGeometry colliderSize
 		{
-			2,
 			1,
+			2,
 			0.1f
 		};
 
@@ -141,7 +141,7 @@ void PortalTestScene::MovePortal(Portal portal)
 	newPortalPos.x += forwardFloat3.x;
 	newPortalPos.y += forwardFloat3.y;
 	newPortalPos.z += forwardFloat3.z;
-	newPortalPos.y -= 1.5f;
+	//newPortalPos.y -= 1.5f;
 
 	m_pPortals[portal]->GetTransform()->Translate(newPortalPos);
 	

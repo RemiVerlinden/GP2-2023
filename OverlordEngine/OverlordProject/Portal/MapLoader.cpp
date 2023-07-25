@@ -363,6 +363,11 @@ fs::path MapLoader::ShortenTexturePath(const fs::path& texturePath)
 // but I feel like the code is easier to read if all of shaderInfo is initialized in one place [LoadMapTextures()]
 MapLoader::ShaderType MapLoader::IdentifyShaderType(const std::wstring& submeshName, SubmeshShaderInfo& shaderInfo)
 {
+	// In the obj file of the level, I have all noDraw meshes in ID 0
+	// but for some reason when the ovm level file is read, it decides to rename the noDraw to frosted glass.
+	// so I just force the ID 0 to be noDraw
+	if(shaderInfo.submeshID == 0) return ShaderType::noDraw; 
+
 	std::wregex myRegex{L"elevatorshaft_wal"};
 	if (std::regex_search(submeshName, myRegex))
 	{
@@ -372,7 +377,8 @@ MapLoader::ShaderType MapLoader::IdentifyShaderType(const std::wstring& submeshN
 	std::wregex searchRefractRegex{L"glasswindow_refract"};
 	if (std::regex_search(submeshName, searchRefractRegex))
 	{
-		return ShaderType::refractingGlass;
+		shaderInfo.diffusePath = fs::path(L"Resources/Textures/Maps/chamber02_static\\materials_glass_glasswindow_frosted.dds");
+		return ShaderType::frostedGlass;
 	}
 
 	std::wregex searchFrostRegex{L"glasswindow_frosted"};

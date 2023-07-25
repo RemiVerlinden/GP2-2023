@@ -34,11 +34,7 @@ public:
     OrangePortalMaterial& operator=(OrangePortalMaterial&& other) noexcept = delete;
 
 protected:
-    void InitializeEffectVariables() override
-    {
-        // You can add custom initialization code here.
-        PortalMaterial::InitializeEffectVariables();
-    }
+    void InitializeEffectVariables() override;
     void OnUpdateModelVariables(const SceneContext& context, const ModelComponent* comp) const override
     {
         // You can add custom updating code here.
@@ -59,11 +55,7 @@ public:
     BluePortalMaterial& operator=(BluePortalMaterial&& other) noexcept = delete;
 
 protected:
-    void InitializeEffectVariables() override
-    {
-        // You can add custom initialization code here.
-        PortalMaterial::InitializeEffectVariables();
-    }
+    void InitializeEffectVariables() override;
     void OnUpdateModelVariables(const SceneContext& context, const ModelComponent* comp) const override
     {
         // You can add custom updating code here.

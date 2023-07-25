@@ -3,7 +3,7 @@ float4x4 gWorldViewProj : WORLDVIEWPROJECTION;
 
 float gTime = 0.f;
 float2 gResolution = float2(1920,1080);
-
+bool gBluePortalColor = true;
 Texture2D gPortalMap;
 SamplerState samLinear
 {
@@ -14,10 +14,13 @@ SamplerState samLinear
 
 struct VS_INPUT{
 	float3 pos : POSITION;
+	float2 uv : TEXCOORD1;
 };
 struct VS_OUTPUT{
 	float4 pos : SV_POSITION;
-	float4 screenPos : TEXCOORD1;
+	float2 uv : TEXCOORD1;
+	float4 screenPos : TEXCOORD2;
+
 };
 
 DepthStencilState EnableDepth
@@ -44,8 +47,8 @@ VS_OUTPUT VS(VS_INPUT input){
 	VS_OUTPUT output;
 	
 	output.pos = mul ( float4(input.pos,1.0f), gWorldViewProj );
+	output. uv = input.uv;
 	output.screenPos = output.pos;
-	
 	return output;
 }
 
@@ -79,29 +82,52 @@ float snoise(float3 uv, float res)
 float4 PS(VS_OUTPUT input) : SV_TARGET
 {
 	float4 screenPos = input.screenPos;
-	float2 uv;
+	float2 uv = input.uv;
 	
-	uv.x = screenPos.x / screenPos.w / 2.0f + 0.5f;
-	uv.y = -screenPos.y / screenPos.w / 2.0f + 0.5f;
+	screenPos.x = screenPos.x / screenPos.w / 2.0f + 0.5f;
+	screenPos.y = -screenPos.y / screenPos.w / 2.0f + 0.5f;
 
-	float4 diffuseColor = gPortalMap.Sample( samLinear,uv );
+	float4 diffuseColor = gPortalMap.Sample( samLinear,screenPos.xy );
 
 	// added code
 	float2 p = -.5 + uv;
-	p.x *= gResolution.x/gResolution.y;
+	// p.x *= gResolution.x/gResolution.y;
+
+	// p.y *= 1.5;
+
 	
-	float color = 3.0 - (3.*length(2.*p));
+
+	float color = 3.0 - (3.*length(1.8*p));
 	
-	float3 coord = float3(atan2(p.y,p.x)/6.2832+.5, length(p)*.4, .5);
+	float3 coord = float3(atan2(p.y,p.x)/6.2832+.5, length(p)*.8, .5);
+	coord = 1. - coord;
 	
-	for(int i = 1; i <= 7; i++)
+
+	for(int i = 1; i <= 2; i++)
 	{
-		float power = pow(2.0, float(i));
-		color += (1.5 / power) * snoise(coord + float3(0.,-gTime*.05, gTime*.01), power*16.);
+		float power = pow(2., float(i));
+		color += (0.4 / power) * snoise(coord + float3(0.,-gTime*.07, gTime*.015), power*8.);
 	}
 	
-	float4 noiseColor = float4( color, pow(max(color,0.),2.)*0.4, pow(max(color,0.),3.)*0.15 , 1.0);
+    color = 1.0 - color;
+    color *= 2.7;
+
+	color *= smoothstep(0.5, 0.47, length(p));
+
+	float intensity = max(color, 0.0); // ensure we don't have negative values
 	
+
+
+	float4 noiseColor;
+	if(gBluePortalColor)
+		 noiseColor = float4( intensity*intensity*intensity*0.15, intensity*intensity*0.4, intensity , intensity);
+	else
+		 noiseColor = float4( intensity, intensity*intensity*0.4, intensity*intensity*intensity*0.15 , intensity);
+
+	float radius = length(p);
+	if(radius >= 0.47) // if radius is larger than this start clipping
+	clip(intensity - 0.75);
+
 	// composite noiseColor on top of diffuseColor
 	return float4( lerp(diffuseColor.rgb, noiseColor.rgb, noiseColor.a), 1.f);
 }
@@ -124,3 +150,4 @@ technique11 Default
     }
 }
 
+// https://www.shadertoy.com/view/Wt3GRS#

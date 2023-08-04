@@ -18,5 +18,6 @@ protected:
 
 private:
 	TextureData* m_pDiffuseTexture{};
+	float m_Opacity{ 1.f };
 };
 

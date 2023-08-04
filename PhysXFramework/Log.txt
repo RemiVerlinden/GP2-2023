@@ -1,20 +1,28 @@
-[2023-4-16 - 12:53:51:832][DEBUG]   Adapter 0 : NVIDIA GeForce RTX 2080 Ti
-[2023-4-16 - 12:53:51:833][DEBUG]   Adapter 1 : Microsoft Basic Render Driver
-[2023-4-16 - 12:53:51:833][DEBUG]   2 Adapter(s) found
-[2023-4-16 - 12:53:51:834][DEBUG]   InitalizeAdapterAndOutput ok.
-[2023-4-16 - 12:53:51:834][DEBUG]   Window Class Created
-[2023-4-16 - 12:53:51:835][DEBUG]   Desktop resolution: 2560 x 1440
-[2023-4-16 - 12:53:51:895][DEBUG]   Window Opened
-[2023-4-16 - 12:53:52:286][DEBUG]   Direct3D Initialized
-[2023-4-16 - 12:53:52:542][DEBUG]   Managers Initialized!
-[2023-4-16 - 12:53:52:543][INFO]    Press 'Page Up' or 'Page Down' to cycle between the different scenes
-[2023-4-16 - 12:53:52:544][INFO]    Press 'I' to toggle the debug renderer.
-[2023-4-16 - 12:53:52:545][INFO]    Press 'M' to do physics stepping.
-[2023-4-16 - 12:53:52:546][INFO]    Press 'L' to stop doing physics stepping.
-[2023-4-16 - 12:53:52:642][DEBUG]   Parsing mesh: Level.obj
-[2023-4-16 - 12:53:52:651][DEBUG]   Scenes Initialized!
-[2023-4-16 - 12:53:52:652][INFO]    Scene Activated > "W1_AssignmentScene"
-[2023-4-16 - 12:53:52:653][INFO]    	[INPUT > Reset='R' | Apply_Torque='Arrow Keys' | Apply_Upwards_Force='SPACE']
-[2023-4-16 - 12:53:52:750][DEBUG]   DebugRenderer::Draw() > Increasing Vertexbuffer Size!
-[2023-4-16 - 12:54:4:243][DEBUG]   DebugRenderer::Draw() > Increasing Vertexbuffer Size!
-[2023-4-16 - 12:54:15:397][DEBUG]   Core Initialization Finished
+[2023-8-4 - 13:24:14:652][DEBUG]   Adapter 0 : NVIDIA GeForce RTX 2080 Ti
+[2023-8-4 - 13:24:14:654][DEBUG]   Adapter 1 : Microsoft Basic Render Driver
+[2023-8-4 - 13:24:14:654][DEBUG]   2 Adapter(s) found
+[2023-8-4 - 13:24:14:655][DEBUG]   InitalizeAdapterAndOutput ok.
+[2023-8-4 - 13:24:14:655][DEBUG]   Window Class Created
+[2023-8-4 - 13:24:14:657][DEBUG]   Desktop resolution: 2560 x 1440
+[2023-8-4 - 13:24:14:730][DEBUG]   Window Opened
+[2023-8-4 - 13:24:15:118][DEBUG]   Direct3D Initialized
+[2023-8-4 - 13:24:15:430][DEBUG]   Managers Initialized!
+[2023-8-4 - 13:24:15:431][INFO]    Press 'Page Up' or 'Page Down' to cycle between the different scenes
+[2023-8-4 - 13:24:15:432][INFO]    Press 'I' to toggle the debug renderer.
+[2023-8-4 - 13:24:15:432][INFO]    Press 'M' to do physics stepping.
+[2023-8-4 - 13:24:15:433][INFO]    Press 'L' to stop doing physics stepping.
+[2023-8-4 - 13:24:15:586][DEBUG]   Parsing mesh: Level.obj
+[2023-8-4 - 13:24:15:596][DEBUG]   Scenes Initialized!
+[2023-8-4 - 13:24:15:597][INFO]    Scene Activated > "W1_AssignmentScene"
+[2023-8-4 - 13:24:15:598][INFO]    	[INPUT > Reset='R' | Apply_Torque='Arrow Keys' | Apply_Upwards_Force='SPACE']
+[2023-8-4 - 13:24:15:703][DEBUG]   DebugRenderer::Draw() > Increasing Vertexbuffer Size!
+[2023-8-4 - 13:24:19:197][DEBUG]   DebugRenderer::Draw() > Increasing Vertexbuffer Size!
+[2023-8-4 - 13:24:27:126][INFO]    Scene Activated > "W1_AssignmentScene"
+[2023-8-4 - 13:24:27:127][INFO]    	[INPUT > Reset='R' | Apply_Torque='Arrow Keys' | Apply_Upwards_Force='SPACE']
+[2023-8-4 - 13:24:28:398][INFO]    Scene Activated > "W1_AssignmentScene"
+[2023-8-4 - 13:24:28:399][INFO]    	[INPUT > Reset='R' | Apply_Torque='Arrow Keys' | Apply_Upwards_Force='SPACE']
+[2023-8-4 - 13:24:29:636][INFO]    Scene Activated > "W1_AssignmentScene"
+[2023-8-4 - 13:24:29:637][INFO]    	[INPUT > Reset='R' | Apply_Torque='Arrow Keys' | Apply_Upwards_Force='SPACE']
+[2023-8-4 - 13:24:30:833][INFO]    Scene Activated > "W1_AssignmentScene"
+[2023-8-4 - 13:24:30:834][INFO]    	[INPUT > Reset='R' | Apply_Torque='Arrow Keys' | Apply_Upwards_Force='SPACE']
+[2023-8-4 - 13:24:34:308][DEBUG]   Core Initialization Finished

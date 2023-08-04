@@ -9,13 +9,15 @@
 #include "Prefabs\SpherePrefab.h"
 #include "Prefabs\CubePrefab.h"
 #include "Portal\MapLoader.h"
+#include "SceneInputDefines\PortalInput.h"
+#include "Prefabs\BoneObject.h"
 
 void PortalTestScene::Initialize()
 {
 	m_SceneContext.settings.showInfoOverlay = true;
 	m_SceneContext.settings.enableOnGUI = true;
 	m_SceneContext.settings.drawGrid = false;
-	m_SceneContext.settings.drawPhysXDebug = false;
+	m_SceneContext.settings.drawPhysXDebug = true;
 
 
 	//Ground Plane
@@ -24,14 +26,19 @@ void PortalTestScene::Initialize()
 
 	//Character
 	CharacterDesc characterDesc{ pDefaultMaterial };
-	characterDesc.actionId_MoveForward = CharacterMoveForward;
-	characterDesc.actionId_MoveBackward = CharacterMoveBackward;
-	characterDesc.actionId_MoveLeft = CharacterMoveLeft;
-	characterDesc.actionId_MoveRight = CharacterMoveRight;
-	characterDesc.actionId_Jump = CharacterJump;
+	characterDesc.actionId_MoveForward = Input::CharacterMoveForward;
+	characterDesc.actionId_MoveBackward = Input::CharacterMoveBackward;
+	characterDesc.actionId_MoveLeft = Input::CharacterMoveLeft;
+	characterDesc.actionId_MoveRight = Input::CharacterMoveRight;
+	characterDesc.actionId_Jump = Input::CharacterJump;
+
+	auto pBoneMaterial = MaterialManager::Get()->CreateMaterial<ColorMaterial>();
+	auto pBone = new BoneObject(pBoneMaterial, 1);
+	AddChild(pBone);
 
 	m_pCharacter = AddChild(new Character(characterDesc));
-	m_pCharacter->GetTransform()->Translate(-35,1,7.5f);
+	//m_pCharacter->GetTransform()->Translate(-35,10,7.5f);
+	m_pCharacter->GetTransform()->Translate(0,1,0);
 
 	//Create portals
 	CreatePortals(m_pCharacter->GetCameraComponent());
@@ -41,29 +48,43 @@ void PortalTestScene::Initialize()
 
 	PortalRenderer::Get()->InitializePortalComponents(portalComponents);
 
-	MapLoader maploader{ *this };
-	maploader.LoadMap(L"chamber02");
 
-	MapLoader::InteractiveElements& interactiveElements = maploader.GetInteractiveElements();
-	m_pCube = interactiveElements.cubes[0];
-	m_pDoor = interactiveElements.doors[0]->GetComponent<DoorComponent>();
+	//MapLoader maploader{ *this };
+	//maploader.LoadMap(L"chamber02");
 
-	interactiveElements.buttons[0]->GetComponent<ButtonAnimComponent>()->AddInteractionComponent(m_pDoor);
+	//MapLoader::InteractiveElements& interactiveElements = maploader.GetInteractiveElements();
+	//m_pCube = interactiveElements.cubes[0];
+	//m_pDoor = interactiveElements.doors[0]->GetComponent<DoorComponent>();
+
+	//interactiveElements.buttons[0]->GetComponent<ButtonAnimComponent>()->AddInteractionComponent(m_pDoor);
+
+
+	m_pCharacter->InitializeCharacterMeshes();
+
+
+	pBone->GetTransform()->Rotate(0, 0, 0);
+	pBone->GetTransform()->Translate(2, 1, 1);
 
 	//Input
-	auto inputAction = InputAction(CharacterMoveLeft, InputState::down, 'A');
+	auto inputAction = InputAction(Input::CharacterMoveLeft, InputState::down, 'A');
 	m_SceneContext.pInput->AddInputAction(inputAction);
 
-	inputAction = InputAction(CharacterMoveRight, InputState::down, 'D');
+	inputAction = InputAction(Input::CharacterMoveRight, InputState::down, 'D');
 	m_SceneContext.pInput->AddInputAction(inputAction);
 
-	inputAction = InputAction(CharacterMoveForward, InputState::down, 'W');
+	inputAction = InputAction(Input::CharacterMoveForward, InputState::down, 'W');
 	m_SceneContext.pInput->AddInputAction(inputAction);
 
-	inputAction = InputAction(CharacterMoveBackward, InputState::down, 'S');
+	inputAction = InputAction(Input::CharacterMoveBackward, InputState::down, 'S');
 	m_SceneContext.pInput->AddInputAction(inputAction);
 
-	inputAction = InputAction(CharacterJump, InputState::pressed, VK_SPACE, -1, XINPUT_GAMEPAD_A);
+	inputAction = InputAction(Input::CharacterJump, InputState::pressed, VK_SPACE, -1, XINPUT_GAMEPAD_A);
+	m_SceneContext.pInput->AddInputAction(inputAction);
+
+	inputAction = InputAction(Input::FirePrimary, InputState::pressed, -1, VK_XBUTTON1, XINPUT_GAMEPAD_RIGHT_SHOULDER);
+	m_SceneContext.pInput->AddInputAction(inputAction);
+
+	inputAction = InputAction(Input::FireSecondary, InputState::pressed, -1, VK_RBUTTON, XINPUT_GAMEPAD_LEFT_SHOULDER);
 	m_SceneContext.pInput->AddInputAction(inputAction);
 }
 
@@ -81,7 +102,7 @@ void PortalTestScene::CreatePortals(CameraComponent* playerCamera)
 	for (UINT currentPortal = 0; currentPortal < m_pPortals.size(); ++currentPortal)
 	{
 		GameObject* pPortal = m_pPortals.at(currentPortal);
-		pPortal->AddComponent(new PortalComponent(m_pCharacter, (bool)currentPortal));
+		PortalComponent* pPortalComponent = pPortal->AddComponent(new PortalComponent(m_pCharacter, (bool)currentPortal));
 
 		const auto pPortalMesh = pPortal->AddComponent(new ModelComponent(L"blender/portal2.ovm"));
 
@@ -92,20 +113,22 @@ void PortalTestScene::CreatePortals(CameraComponent* playerCamera)
 		else
 			pPortalMaterial = MaterialManager::Get()->CreateMaterial<OrangePortalMaterial>();
 
+		pPortalMaterial->SetPortalComponent(pPortalComponent);
+
 		pPortalMesh->SetMaterial(pPortalMaterial);
 
 		// add rigidbody
 		RigidBodyComponent* pRigidBody = pPortal->AddComponent(new RigidBodyComponent(true));
 		PxBoxGeometry colliderSize
 		{
-			1,
-			2,
+			1.28f,
+			2.16f,
 			0.1f
 		};
 
 		auto* pMaterial = PxGetPhysics().createMaterial(.0f, .0f, 0.0f);
 
-		pRigidBody->AddCollider(PxBoxGeometry{ colliderSize }, *pMaterial, false, { 0,1,0 });
+		pRigidBody->AddCollider(PxBoxGeometry{ colliderSize }, *pMaterial, false, { 0,0,0 });
 
 	}
 
@@ -158,6 +181,8 @@ void PortalTestScene::MovePortal(Portal portal)
 		XMStoreFloat4(&rotation, newRotation);
 	}
 	m_pPortals[portal]->GetTransform()->RotateWorld(XMLoadFloat4(&rotation));
+
+	m_pPortals[portal]->GetComponent<PortalComponent>()->SetHasPortalMoved(true);
 }
 
 void PortalTestScene::OnGUI()
@@ -175,11 +200,11 @@ void PortalTestScene::Update()
 {
 	if (m_SceneContext.pInput->IsMouseButton(InputState::pressed, VK_RBUTTON))
 	{
-		MovePortal(Blue);
+		MovePortal(Orange);
 	}
 	if (m_SceneContext.pInput->IsMouseButton(InputState::pressed, VK_XBUTTON1) || m_SceneContext.pInput->IsKeyboardKey(InputState::pressed, 'R'))
 	{
-		MovePortal(Orange);
+		MovePortal(Blue);
 	}
 	//if (m_SceneContext.pInput->IsKeyboardKey(InputState::pressed, 'K'))
 	//{
@@ -193,5 +218,14 @@ void PortalTestScene::Update()
 		XMFLOAT3 newCubePos = characterPos;
 		newCubePos.y += 3;
 		m_pCube->GetTransform()->Translate(newCubePos);
+	}
+
+	// group0 is the player and environment, group1 is for all objects that ignore player, group2 is for interaction with the button and some trigger stuff
+	// group3 will be for all objects that are portalable
+	if (m_SceneContext.pInput->IsKeyboardKey(InputState::pressed, 'G'))
+	if (const auto pPickedObject = m_SceneContext.pCamera->Pick(CollisionGroup::Group0 | CollisionGroup::Group1 | CollisionGroup::Group2))
+	{
+		//delete hit object from scene
+		std::wcout << L"hit object: " << pPickedObject->GetTag() << std::endl;
 	}
 }

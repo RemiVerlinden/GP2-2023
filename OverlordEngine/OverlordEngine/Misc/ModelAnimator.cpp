@@ -43,6 +43,8 @@ void ModelAnimator::Update(const SceneContext& sceneContext)
 	}
 
 	float blendFactor = (m_TickCount - keyA.tick) / (keyB.tick - keyA.tick);
+	m_BlendFactor = blendFactor;
+
 
 	size_t boneCount = m_CurrentClip.keys[0].boneTransforms.size();
 	m_Transforms.resize(boneCount);

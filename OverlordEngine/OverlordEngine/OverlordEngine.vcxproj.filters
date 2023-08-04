@@ -61,6 +61,11 @@
     <ClCompile Include="Components\Portal\ButtonAnimComponent.cpp" />
     <ClCompile Include="Components\Portal\DoorComponent.cpp" />
     <ClCompile Include="Components\Portal\PlayerAnimComponent.cpp" />
+    <ClCompile Include="Components\Portal\PortalgunAnimComponent.cpp" />
+    <ClCompile Include="Components\Portal\PortalgunStatemachineComponent.cpp" />
+    <ClCompile Include="Misc\Statemachine\Portalgun\PGunIdleState.cpp" />
+    <ClCompile Include="Misc\Statemachine\Portalgun\PGunFireState.cpp" />
+    <ClCompile Include="Components\Portal\MainMenu\UI_ButtonComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -136,5 +141,20 @@
     <ClInclude Include="Components\Portal\ButtonAnimComponent.h" />
     <ClInclude Include="Components\Portal\DoorComponent.h" />
     <ClInclude Include="Components\Portal\PlayerAnimComponent.h" />
+    <ClInclude Include="Components\Portal\PortalgunAnimComponent.h" />
+    <ClInclude Include="Components\Portal\PortalgunStatemachineComponent.h" />
+    <ClInclude Include="Misc\Statemachine\Portalgun\PortalgunState.h" />
+    <ClInclude Include="Misc\Statemachine\Portalgun\PGunFireState.h" />
+    <ClInclude Include="Misc\Statemachine\Portalgun\PGunDrawState.h" />
+    <ClInclude Include="Misc\Statemachine\Portalgun\PGunFizzleState.h" />
+    <ClInclude Include="Misc\Statemachine\Portalgun\PGunHolsterState.h" />
+    <ClInclude Include="Misc\Statemachine\Portalgun\PGunIdleState.h" />
+    <ClInclude Include="Misc\Statemachine\Portalgun\PGunIdleToLowState.h" />
+    <ClInclude Include="Misc\Statemachine\Portalgun\PGunLowIdleState.h" />
+    <ClInclude Include="Misc\Statemachine\Portalgun\PGunLowToIdleState.h" />
+    <ClInclude Include="Misc\Statemachine\Portalgun\PGunPickupState.h" />
+    <ClInclude Include="Misc\Statemachine\Portalgun\PGunReleaseState.h" />
+    <ClInclude Include="Misc\Statemachine\Portalgun\PGunStateIncludes.h" />
+    <ClInclude Include="Components\Portal\MainMenu\UI_ButtonComponent.h" />
   </ItemGroup>
 </Project>

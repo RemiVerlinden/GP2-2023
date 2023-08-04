@@ -12,6 +12,8 @@ void Character::Initialize(const SceneContext& /*sceneContext*/)
 {
 	InitCharacterSettings();
 
+	SetTag(L"Player");
+
 	//Controller
 	m_pControllerComponent = AddComponent(new ControllerComponent(m_CharacterDesc.controller));
 
@@ -27,9 +29,25 @@ void Character::Initialize(const SceneContext& /*sceneContext*/)
 	m_pPlayerAnimObject = AddChild(new GameObject());
 	m_pPlayerAnimObject->GetTransform()->Translate(0, -m_CharacterDesc.controller.halfHeight, 0);
 
+
+}
+
+// I seperated this initialize function just so it can be called as last initialization.
+// this is necesarry because the portalgun has to be added last to the drawables list.
+// this way I can force the portalgun to draw on top of everything else.
+// this means it wont phase though walls and stuff.
+void Character::InitializeCharacterMeshes()
+{
 	m_pPlayerAnimComponent = m_pPlayerAnimObject->AddComponent(new PlayerAnimComponent(this));
 	m_pPlayerAnimComponent->SetAnimation(PlayerAnimComponent::NoGun_StandingIdle);
+
+	m_pPortalgunAnimComponent = m_pCameraHolder->AddComponent(new PortalgunAnimComponent(this));
+
+	m_IsCharacterMeshesInitialized = true;
 }
+
+
+
 void Character::InitCharacterSettings()
 {
 	m_CharacterDesc.rotationSpeed = 5;
@@ -37,7 +55,7 @@ void Character::InitCharacterSettings()
 }
 
 // very extremely terrible but no time for better
-void Character::UpdateAnimationState(const SceneContext& sceneContext, bool isGrounded)
+void Character::UpdatePlayerAnimationState(const SceneContext& sceneContext, bool isGrounded)
 {
 	if (!isGrounded)
 	{
@@ -78,8 +96,19 @@ void Character::UpdateAnimationState(const SceneContext& sceneContext, bool isGr
 
 }
 
+void Character::UpdatePortalgunAnimationState(const SceneContext& /*sceneContext*/)
+{
+}
+
 void Character::Update(const SceneContext& sceneContext)
 {
+	if (!m_IsCharacterMeshesInitialized) 
+	{
+		Logger::LogError(L"YOU MUST CALL THE InitializeCharacterMeshes() FUNCTION DURING INITIALIZATION");
+		assert(false);
+		assert(true);
+	} 
+
 	if (m_pCameraComponent->IsActive())
 	{
 		//constexpr float epsilon{ 0.01f }; //Constant that can be used to compare if a float is near zero
@@ -250,7 +279,8 @@ void Character::Update(const SceneContext& sceneContext)
 		//The above is a simple implementation of Movement Dynamics, adjust the code to further improve the movement logic and behaviour.
 		//Also, it can be usefull to use a seperate RayCast to check if the character is grounded (more responsive)
 
-		UpdateAnimationState(sceneContext, isGrounded);
+		UpdatePlayerAnimationState(sceneContext, isGrounded);
+		UpdatePortalgunAnimationState(sceneContext);
 	}
 }
 

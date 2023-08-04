@@ -52,6 +52,10 @@
     <ClCompile Include="Materials\Portal\PhongMaterial_Skinned.cpp" />
     <ClCompile Include="Materials\Post\PostColorGrading.cpp" />
     <ClCompile Include="Materials\Post\PostSSAO.cpp" />
+    <ClCompile Include="Materials\Portal\Glass\GlassMaterial_Skinned.cpp" />
+    <ClCompile Include="Materials\Portal\Weapon\PortalGun_Glow_Material.cpp" />
+    <ClCompile Include="Portal\ViewBob.cpp" />
+    <ClCompile Include="Scenes\Portal\PortalMainMenu.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainGame.h" />
@@ -105,5 +109,10 @@
     <ClInclude Include="Materials\Portal\PhongMaterial_Skinned.h" />
     <ClInclude Include="Materials\Post\PostColorGrading.h" />
     <ClInclude Include="Materials\Post\PostSSAO.h" />
+    <ClInclude Include="Materials\Portal\Glass\GlassMaterial_Skinned.h" />
+    <ClInclude Include="Materials\Portal\Weapon\PortalGun_Glow_Material.h" />
+    <ClInclude Include="SceneInputDefines\PortalInput.h" />
+    <ClInclude Include="Portal\ViewBob.h" />
+    <ClInclude Include="Scenes\Portal\PortalMainMenu.h" />
   </ItemGroup>
 </Project>

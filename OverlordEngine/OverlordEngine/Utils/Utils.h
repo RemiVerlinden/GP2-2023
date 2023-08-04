@@ -9,7 +9,14 @@ namespace GameSceneExt
 	{
 		const auto pActor = PxGetPhysics().createRigidStatic(PxTransform{ PxQuat{PxPiDivTwo, PxVec3{0.f,0.f,1.f}} });
 		if (!pMaterial) pMaterial = PxGetPhysics().createMaterial(.5f, .5f, .5f);
-		PxRigidActorExt::createExclusiveShape(*pActor, PxPlaneGeometry{}, *pMaterial);
+		auto pShape = PxRigidActorExt::createExclusiveShape(*pActor, PxPlaneGeometry{}, *pMaterial);
+
+		PxFilterData collisionGroup{};
+
+		collisionGroup.word0 = static_cast<UINT32>((1 << 0));
+
+		pShape->setSimulationFilterData(collisionGroup);
+		pShape->setQueryFilterData(collisionGroup);
 
 		scene.GetPhysxProxy()->AddActor(*pActor);
 	}
@@ -85,4 +92,35 @@ namespace MatrixUtil
 namespace QuatUtil 
 {
 	void QuaternionToEuler(const XMVECTOR& Q, float& pitch, float& yaw, float& roll);
+
+	void AngleVectors(const XMFLOAT3& angles, XMFLOAT3* forward, XMFLOAT3* right, XMFLOAT3* up);
+
+}
+
+namespace MathUtil
+{
+	// Remap a value in the range [A,B] to [C,D].
+	inline float RemapVal(float val, float A, float B, float C, float D)
+	{
+		if (A == B)
+			return val >= B ? D : C;
+		return C + (D - C) * (val - A) / (B - A);
+	}
+
+	inline float DegToRad(float degrees)
+	{
+		return degrees * (DirectX::XM_PI / 180.0f);
+	}
+
+	inline float RadToDeg(float radians)
+	{
+		return radians * (180.0f / DirectX::XM_PI);
+	}
+
+	// Math routines done in optimized assembly math package routines
+	void inline SinCos(float radians, float* sine, float* cosine)
+	{
+		*sine = sin(radians);
+		*cosine = cos(radians);
+	}
 }

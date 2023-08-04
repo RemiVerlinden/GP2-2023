@@ -27,12 +27,21 @@ void PortalComponent::Initialize(const SceneContext& /*sceneContext*/)
 	m_pPortalCam = m_pPortalCameraRotator->AddComponent(new CameraComponent());
 }
 
+void PortalComponent::UpdatePortalLifetime(const SceneContext& sceneContext)
+{
+	m_PortalLifetime += sceneContext.pGameTime->GetElapsed();
+	if (m_HasMoved) // reset lifetime if portal has moved
+	{
+		m_PortalLifetime = 0.f;
+		m_HasMoved = false;
+	}
+}
 
-
-void PortalComponent::Update(const SceneContext& /*sceneContext*/)
+void PortalComponent::Update(const SceneContext& sceneContext)
 {
 	assert(m_pLinkedPortal);
 
+	UpdatePortalLifetime(sceneContext);
 
 	CameraComponent* playerCam = m_pPlayerCam;
 

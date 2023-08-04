@@ -4,6 +4,7 @@ float4x4 gWorldViewProj : WORLDVIEWPROJECTION;
 float gTime = 0.f;
 float2 gResolution = float2(1920,1080);
 bool gBluePortalColor = true;
+
 Texture2D gPortalMap;
 SamplerState samLinear
 {
@@ -78,6 +79,8 @@ float snoise(float3 uv, float res)
 	
 	return lerp(r0, r1, f.z)*2.-1.;
 }
+float gMaxClipRadius = 0.47f;
+float gPortalOpenDuration = 0.4f;
 
 float4 PS(VS_OUTPUT input) : SV_TARGET
 {
@@ -89,20 +92,28 @@ float4 PS(VS_OUTPUT input) : SV_TARGET
 
 	float4 diffuseColor = gPortalMap.Sample( samLinear,screenPos.xy );
 
-	// added code
+	 
+	// Calculate portal scale, it will go from 0 to 1 over a certain duration
+    float portalScale = min(gTime, gPortalOpenDuration);
+
+	// Calculate portal scale, it will go from 0 to 1 over a certain duration
+    portalScale = smoothstep(0.0, gPortalOpenDuration, portalScale); // Apply easing function when opening portal
+
 	float2 p = -.5 + uv;
-	// p.x *= gResolution.x/gResolution.y;
-
-	// p.y *= 1.5;
+	p /= portalScale;
 
 	
-
-	float color = 3.0 - (3.*length(1.8*p));
+	// I added the portal scale so during the portal open animation, the plasma edges will stay much bigger than otherwise( else when the portal is 0.1 scale, the plasma edge is also 0.1 in side and it looks a little dumb)
+	// NOTE: whatever I am doing is very much NOT perfect but I am happy with how it looks and I need to move on and do different stuff 
+	float color = 3.0 -  (3.*length(1.8*p) / portalScale); // this will calculate a range between [0-3] where 0 means no color and 3 means max color. -> everything closer to center is closer to 0 (max number - length of coordinate)
 	
-	float3 coord = float3(atan2(p.y,p.x)/6.2832+.5, length(p)*.8, .5);
+	float rotationSpeed = 15.f; // higher number means slower rotation 
+	float temporalRotation = 2 + gTime / rotationSpeed; // there is a certain threshhold between [0 - something close to 1(maybe PI/2)] where get a seam on the side of the portal so to prevent this, I just start off with a higher value
+
+
+	float3 coord = float3(atan2(p.y,p.x)/6.2832 + temporalRotation, length(p)*.8, gTime / 15.); // the Z of the coord can be static but I like it a little more when the Z part of the noise slide also moves a bit for more dramatic effect
 	coord = 1. - coord;
 	
-
 	for(int i = 1; i <= 2; i++)
 	{
 		float power = pow(2., float(i));
@@ -110,19 +121,22 @@ float4 PS(VS_OUTPUT input) : SV_TARGET
 	}
 	
     color = 1.0 - color;
-    color *= 2.7;
+    color *= 2.7 * pow(portalScale,2); // must have this in conjunction with the [float color = 3.0 - ...] line of code. else the edges will be insanely washed out white during the opening animation
 
-	color *= smoothstep(0.5, 0.47, length(p));
+	color *= smoothstep(0.5, 0.47, length(p)); // this creates an outside border to the portal which I can then clip (remove this line of code if you want to know exactly what it does, it will be very clear)
 
 	float intensity = max(color, 0.0); // ensure we don't have negative values
 	
-
-
 	float4 noiseColor;
 	if(gBluePortalColor)
 		 noiseColor = float4( intensity*intensity*intensity*0.15, intensity*intensity*0.4, intensity , intensity);
 	else
 		 noiseColor = float4( intensity, intensity*intensity*0.4, intensity*intensity*intensity*0.15 , intensity);
+
+
+
+	    // Interpolate the radius of the portal between 0 and gMaxClipRadius
+    float portalRadius = lerp(0.0, gMaxClipRadius, portalScale);
 
 	float radius = length(p);
 	if(radius >= 0.47) // if radius is larger than this start clipping
@@ -150,4 +164,5 @@ technique11 Default
     }
 }
 
+// original:
 // https://www.shadertoy.com/view/Wt3GRS#

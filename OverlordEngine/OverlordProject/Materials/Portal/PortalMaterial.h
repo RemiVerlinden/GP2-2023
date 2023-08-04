@@ -11,6 +11,8 @@ public:
 	PortalMaterial& operator=(const PortalMaterial& other) = delete;
 	PortalMaterial& operator=(PortalMaterial&& other) noexcept = delete;
 
+    void SetPortalComponent(PortalComponent* pComponent);
+
 protected:
 	void InitializeEffectVariables() override;
 	void OnUpdateModelVariables(const SceneContext&, const ModelComponent*) const override;

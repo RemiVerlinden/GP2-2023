@@ -97,12 +97,14 @@
     <ClCompile Include="Materials\DiffuseMaterial_Skinned.cpp" />
     <ClCompile Include="Materials\Portal\DecalMaterial.cpp" />
     <ClCompile Include="Materials\Portal\Glass\FrostedGlassMaterial.cpp" />
+    <ClCompile Include="Materials\Portal\Glass\GlassMaterial_Skinned.cpp" />
     <ClCompile Include="Materials\Portal\NoDrawMaterial.cpp" />
     <ClCompile Include="Materials\Portal\PhongMaterial.cpp" />
     <ClCompile Include="Materials\Portal\PhongMaterial_Skinned.cpp" />
     <ClCompile Include="Materials\Portal\PortalMaterial.cpp" />
     <ClCompile Include="Materials\Portal\Glass\RefractingGlassMaterial.cpp" />
     <ClCompile Include="Materials\Portal\StaticMapMaterial.cpp" />
+    <ClCompile Include="Materials\Portal\Weapon\PortalGun_Glow_Material.cpp" />
     <ClCompile Include="Materials\Post\PostBlur.cpp" />
     <ClCompile Include="Materials\Post\PostColorGrading.cpp" />
     <ClCompile Include="Materials\Post\PostGrayscale.cpp" />
@@ -124,6 +126,7 @@
       <FunctionLevelLinking Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </FunctionLevelLinking>
     </ClCompile>
+    <ClCompile Include="Portal\ViewBob.cpp" />
     <ClCompile Include="Prefabs\BoneObject.cpp" />
     <ClCompile Include="Prefabs\Character.cpp" />
     <ClCompile Include="Scenes\Portal\PortalProps.cpp" />
@@ -136,6 +139,7 @@
     <ClCompile Include="Prefabs\TorusPrefab.cpp" />
     <ClCompile Include="Materials\ColorMaterial.cpp" />
     <ClCompile Include="Scenes\Week 3\MinionScene.cpp" />
+    <ClCompile Include="Scenes\Portal\PortalMainMenu.cpp" />
     <ClCompile Include="Scenes\Week 4\ModelTestScene.cpp" />
     <ClCompile Include="Scenes\Week 4\SpikyScene.cpp" />
     <ClCompile Include="Scenes\Week 4\SpriteTestScene.cpp" />
@@ -177,12 +181,14 @@
     <ClInclude Include="Materials\DiffuseMaterial_Skinned.h" />
     <ClInclude Include="Materials\Portal\DecalMaterial.h" />
     <ClInclude Include="Materials\Portal\Glass\FrostedGlassMaterial.h" />
+    <ClInclude Include="Materials\Portal\Glass\GlassMaterial_Skinned.h" />
     <ClInclude Include="Materials\Portal\NoDrawMaterial.h" />
     <ClInclude Include="Materials\Portal\PhongMaterial.h" />
     <ClInclude Include="Materials\Portal\PhongMaterial_Skinned.h" />
     <ClInclude Include="Materials\Portal\PortalMaterial.h" />
     <ClInclude Include="Materials\Portal\Glass\RefractingGlassMaterial.h" />
     <ClInclude Include="Materials\Portal\StaticMapMaterial.h" />
+    <ClInclude Include="Materials\Portal\Weapon\PortalGun_Glow_Material.h" />
     <ClInclude Include="Materials\Post\PostColorGrading.h" />
     <ClInclude Include="Materials\Post\PostSSAO.h" />
     <ClInclude Include="Portal\ThreadPool.h" />
@@ -195,8 +201,10 @@
     <ClInclude Include="Materials\SpikyMaterial.h" />
     <ClInclude Include="Materials\UberMaterial.h" />
     <ClInclude Include="Portal\MapLoader.h" />
+    <ClInclude Include="Portal\ViewBob.h" />
     <ClInclude Include="Prefabs\BoneObject.h" />
     <ClInclude Include="Prefabs\Character.h" />
+    <ClInclude Include="SceneInputDefines\PortalInput.h" />
     <ClInclude Include="Scenes\Portal\PortalProps.h" />
     <ClInclude Include="Scenes\Portal\PortalTestScene.h" />
     <ClInclude Include="Scenes\Week 10\PostProcessingScene.h" />
@@ -207,6 +215,7 @@
     <ClInclude Include="Prefabs\TorusPrefab.h" />
     <ClInclude Include="Materials\ColorMaterial.h" />
     <ClInclude Include="Scenes\Week 3\MinionScene.h" />
+    <ClInclude Include="Scenes\Portal\PortalMainMenu.h" />
     <ClInclude Include="Scenes\Week 4\ModelTestScene.h" />
     <ClInclude Include="Scenes\Week 4\SpikyScene.h" />
     <ClInclude Include="Scenes\Week 4\SpriteTestScene.h" />

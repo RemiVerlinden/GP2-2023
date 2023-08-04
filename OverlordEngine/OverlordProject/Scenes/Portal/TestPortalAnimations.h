@@ -1,4 +1,6 @@
 #pragma once
+class PortalGun_Glow_Material;
+
 class TestPortalAnimations: public GameScene
 {
 public:
@@ -15,6 +17,9 @@ protected:
 
 private:
 	ModelAnimator* pAnimator{};
+
+	PortalGun_Glow_Material* m_pPortalgunGlowMaterial{};
+	float m_PortalColor[3] = { 0.f, 0.6f, 1.f };
 
 	int m_AnimationClipId{ 0 };
 	float m_AnimationSpeed{ 1.f };

@@ -2,23 +2,31 @@
 #include "PortalMaterial.h"
 #include "Graphics\CameraViewMapRenderer.h"
 #include "Components\PortalComponent.h"
+#include "../OverlordEngine/Graphics/PortalRenderer.h"
+
 PortalMaterial::PortalMaterial() :
 	Material(L"Effects/Portal/Portal.fx")
 {
+}
+
+void PortalMaterial::SetPortalComponent(PortalComponent* pComponent)
+{
+	m_pPortalComponent = pComponent;
 }
 
 void PortalMaterial::InitializeEffectVariables()
 {
 }
 
-void PortalMaterial::OnUpdateModelVariables(const SceneContext& sceneContext, const ModelComponent* /*pModel*/) const
+void PortalMaterial::OnUpdateModelVariables(const SceneContext& /*sceneContext*/, const ModelComponent* /*pModel*/) const
 {
 	////  2. Update the portal texture
 	RenderTarget* portalRenderTarget = PortalRenderer::Get()->GetPortalRenderTarget(m_Portal);
 	SetVariable_Texture(L"gPortalMap", portalRenderTarget->GetColorShaderResourceView());
 
-	SetVariable_Scalar(L"gTime", sceneContext.pGameTime->GetTotal());
+	SetVariable_Scalar(L"gTime", m_pPortalComponent->GetPortalLifetime());
 }
+//=======================================================================================================================================
 
 OrangePortalMaterial::OrangePortalMaterial()
 	: PortalMaterial()
@@ -32,6 +40,7 @@ void OrangePortalMaterial::InitializeEffectVariables()
 	PortalMaterial::InitializeEffectVariables();
 	SetVariable_Scalar(L"gBluePortalColor", false);
 }
+//=======================================================================================================================================
 
 BluePortalMaterial::BluePortalMaterial()
 	: PortalMaterial()
@@ -47,3 +56,4 @@ void BluePortalMaterial::InitializeEffectVariables()
 	SetVariable_Scalar(L"gBluePortalColor", true);
 
 }
+//=======================================================================================================================================

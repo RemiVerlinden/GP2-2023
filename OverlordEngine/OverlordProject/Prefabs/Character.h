@@ -14,7 +14,7 @@ struct CharacterDesc
 		controller.contactOffset = .01f;
 	}
 
-	float maxMoveSpeed{ 7.f };
+	inline static float maxMoveSpeed{ 7.f };
 	float maxFallSpeed{ 15.f };
 
 	float JumpSpeed{ 15.f };
@@ -33,6 +33,8 @@ struct CharacterDesc
 	int actionId_Jump{ -1 };
 };
 
+class PlayerAnimComponent;
+class PortalgunAnimComponent;
 class Character : public GameObject
 {
 public:
@@ -44,24 +46,28 @@ public:
 	Character& operator=(const Character& other) = delete;
 	Character& operator=(Character&& other) noexcept = delete;
 
+	const XMFLOAT3& GetVelocity() const { return m_TotalVelocity; }
 	float GetPitch() const { return m_TotalPitch; }
 	float GetYaw() const { return m_TotalYaw; }
 	float GetCharacterHalfHeight() const { return m_CharacterDesc.controller.halfHeight; }
 	void DrawImGui();
 	CameraComponent* GetCameraComponent() const { return m_pCameraComponent; }
+	void InitializeCharacterMeshes(); // this will create the player mesh and portalgun mesh and their animations
 protected:
 	void Initialize(const SceneContext&) override;
 	void Update(const SceneContext&) override;
 private:
 	void InitCharacterSettings();
 private:
-	void UpdateAnimationState(const SceneContext& sceneContext,  bool isGrounded);
+	void UpdatePlayerAnimationState(const SceneContext& sceneContext,  bool isGrounded);
+	void UpdatePortalgunAnimationState(const SceneContext& sceneContext);
 	GameObject* m_pCameraHolder{};
 	CameraComponent* m_pCameraComponent{};
 	ControllerComponent* m_pControllerComponent{};
 
 	GameObject* m_pPlayerAnimObject{};
 	PlayerAnimComponent* m_pPlayerAnimComponent{};
+	PortalgunAnimComponent* m_pPortalgunAnimComponent{};
 
 	CharacterDesc m_CharacterDesc;
 	float m_TotalPitch{}, m_TotalYaw{};				//Total camera Pitch(X) and Yaw(Y) rotation
@@ -71,5 +77,7 @@ private:
 
 	XMFLOAT3 m_TotalVelocity{};						//TotalVelocity with X/Z for Horizontal Movement AND Y for Vertical Movement (fall/jump)
 	XMFLOAT3 m_CurrentDirection{};					//Current/Last Direction based on Camera forward/right (Stored for deacceleration)
+
+	bool m_IsCharacterMeshesInitialized{ false };
 };
 

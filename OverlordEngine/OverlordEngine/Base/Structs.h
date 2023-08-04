@@ -1,12 +1,13 @@
 #pragma once
+#include <array>
+
 class CameraComponent;
 class InputManager;
 class LightManager;
-class PortalManager;
+class PortalComponent;
 class GameTime;
 class OverlordGame;
 class MaterialManager;
-
 struct D3D11Context
 {
 	ID3D11Device* pDevice{};
@@ -36,7 +37,7 @@ struct SceneContext
 {
 	InputManager* pInput{};
 	LightManager* pLights{};
-	PortalManager* pPortals{};
+	std::array<PortalComponent*, 2> pPortals;
 	CameraComponent* pCamera{};
 	GameTime* pGameTime{};
 	D3D11Context d3dContext{};

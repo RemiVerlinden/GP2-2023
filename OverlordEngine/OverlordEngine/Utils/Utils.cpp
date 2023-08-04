@@ -79,3 +79,35 @@ void QuatUtil::QuaternionToEuler(const XMVECTOR& Q, float& pitch, float& yaw, fl
 	roll = (float)atan2(sinr_cosp, cosr_cosp);
 }
 
+void QuatUtil::AngleVectors(const XMFLOAT3& angles, XMFLOAT3* forward, XMFLOAT3* right, XMFLOAT3* up)
+{
+	float sr, sp, sy, cr, cp, cy;
+
+
+
+	MathUtil::SinCos(MathUtil::DegToRad(angles.x), &sy, &cy);
+	MathUtil::SinCos(MathUtil::DegToRad(angles.y), &sp, &cp);
+	MathUtil::SinCos(MathUtil::DegToRad(angles.z), &sr, &cr);
+
+	if (forward)
+	{
+		forward->x = -(cr * sp * cy + -sr * -sy);
+		forward->y = (sr * sp * cy + cr * -sy);
+		forward->z = cp * cy;
+	}
+
+	if (right)   // This was 'right' in Source
+	{
+		right->x = cr * cp;
+		right->y = sr * cp;
+		right->z = sp;
+	}
+
+	if (up)  // This was 'up' in Source
+	{
+		up->x = -(cr * sp * sy + -sr * cy);
+		up->z = cp * sy;
+		up->y = (sr * sp * sy + cr * cy);
+	}
+}
+

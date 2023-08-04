@@ -8,6 +8,7 @@ public:
 	SoundManager& operator=(SoundManager&& other) noexcept = delete;
 
 	FMOD::System* GetSystem() const { return m_pFmodSystem; }
+	bool ErrorCheck(FMOD_RESULT res);
 
 protected:
 	void Initialize() override;

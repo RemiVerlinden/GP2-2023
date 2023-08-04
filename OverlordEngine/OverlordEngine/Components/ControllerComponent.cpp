@@ -3,6 +3,7 @@
 
 ControllerComponent::ControllerComponent(const PxBoxControllerDesc& controllerDesc):
 	m_ControllerDesc{ controllerDesc }
+	, m_CollisionGroups{ static_cast<UINT32>(CollisionGroup::Group0 | CollisionGroup::Group2), static_cast<UINT32>(CollisionGroup::Group1), 0, 0 }
 {
 }
 

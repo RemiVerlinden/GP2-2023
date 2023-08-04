@@ -1,0 +1,11 @@
+#pragma once
+#include "Misc\Statemachine\Portalgun\PGunDrawState.h"
+#include "Misc\Statemachine\Portalgun\PGunFireState.h"
+#include "Misc\Statemachine\Portalgun\PGunFizzleState.h"
+#include "Misc\Statemachine\Portalgun\PGunHolsterState.h"
+#include "Misc\Statemachine\Portalgun\PGunIdleState.h"
+#include "Misc\Statemachine\Portalgun\PGunIdleToLowState.h"
+#include "Misc\Statemachine\Portalgun\PGunLowIdleState.h"
+#include "Misc\Statemachine\Portalgun\PGunLowToIdleState.h"
+#include "Misc\Statemachine\Portalgun\PGunPickupState.h"
+#include "Misc\Statemachine\Portalgun\PGunReleaseState.h"

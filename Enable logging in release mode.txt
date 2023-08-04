@@ -1,0 +1,6 @@
+Logger.cpp 
+line 48
+	if (AllocConsole())
+
+
+uncomment : //#if defined(DEBUG) | defined(_DEBUG)

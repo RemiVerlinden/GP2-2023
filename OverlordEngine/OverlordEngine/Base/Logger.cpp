@@ -44,7 +44,7 @@ void Logger::Initialize()
 		//LOG ERROR
 	}
 
-#if defined(DEBUG) | defined(_DEBUG)
+//#if defined(DEBUG) | defined(_DEBUG)
 	if (AllocConsole())
 	{
 		// Redirect the CRT standard input, output, and error handles to the console
@@ -78,7 +78,7 @@ void Logger::Initialize()
 			if (hMenu != NULL) DeleteMenu(hMenu, SC_CLOSE, MF_BYCOMMAND);
 		}
 	}
-#endif
+//#endif
 }
 
 void Logger::Release()

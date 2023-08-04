@@ -22,6 +22,8 @@ public:
 	void SetLinkedPortal(PortalComponent* pPortal);
 	CameraComponent* GetPortalCamera() const { return m_pPortalCam; }
 	GameObject* GetCameraRotator() const { return m_pPortalCameraRotator; }
+	float GetPortalLifetime() const { return m_PortalLifetime; }
+	void SetHasPortalMoved(bool hasMoved) { m_HasMoved = hasMoved; }
 protected:
 
 	void Initialize(const SceneContext& sceneContext) override;
@@ -33,7 +35,7 @@ protected:
 private:
 	virtual void PortalMapDraw(const SceneContext& context);
 	void HandlePortalCameraClipPlane();
-
+	void UpdatePortalLifetime(const SceneContext& sceneContext); // how long the portal has been active since last time it was moved
 	//void HandleTravellers();
 	//void CreateViewTexture();
 	//float ProtectScreenFromClipping(const XMFLOAT3& viewPoint);
@@ -53,6 +55,8 @@ private:
 	GameObject* m_pPortalCameraRotator;
 	CameraComponent* m_pPortalCam;
 	bool bluePortal;
+	bool m_HasMoved; // has portal been moved to a different location
+	float m_PortalLifetime = 0.f; // how long the portal has been active since last time it was moved
 
 	float m_NearClipPlaneOffset = 0.05f;
 	float m_NearClipPlaneLimit = 0.2f;

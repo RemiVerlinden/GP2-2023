@@ -1,0 +1,8 @@
+	originalAngle.y = -m_pCharacter->GetYaw();
+	originalAngle.x = m_pCharacter->GetPitch()
+
+
+upon hit get the PxTriangleMesh::getTrianglesRemap()
+
+then get the faceID when hitting wall and look it up in the PxTriangleMesh::getTrianglesRemap()
+

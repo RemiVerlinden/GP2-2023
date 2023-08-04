@@ -12,6 +12,8 @@ void DiffuseMaterial_Skinned::SetDiffuseTexture(const std::wstring& assetFile)
 	SetVariable_Texture(L"gDiffuseMap", m_pDiffuseTexture);
 }
 
+
+
 void DiffuseMaterial_Skinned::InitializeEffectVariables()
 {
 }

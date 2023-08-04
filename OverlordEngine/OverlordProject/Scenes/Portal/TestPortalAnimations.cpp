@@ -3,6 +3,8 @@
 
 #include "Materials/DiffuseMaterial_Skinned.h"
 #include "Materials/Portal/PhongMaterial_Skinned.h"
+#include "Materials/Portal/Glass/GlassMaterial_Skinned.h"
+#include "Materials/Portal/Weapon/PortalGun_Glow_Material.h"
 #include "Materials/ColorMaterial.h"
   
 TestPortalAnimations::~TestPortalAnimations()
@@ -18,28 +20,47 @@ TestPortalAnimations::~TestPortalAnimations()
 void TestPortalAnimations::Initialize()
 {
 	m_SceneContext.settings.enableOnGUI = true;
+	const XMFLOAT4 aliceBlue{ DirectX::Colors::Black };
+	m_SceneContext.settings.clearColor = aliceBlue;
 
 
-	const auto pSkinnedMaterialFrame = MaterialManager::Get()->CreateMaterial<PhongMaterial_Skinned>();
-	pSkinnedMaterialFrame->SetDiffuseTexture(L"Textures/Player/BallBot/ballbot_frame.dds");
-	pSkinnedMaterialFrame->SetNormalTexture(L"Textures/Player/BallBot/ballbot_frame_normal.dds");
+	//const auto pSkinnedMaterialFrame = MaterialManager::Get()->CreateMaterial<PhongMaterial_Skinned>();
+	//pSkinnedMaterialFrame->SetDiffuseTexture(L"Textures/Player/BallBot/ballbot_frame.dds");
+	//pSkinnedMaterialFrame->SetNormalTexture(L"Textures/Player/BallBot/ballbot_frame_normal.dds");
 
-	const auto pSkinnedMaterialShell = MaterialManager::Get()->CreateMaterial<PhongMaterial_Skinned>();
-	pSkinnedMaterialShell->SetDiffuseTexture(L"Textures/Player/BallBot/ballbot_shell.dds");
-	pSkinnedMaterialShell->SetNormalTexture(L"Textures/Player/BallBot/ballbot_shell_normal.dds");
+	//const auto pSkinnedMaterialShell = MaterialManager::Get()->CreateMaterial<PhongMaterial_Skinned>();
+	//pSkinnedMaterialShell->SetDiffuseTexture(L"Textures/Player/BallBot/ballbot_shell.dds");
+	//pSkinnedMaterialShell->SetNormalTexture(L"Textures/Player/BallBot/ballbot_shell_normal.dds");
 
-	const auto pSkinnedMaterialEye = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Skinned>();
-	pSkinnedMaterialEye->SetDiffuseTexture(L"Textures/Player/BallBot/bot_eye_ring_lights.dds");
+	//const auto pSkinnedMaterialEye = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Skinned>();
+	//pSkinnedMaterialEye->SetDiffuseTexture(L"Textures/Player/BallBot/bot_eye_ring_lights.dds");
+
+	//const auto pObject = AddChild(new GameObject);
+	//const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/Player/BallBot.ovm"));
+
+
+		const auto pSkinnedMaterialGun = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Skinned>();
+		pSkinnedMaterialGun->SetDiffuseTexture(L"Textures/Weapons/PortalgunRTX/Portalgun.dds");
+
+		m_pPortalgunGlowMaterial = MaterialManager::Get()->CreateMaterial<PortalGun_Glow_Material>();
+		m_PortalColor[0] = 0.f;
+		m_PortalColor[1] = 0.6f;
+		m_PortalColor[2] = 1.f;
+		m_pPortalgunGlowMaterial->SetColor({ m_PortalColor[0],m_PortalColor[1], m_PortalColor[2] });
+
+		const auto pSkinnedMaterialGlass = MaterialManager::Get()->CreateMaterial<GlassMaterial_Skinned>();
+		pSkinnedMaterialGlass->SetDiffuseTexture(L"Textures/Weapons/PortalgunRTX/Glass.dds");
+		pSkinnedMaterialGlass->SetOpacity(1.f);
 
 	const auto pObject = AddChild(new GameObject);
-	const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/Player/BallBot.ovm"));
+	const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/Weapon/PortalgunRTX.ovm"));
 
 
-	pModel->SetMaterial(pSkinnedMaterialShell, 0);
-	pModel->SetMaterial(pSkinnedMaterialFrame, 1);
-	pModel->SetMaterial(pSkinnedMaterialEye, 2);
+	pModel->SetMaterial(pSkinnedMaterialGun, 0);
+	pModel->SetMaterial(m_pPortalgunGlowMaterial, 1);
+	pModel->SetMaterial(pSkinnedMaterialGlass, 2);
 
-	pObject->GetTransform()->Scale(0.15f);
+
 
 	pAnimator = pModel->GetAnimator();
 	pAnimator->SetAnimation(m_AnimationClipId);
@@ -87,4 +108,14 @@ void TestPortalAnimations::OnGUI()
 	{
 		pAnimator->SetAnimationSpeed(m_AnimationSpeed);
 	}
+
+	// Assuming m_PortalColor is a member variable of this class
+	if (ImGui::ColorEdit3("Portal Glow Color", m_PortalColor))
+	{
+		m_pPortalgunGlowMaterial->SetColor({ m_PortalColor[0], m_PortalColor[1], m_PortalColor[2] });
+	}
+
+	// Assuming m_PortalColor is a member variable of this class
+	ImGui::Text("Portal Glow Color: %.10f", pAnimator->GetBlendFactor());
+
 }

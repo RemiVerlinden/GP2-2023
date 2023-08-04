@@ -37,16 +37,6 @@ private:
 	void CreatePortals(CameraComponent* playerCamera);
 	void MovePortal(Portal portal);
 
-
-	enum InputIds
-	{
-		CharacterMoveLeft,
-		CharacterMoveRight,
-		CharacterMoveForward,
-		CharacterMoveBackward,
-		CharacterJump
-	};
-
 	Character* m_pCharacter{};
 	GameObject* m_pPlayerAnimObject{};
 	std::array<GameObject*,2> m_pPortals{};

@@ -29,6 +29,8 @@ public:
 	const std::wstring& GetClipName() const { ASSERT_IF_(!m_ClipSet) return m_CurrentClip.name; }
 	const std::vector<XMFLOAT4X4>& GetBoneTransforms() const { return m_Transforms; }
 
+	float GetBlendFactor() const { return m_BlendFactor; }
+
 private:
 	float CalculatePassedTicks(const SceneContext& sceneContext);
 	void UpdateTickCount(float passedTicks, float finalAnimationTick);
@@ -42,4 +44,6 @@ private:
 	std::vector<XMFLOAT4X4> m_Transforms{};
 	bool m_IsPlaying{}, m_PlayOnce{}, m_Reversed{}, m_ClipSet{}, m_IsAnimBlending{};
 	float m_TickCount{}, m_AnimationSpeed{ 1.f }, m_TransitionBlendFactor{};
+
+	float m_BlendFactor{};
 };

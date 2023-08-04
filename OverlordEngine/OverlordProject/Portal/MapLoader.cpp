@@ -24,6 +24,7 @@ GameObject* MapLoader::LoadMap(const std::wstring& mapName)
 	const auto pDefaultMaterial = PxGetPhysics().createMaterial(0.5f, 0.5f, 0.5f);
 
 	const auto pMapObject = m_Scene.AddChild(new GameObject());
+	pMapObject->SetTag(L"LevelObject");
 
 	const auto pMapMesh = pMapObject->AddComponent(new ModelComponent(L"Meshes/Maps/" + mapName + L"_static.ovm"));
 #ifdef _DEBUG
@@ -37,6 +38,7 @@ GameObject* MapLoader::LoadMap(const std::wstring& mapName)
 	const auto pPxTriangleMesh = ContentManager::Load<PxTriangleMesh>(L"Meshes/Maps/" + mapName + L"_collision2.ovpt");
 	pMapRigidBody->AddCollider(PxTriangleMeshGeometry(pPxTriangleMesh, PxMeshScale({ 1,1,1 })), *pDefaultMaterial);
 
+	pMapRigidBody->SetCollisionGroup(CollisionGroup::Group0 | CollisionGroup::Group4);
 
 	return pMapObject;
 }

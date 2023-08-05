@@ -22,6 +22,7 @@ protected:
 	void Initialize() override;
 	void OnGUI() override;
 	void Update() override;
+	virtual void OnSceneActivated();
 
 private:
 	enum Portal

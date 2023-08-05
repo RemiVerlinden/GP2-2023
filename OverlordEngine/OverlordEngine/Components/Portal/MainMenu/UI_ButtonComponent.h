@@ -11,9 +11,13 @@ public:
 	~UI_ButtonComponent() = default;
 
 	// is the mouse hovering over the button
-	bool GetClicked() const { return m_Clicked; }
+	bool GetClicked() const;
 	// has the mouse clicked on the button
 	bool GetHovering() const { return m_Hovering; }
+	const std::wstring& GetText() const { return m_Text; }
+
+	void SetEnabled(bool enabled) { m_Enabled = enabled; }
+
 private:
 	void Initialize(const SceneContext& sceneContext) override;
 	void Update(const SceneContext&) override;
@@ -26,6 +30,8 @@ private:
 	XMFLOAT2 PixelToPercent(const SceneContext& context, const XMFLOAT2& pos) const;
 	XMFLOAT2 PercentToPixel(const SceneContext& context, const POINT& pos) const;
 	XMFLOAT2 PercentToPixel(const SceneContext& context, const XMFLOAT2& pos) const;
+
+	bool m_Enabled = false;
 
 	std::wstring m_Text;
 	XMFLOAT4 m_TextColor;

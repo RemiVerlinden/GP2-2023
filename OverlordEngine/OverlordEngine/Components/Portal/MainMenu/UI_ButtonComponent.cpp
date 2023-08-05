@@ -6,7 +6,7 @@ UI_ButtonComponent::UI_ButtonComponent(const std::wstring& text, const XMFLOAT4&
 	, m_TextColor(m_TextColor)
 	, m_BoundingBox(boundingBox)
 {
-
+	
 }
 
 void UI_ButtonComponent::Initialize(const SceneContext& /*sceneContext*/)
@@ -39,9 +39,15 @@ void UI_ButtonComponent::Initialize(const SceneContext& /*sceneContext*/)
 		m_pChannel2D->setVolume(1.f);
 	}
 }
+bool UI_ButtonComponent::GetClicked() const
+{
+	return m_Enabled ? m_Clicked : false;
+}
 
 void UI_ButtonComponent::Update(const SceneContext& context)
 {
+	if (!m_Enabled) return;
+
 	// ease of use ----------------------------------------------
 	XMFLOAT2 position{ m_BoundingBox.x, m_BoundingBox.y };
 	float width = m_BoundingBox.z;
@@ -51,7 +57,7 @@ void UI_ButtonComponent::Update(const SceneContext& context)
 	m_Hovering = false; // reset
 	m_Clicked = false;
 
-	const auto& mousePos = PixelToPercent(context, InputManager::GetMousePosition());
+	const auto& mousePos = InputManager::GetMousePosition();
 
 	if (mousePos.x >= position.x && mousePos.x <= position.x + width &&
 		mousePos.y >= position.y && mousePos.y <= position.y + height)
@@ -64,14 +70,14 @@ void UI_ButtonComponent::Update(const SceneContext& context)
 		}
 	}
 
-	DrawButtonText(context);
+	DrawButtonText(context); // I am drawing in the update loop loooool nobody will ever know
 
 	SoundOnHoverStart();
 }
 
-void UI_ButtonComponent::DrawButtonText(const SceneContext& sceneContext) const
+void UI_ButtonComponent::DrawButtonText(const SceneContext& /*sceneContext*/) const
 {
-	XMFLOAT2 position = PercentToPixel(sceneContext, XMFLOAT2{ m_BoundingBox.x, m_BoundingBox.y });
+	XMFLOAT2 position = XMFLOAT2{ m_BoundingBox.x, m_BoundingBox.y };
 	position.y += m_FontSize / 2; // make sure the font is drawn in the center of the boundingbox
 	
 

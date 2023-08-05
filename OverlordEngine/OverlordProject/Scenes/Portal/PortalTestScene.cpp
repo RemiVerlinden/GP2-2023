@@ -37,8 +37,8 @@ void PortalTestScene::Initialize()
 	AddChild(pBone);
 
 	m_pCharacter = AddChild(new Character(characterDesc));
-	//m_pCharacter->GetTransform()->Translate(-35,10,7.5f);
-	m_pCharacter->GetTransform()->Translate(0,1,0);
+	m_pCharacter->GetTransform()->Translate(-35,1,7.5f);
+	//m_pCharacter->GetTransform()->Translate(0,1,0);
 
 	//Create portals
 	CreatePortals(m_pCharacter->GetCameraComponent());
@@ -49,14 +49,14 @@ void PortalTestScene::Initialize()
 	PortalRenderer::Get()->InitializePortalComponents(portalComponents);
 
 
-	//MapLoader maploader{ *this };
-	//maploader.LoadMap(L"chamber02");
+	MapLoader maploader{ *this };
+	maploader.LoadMap(L"chamber02");
 
-	//MapLoader::InteractiveElements& interactiveElements = maploader.GetInteractiveElements();
-	//m_pCube = interactiveElements.cubes[0];
-	//m_pDoor = interactiveElements.doors[0]->GetComponent<DoorComponent>();
+	MapLoader::InteractiveElements& interactiveElements = maploader.GetInteractiveElements();
+	m_pCube = interactiveElements.cubes[0];
+	m_pDoor = interactiveElements.doors[0]->GetComponent<DoorComponent>();
 
-	//interactiveElements.buttons[0]->GetComponent<ButtonAnimComponent>()->AddInteractionComponent(m_pDoor);
+	interactiveElements.buttons[0]->GetComponent<ButtonAnimComponent>()->AddInteractionComponent(m_pDoor);
 
 
 	m_pCharacter->InitializeCharacterMeshes();
@@ -228,4 +228,14 @@ void PortalTestScene::Update()
 		//delete hit object from scene
 		std::wcout << L"hit object: " << pPickedObject->GetTag() << std::endl;
 	}
+}
+
+void PortalTestScene::OnSceneActivated()
+{
+	m_SceneContext.settings.showInfoOverlay = true;
+	m_SceneContext.settings.enableOnGUI = true;
+	m_SceneContext.settings.drawGrid = false;
+	m_SceneContext.settings.drawPhysXDebug = false;
+
+	m_pCharacter->GetCameraComponent()->SetActive(true);
 }

@@ -19,6 +19,7 @@ public:
 	void SetColor(const XMFLOAT4& color) { m_Color = color; }
 	void SetTexture(const std::wstring& spriteAsset);
 
+	void EnableRender(bool enable) { m_EnableRender = enable; }
 protected:
 	void Initialize(const SceneContext& sceneContext) override;
 	void Draw(const SceneContext& sceneContext) override;
@@ -28,4 +29,6 @@ private:
 	std::wstring m_SpriteAsset{};
 	XMFLOAT2 m_Pivot{};
 	XMFLOAT4 m_Color{};
+
+	bool m_EnableRender = true;
 };

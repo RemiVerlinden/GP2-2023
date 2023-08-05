@@ -17,6 +17,7 @@ void PortalMainMenu::Initialize()
 	//m_SceneContext.settings.drawPhysXDebug = true;
 	m_SceneContext.settings.drawGrid = false;
 	m_SceneContext.settings.enableOnGUI = false;
+	m_SceneContext.settings.clearColor = (XMFLOAT4)Colors::Black;
 
 	// CAMERA 
 	{
@@ -30,35 +31,200 @@ void PortalMainMenu::Initialize()
 		GameLogoProps.pFont = ContentManager::Load<SpriteFont>(L"SpriteFonts/PortalFont_118px.fnt");
 	}
 
-	// FIRST UI ELEMENT
+	// UI MAIN MENU BUTTONS
 	{
+		ButtonProps.position.y = m_SceneContext.windowHeight / 2; // make sure that the buttons are always spawned from the center of the screen
+		GameLogoProps.position.y = m_SceneContext.windowHeight / 2 - GameLogoProps.fontSize; // just like with the logo
+
 		m_pMenuItem = new GameObject();
 		AddChild(m_pMenuItem);
-		//m_pMenuItem->AddComponent(new UI_ButtonComponent(L"PORTAL", XMFLOAT4{ DirectX::Colors::White }, { 0.06f,0.43f,0.07f,0.03f }));
-		m_pMenuItem->AddComponent(new UI_ButtonComponent(L"NEW GAME", XMFLOAT4{ DirectX::Colors::White }, { 0.06f,0.5f,0.07f,0.03f }));
-		m_pMenuItem->AddComponent(new UI_ButtonComponent(L"OPTIONS", XMFLOAT4{ DirectX::Colors::White }, { 0.06f,0.53f,0.07f,0.03f }));
-		m_pMenuItem->AddComponent(new UI_ButtonComponent(L"QUIT", XMFLOAT4{ DirectX::Colors::White }, { 0.06f,0.56f,0.07f,0.03f }));
+
+		for (size_t buttonIndex = 0; buttonIndex < ButtonProps.buttonCount; ++buttonIndex)
+		{
+			XMFLOAT4 boundingBox;
+			XMFLOAT2 position{ ButtonProps.position.x, ButtonProps.position.y + (ButtonProps.size.y * buttonIndex) };
+
+			boundingBox.x = position.x;
+			boundingBox.y = position.y;
+			boundingBox.z = ButtonProps.size.x;
+			boundingBox.w = ButtonProps.size.y;
+
+			UI_ButtonComponent* component = m_pMenuItem->AddComponent(new UI_ButtonComponent(ButtonProps.text[buttonIndex], ButtonProps.color, boundingBox));
+			ButtonProps.buttonComponents.emplace_back(component);
+		}
 	}
 
+	// NEW GAME UI
+	{
+		{
+			NewGameProps.pNewGameButton = new GameObject();
+			auto pComponent = NewGameProps.pNewGameButton->AddComponent(new SpriteComponent(NewGameProps.assetPath, { 0.5f,0.5f }));
+			NewGameProps.pNewGameButton->GetTransform()->Translate(m_SceneContext.windowWidth / 2, m_SceneContext.windowHeight / 2, 0);
 
+			m_pSpriteComponents.emplace_back(pComponent);
+		}
+
+		// NEW GAME BUTTON START
+		{
+			XMFLOAT4 boundingBox;
+
+			boundingBox.x = m_SceneContext.windowWidth / 2 + NewGameProps.buttonPos.x; // make sure that the buttons are always spawned from the center of the screen
+			boundingBox.y = m_SceneContext.windowHeight / 2 - NewGameProps.buttonPos.y; // we do minus because the y axis is inverted
+			boundingBox.z = NewGameProps.buttonSize1.x;
+			boundingBox.w = NewGameProps.buttonSize1.y;
+
+			UI_ButtonComponent* pComponent = NewGameProps.pNewGameButton->AddComponent(new UI_ButtonComponent(L"START", { 1,1,1,0 }, boundingBox));
+			NewGameProps.buttonComponents.emplace_back(pComponent);
+		}
+
+		// NEW GAME BUTTON CANCEL
+		{
+			XMFLOAT4 boundingBox;
+
+			boundingBox.x = m_SceneContext.windowWidth / 2 + NewGameProps.buttonPos.x; // make sure that the buttons are always spawned from the center of the screen
+			boundingBox.y = m_SceneContext.windowHeight / 2 - NewGameProps.buttonPos.y; // we do minus because the y axis is inverted
+			boundingBox.z = NewGameProps.buttonSize2.x;
+			boundingBox.w = NewGameProps.buttonSize2.y;
+
+			boundingBox.x += NewGameProps.buttonSize1.x + NewGameProps.padding; // since this is the second button, I keep the same position but just add an offset
+
+			UI_ButtonComponent* pComponent = NewGameProps.pNewGameButton->AddComponent(new UI_ButtonComponent(L"CANCEL", { 1,1,1,0 }, boundingBox));
+			NewGameProps.buttonComponents.emplace_back(pComponent);
+		}
+
+		AddChild(NewGameProps.pNewGameButton);
+	}
+
+	// OPTIONS UI
+	{
+		{
+			OptionsProps.pOptionsButton = new GameObject();
+			auto pComponent = OptionsProps.pOptionsButton->AddComponent(new SpriteComponent(OptionsProps.assetPath, { 0.5f,0.5f }));
+			OptionsProps.pOptionsButton->GetTransform()->Translate(m_SceneContext.windowWidth / 2, m_SceneContext.windowHeight / 2, 0);
+
+			m_pSpriteComponents.emplace_back(pComponent);
+		}
+
+		// OPTIONS BUTTON OK
+		{
+			XMFLOAT4 boundingBox;
+
+			boundingBox.x = m_SceneContext.windowWidth / 2 + OptionsProps.buttonPos.x; // make sure that the buttons are always spawned from the center of the screen
+			boundingBox.y = m_SceneContext.windowHeight / 2 - OptionsProps.buttonPos.y; // we do minus because the y axis is inverted
+			boundingBox.z = OptionsProps.buttonSize.x;
+			boundingBox.w = OptionsProps.buttonSize.y;
+
+			UI_ButtonComponent* pComponent = OptionsProps.pOptionsButton->AddComponent(new UI_ButtonComponent(L"OK", { 1,1,1,0 }, boundingBox));
+			OptionsProps.buttonComponents.emplace_back(pComponent);
+		}
+
+		// OPTIONS BUTTON CANCEL
+		{
+			XMFLOAT4 boundingBox;
+
+			boundingBox.x = m_SceneContext.windowWidth / 2 + OptionsProps.buttonPos.x; // make sure that the buttons are always spawned from the center of the screen
+			boundingBox.y = m_SceneContext.windowHeight / 2 - OptionsProps.buttonPos.y; // we do minus because the y axis is inverted
+			boundingBox.z = OptionsProps.buttonSize.x;
+			boundingBox.w = OptionsProps.buttonSize.y;
+
+			boundingBox.x += OptionsProps.buttonSize.x + OptionsProps.padding; // since this is the second button, I keep the same position but just add an offset
+
+			UI_ButtonComponent* pComponent = OptionsProps.pOptionsButton->AddComponent(new UI_ButtonComponent(L"CANCEL", { 1,1,1,0 }, boundingBox));
+			OptionsProps.buttonComponents.emplace_back(pComponent);
+		}
+
+		AddChild(OptionsProps.pOptionsButton);
+	}
+	// QUIT UI
+	{
+		// QUIT BOX
+		{
+			auto pButtonObject = new GameObject();
+			auto pComponent = pButtonObject->AddComponent(new SpriteComponent(QuitProps.assetPath, { 0.5f,0.5f }));
+			pButtonObject->GetTransform()->Translate(m_SceneContext.windowWidth / 2, m_SceneContext.windowHeight / 2, 0);
+
+			m_pSpriteComponents.emplace_back(pComponent);
+
+			QuitProps.pQuitButton = pButtonObject;
+		}
+
+		// QUIT BUTTON OK
+		{
+			XMFLOAT4 boundingBox;
+
+			boundingBox.x = m_SceneContext.windowWidth / 2 + QuitProps.buttonPos.x; // make sure that the buttons are always spawned from the center of the screen
+			boundingBox.y = m_SceneContext.windowHeight / 2 - QuitProps.buttonPos.y; // we do minus because the y axis is inverted
+			boundingBox.z = QuitProps.buttonSize1.x;
+			boundingBox.w = QuitProps.buttonSize1.y;
+
+			UI_ButtonComponent* pComponent = QuitProps.pQuitButton->AddComponent(new UI_ButtonComponent(L"QUIT GAME", { 1,1,1,0 }, boundingBox));
+			QuitProps.buttonComponents.emplace_back(pComponent);
+		}
+
+		// QUIT BUTTON CANCEL
+		{
+			XMFLOAT4 boundingBox;
+
+			boundingBox.x = m_SceneContext.windowWidth / 2 + QuitProps.buttonPos.x; // make sure that the buttons are always spawned from the center of the screen
+			boundingBox.y = m_SceneContext.windowHeight / 2 - QuitProps.buttonPos.y; // we do minus because the y axis is inverted
+			boundingBox.z = QuitProps.buttonSize2.x;
+			boundingBox.w = QuitProps.buttonSize2.y;
+
+			boundingBox.x += QuitProps.buttonSize1.x + QuitProps.padding; // since this is the second button, I keep the same position but just add an offset
+
+			UI_ButtonComponent* pComponent = QuitProps.pQuitButton->AddComponent(new UI_ButtonComponent(L"CANCEL", { 1,1,1,0 }, boundingBox));
+			QuitProps.buttonComponents.emplace_back(pComponent);
+		}
+
+		AddChild(QuitProps.pQuitButton);
+	}
 
 }
 
 void PortalMainMenu::Update()
 {
-	{
-		const auto& font	= GameLogoProps.pFont;
-		const auto& text	= GameLogoProps.text;
-		const auto& pos		= GameLogoProps.position;
-		const auto& color	= GameLogoProps.color;
 
-		TextRenderer::Get()->DrawText(font, text, pos, color);
+	auto buttonComponents = m_pMenuItem->GetComponents<UI_ButtonComponent>();
+	for (UI_ButtonComponent* component : buttonComponents)
+	{
+		component->SetEnabled(false);
+	}
+
+	switch (m_MenuState)
+	{
+		case PortalMainMenu::MenuState::Menu:
+			UpdateMenu();
+			break;
+		case PortalMainMenu::MenuState::NewGame:
+			UpdateNewGame();
+			break;
+		case PortalMainMenu::MenuState::Options:
+			UpdateOptions();
+			break;
+		case PortalMainMenu::MenuState::Quit:
+			UpdateQuit();
+			break;
 	}
 }
 
 void PortalMainMenu::Draw()
 {
 	//Optional
+	switch (m_MenuState)
+	{
+		case PortalMainMenu::MenuState::Menu:
+			DrawLogo();
+			break;
+		case PortalMainMenu::MenuState::NewGame:
+			DrawNewGame();
+			break;
+		case PortalMainMenu::MenuState::Options:
+			DrawOptions();
+			break;
+		case PortalMainMenu::MenuState::Quit:
+			DrawQuit();
+			break;
+	}
 }
 
 void PortalMainMenu::OnGUI()
@@ -66,4 +232,133 @@ void PortalMainMenu::OnGUI()
 	ImGui::Text("This only activates if\n SceneSettings.enableOnGUI is True.\n\n");
 	ImGui::Text("Use ImGui to add custom\n controllable scene parameters!");
 	ImGui::ColorEdit3("Demo ClearColor", &m_SceneContext.settings.clearColor.x, ImGuiColorEditFlags_NoInputs);
+}
+
+void PortalMainMenu::DrawLogo()
+{
+	// DRAW GAME TITLE LOGO
+	{
+		const auto& font = GameLogoProps.pFont;
+		const auto& text = GameLogoProps.text;
+		const auto& pos = GameLogoProps.position;
+		const auto& color = GameLogoProps.color;
+
+		TextRenderer::Get()->DrawText(font, text, pos, color);
+	}
+}
+
+void PortalMainMenu::DrawNewGame()
+{
+}
+
+void PortalMainMenu::DrawOptions()
+{
+
+}
+
+void PortalMainMenu::DrawQuit()
+{
+}
+
+void PortalMainMenu::UpdateMenu()
+{
+	for (UI_ButtonComponent* component : ButtonProps.buttonComponents)
+	{
+		component->SetEnabled(true);
+
+		if (!component->GetClicked()) continue;
+
+		if (component->GetText() == L"NEW GAME")
+		{
+			m_MenuState = MenuState::NewGame;
+		}
+		else if (component->GetText() == L"OPTIONS")
+		{
+			m_MenuState = MenuState::Options;
+		}
+		else if (component->GetText() == L"QUIT")
+		{
+			m_MenuState = MenuState::Quit;
+		}
+	}
+
+	UpdateUIBox();
+}
+
+void PortalMainMenu::UpdateNewGame()
+{
+	for (UI_ButtonComponent* pComponent : NewGameProps.buttonComponents)
+	{
+		pComponent->SetEnabled(true);
+
+		if (!pComponent->GetClicked()) continue;
+
+		if (pComponent->GetText() == L"START")
+		{
+			SceneManager::Get()->NextScene();
+		}
+
+		if (pComponent->GetText() == L"CANCEL")
+		{
+			m_MenuState = MenuState::Menu;
+		}
+	}
+}
+
+void PortalMainMenu::UpdateOptions()
+{
+	for (UI_ButtonComponent* pComponent : OptionsProps.buttonComponents)
+	{
+		pComponent->SetEnabled(true);
+
+		if (!pComponent->GetClicked()) continue;
+
+		if (pComponent->GetText() == L"OK")
+		{
+			m_MenuState = MenuState::Menu;
+		}
+
+		if (pComponent->GetText() == L"CANCEL")
+		{
+			m_MenuState = MenuState::Menu;
+		}
+	}
+}
+
+void PortalMainMenu::UpdateQuit()
+{
+	for (UI_ButtonComponent* pComponent : QuitProps.buttonComponents)
+	{
+		pComponent->SetEnabled(true);
+
+		if (!pComponent->GetClicked()) continue;
+
+		if (pComponent->GetText() == L"QUIT GAME")
+		{
+			PostQuitMessage(0);
+		}
+
+		if (pComponent->GetText() == L"CANCEL")
+		{
+			m_MenuState = MenuState::Menu;
+		}
+	}
+}
+
+// enables the UI box for the current menu state
+void PortalMainMenu::UpdateUIBox()
+{
+	// first disable all UI boxes
+	for (SpriteComponent* pComponent : m_pSpriteComponents)
+	{
+		pComponent->EnableRender(false);
+	}
+
+	if (m_MenuState == MenuState::Menu) return;
+
+
+	int UIBoxIndex = static_cast<int>(m_MenuState);
+
+	// enable the UI box for the current menu state
+	m_pSpriteComponents.at(UIBoxIndex)->EnableRender(true);
 }

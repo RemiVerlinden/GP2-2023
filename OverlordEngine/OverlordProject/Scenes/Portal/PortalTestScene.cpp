@@ -55,14 +55,14 @@ void PortalTestScene::Initialize()
 	PortalRenderer::Get()->InitializePortalComponents(portalComponents);
 
 
-	//MapLoader maploader{ *this };
-	//maploader.LoadMap(L"chamber02");
+	MapLoader maploader{ *this };
+	maploader.LoadMap(L"chamber02");
 
-	//MapLoader::InteractiveElements& interactiveElements = maploader.GetInteractiveElements();
-	//m_pCube = interactiveElements.cubes[0];
-	//m_pDoor = interactiveElements.doors[0]->GetComponent<DoorComponent>();
+	MapLoader::InteractiveElements& interactiveElements = maploader.GetInteractiveElements();
+	m_pCube = interactiveElements.cubes[0];
+	m_pDoor = interactiveElements.doors[0]->GetComponent<DoorComponent>();
 
-	//interactiveElements.buttons[0]->GetComponent<ButtonAnimComponent>()->AddInteractionComponent(m_pDoor);
+	interactiveElements.buttons[0]->GetComponent<ButtonAnimComponent>()->AddInteractionComponent(m_pDoor);
 
 
 	m_pCharacter->InitializeCharacterMeshes();
@@ -221,6 +221,8 @@ void PortalTestScene::OnGUI()
 
 void PortalTestScene::Update()
 {
+	auto pos = m_SceneContext.pCamera->GetTransform()->GetWorldPosition();
+	std::cout << pos.x << " " << pos.y << " " << pos.z << std::endl;
 	if (m_SceneContext.pInput->IsMouseButton(InputState::pressed, VK_RBUTTON))
 	{
 		MovePortal(Orange);

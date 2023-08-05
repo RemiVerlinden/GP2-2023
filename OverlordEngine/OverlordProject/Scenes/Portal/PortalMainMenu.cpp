@@ -17,7 +17,7 @@ GameObject* PortalMainMenu::GetMenuObject()
 	return m_pMenuObject;
 }
 
-void PortalMainMenu::SetMenuObject(GameObject* pObject) 
+void PortalMainMenu::SetMenuObject(GameObject* pObject)
 {
 	m_pMenuObject = AddChild(pObject);
 }
@@ -26,17 +26,20 @@ void PortalMainMenu::SetMenuObject(GameObject* pObject)
 
 void PortalMainMenu::Initialize()
 {
-	m_SceneContext.settings.showInfoOverlay = false;
-	//m_SceneContext.settings.drawPhysXDebug = true;
+	m_SceneContext.settings.showInfoOverlay = true;
+	m_SceneContext.settings.drawPhysXDebug = false;
 	m_SceneContext.settings.drawGrid = false;
-	m_SceneContext.settings.enableOnGUI = false;
+	m_SceneContext.settings.enableOnGUI = true;
 	m_SceneContext.settings.clearColor = (XMFLOAT4)Colors::Black;
-	
+
 	// CAMERA 
 	{
 		m_pMenuCamera = new FixedCamera();
 		AddChild(m_pMenuCamera);
 		SetActiveCamera(m_pMenuCamera->GetComponent<CameraComponent>());
+		m_pMenuCamera->GetTransform()->Translate(m_Translate);
+		m_pMenuCamera->GetTransform()->Rotate(m_StartRotation);
+
 	}
 
 	// GAME TITLE LOGO
@@ -195,11 +198,32 @@ void PortalMainMenu::Initialize()
 
 	}
 
+	InitializeLevelMeshes();
+
 }
 
 void PortalMainMenu::Update()
 {
 	UpdateUI();
+	XMFLOAT3 rotation = m_StartRotation;
+	float maxAngle = 12;
+	float currentTime = m_SceneContext.pGameTime->GetTotal();
+	float waveStart = 3.0f;
+	float waveDuration = 30.0f;
+	float pauseDuration = 3.0f;
+	float fullCycle = waveStart + waveDuration + pauseDuration;
+
+	float waveTime = fmod(currentTime, fullCycle);
+
+	// Only apply cosine wave rotation between 3 and 18 seconds of the cycle
+	if (waveTime >= waveStart && waveTime < waveStart + waveDuration)
+	{
+		// Adjust waveTime to start from 0 during the wave for proper cosine calculation
+		waveTime -= waveStart;
+		rotation.y += sin(waveTime / waveDuration * (2 * XM_PI) - XM_PI / 2) * maxAngle + maxAngle;
+	}
+
+	m_pMenuCamera->GetTransform()->Rotate(rotation);
 }
 
 void PortalMainMenu::Draw()
@@ -212,10 +236,10 @@ void PortalMainMenu::UpdateUI()
 
 	std::vector<UI_ButtonComponent*> buttonComponentVec = m_pMenuObject->GetComponents<UI_ButtonComponent>();
 
-		for (UI_ButtonComponent* pComponent : buttonComponentVec)
-		{
-			pComponent->SetEnabled(false);
-		}
+	for (UI_ButtonComponent* pComponent : buttonComponentVec)
+	{
+		pComponent->SetEnabled(false);
+	}
 
 	switch (m_MenuState)
 	{
@@ -259,6 +283,13 @@ void PortalMainMenu::OnGUI()
 	ImGui::Text("This only activates if\n SceneSettings.enableOnGUI is True.\n\n");
 	ImGui::Text("Use ImGui to add custom\n controllable scene parameters!");
 	ImGui::ColorEdit3("Demo ClearColor", &m_SceneContext.settings.clearColor.x, ImGuiColorEditFlags_NoInputs);
+
+	ImGui::DragFloat3("translate", &m_Translate.x, 0.01f, -30.0f, 30.0f, "%.2f");
+	m_pMenuCamera->GetTransform()->Translate(m_Translate);
+
+	ImGui::DragFloat3("rotate", &m_StartRotation.x, 0.1f, -180.0f, 180.0f, "%.2f");
+	m_pMenuCamera->GetTransform()->Rotate(m_StartRotation);
+
 }
 
 void PortalMainMenu::OnSceneActivated()
@@ -412,4 +443,10 @@ void PortalMainMenu::UpdateUIBox()
 
 	// enable the UI box for the current menu state
 	m_pSpriteComponents.at(UIBoxIndex)->EnableRender(true);
+}
+
+void PortalMainMenu::InitializeLevelMeshes()
+{
+	MapLoader maploader{ *this };
+	maploader.LoadMap(L"chamber02");
 }

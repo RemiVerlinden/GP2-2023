@@ -11,12 +11,18 @@ public:
 	PortalMainMenu& operator=(const PortalMainMenu& other) = delete;
 	PortalMainMenu& operator=(PortalMainMenu&& other) noexcept = delete;
 
+	GameObject* GetMenuObject();
+	void SetMenuObject(GameObject* pObject);
+	void UpdateUI();
+	void DrawUI();
+
 protected:
 	void Initialize() override;
 	void Update() override;
 	void Draw() override;
 	void OnGUI() override;
-
+	virtual void OnSceneActivated() override;
+	virtual void OnSceneDeactivated() override;
 private:
 	void DrawLogo();
 	void DrawNewGame();
@@ -29,75 +35,109 @@ private:
 	void UpdateQuit();
 	void UpdateUIBox();
 
+
+
+
+	//----------------------------------------------------------------------------------------------
+
 	// all the magic numbers that have to do with positioning are just from checking them in photoshop with the original game
-	struct GameLogoProperties
+
+	struct UIProperties // this is the base of the start menu UI (logo, new game, options, quit)
 	{
-		SpriteFont*				pFont{};
-		const float 			fontSize = 118.f; // I cant change the fontsize in code because it is baked into a texture
-		std::wstring			text{ L"Portal" };
-		XMFLOAT2				position = { 110, 0 }; // vertical value will be set in initialize (it will be half of screen height)
-		XMFLOAT4				color = XMFLOAT4{ Colors::WhiteSmoke };
+		SpriteFont* pFont{};
+		float fontSize;		 
+		XMFLOAT2 position;
+		XMFLOAT4 color;
+	};
+
+	struct GameLogoProperties : public UIProperties
+	{
+		GameLogoProperties()
+		{
+			fontSize = 118.f; // I cant change the fontsize in code because it is baked into a texture
+			text = L"Portal";
+			position = { 110, 0 }; // vertical value will be set in initialize (it will be half of screen height)
+			color = XMFLOAT4{ Colors::WhiteSmoke };
+		}
+
+		std::wstring text;
 	} GameLogoProps;
 
-	struct ButtonProperties
+	struct MainUIProperties : public UIProperties
 	{
-		SpriteFont*							pFont{};
-		const float 						fontSize = 16.f; // I cant change the fontsize in code because it is baked into a texture
-		int									buttonCount = 3;
-		std::vector<std::wstring>			text{ L"NEW GAME", L"OPTIONS", L"QUIT" };
-		XMFLOAT2							position = {115, 0 }; // this is the start position of the first button and all other buttons are vertically offset by height(), vertical value will be set in initialize (it will be half of screen height)
-		XMFLOAT2 							size = { 134, 32 };
-		XMFLOAT4							color = XMFLOAT4{ Colors::WhiteSmoke };
+		MainUIProperties()
+		{
+			fontSize = 16.f; // I cant change the fontsize in code because it is baked into a texture
+			buttonCount = 3;
+			text = { L"NEW GAME", L"OPTIONS", L"QUIT" };
+			position = { 115, 0 }; // this is the start position of the first button and all other buttons are vertically offset by height(), vertical value will be set in initialize (it will be half of screen height)
+			size = { 134, 32 };
+			color = XMFLOAT4{ Colors::WhiteSmoke };
+		}
 
-		std::vector<UI_ButtonComponent*>	buttonComponents;
-	} ButtonProps;
+		int buttonCount;
+		std::vector<std::wstring> text;
+		XMFLOAT2 size;
+		std::vector<UI_ButtonComponent*> buttonComponents;
+	} MainUIProps;
 
-	struct QuitProperties
+
+	//----------------------------------------------------------------------------------------------
+
+
+	struct ButtonBaseProperties
 	{
-		GameObject* 				pQuitButton{};
-		std::wstring				assetPath{ L"Textures/UI/QuitBox.tga" };
+		std::wstring assetPath;
+		XMFLOAT2 buttonPos;									// this is the position local to the center of the screen
+		float padding;										// this is the horizontal padding between the buttons
+		std::vector<UI_ButtonComponent*> buttonComponents;
+	};
 
-		//XMFLOAT2 			
-		XMFLOAT2 					buttonPos = { -71, -10 }; // this is the position local to the center of the screen
-		float						padding = 17; // this is the horizontal padding between the buttons
-		XMFLOAT2					buttonSize1 = { 75, 24 };
-		XMFLOAT2					buttonSize2 = { 64, 24 };
+	struct QuitProperties : ButtonBaseProperties
+	{
+		QuitProperties()
+		{
+			assetPath = L"Textures/UI/QuitBox.tga";
+			buttonPos = { -71, -10 };
+			padding = 17;
+		}
 
-		std::vector<UI_ButtonComponent*>	buttonComponents;
+		XMFLOAT2 buttonSize1 = { 75, 24 };
+		XMFLOAT2 buttonSize2 = { 64, 24 };
 	} QuitProps;
 
-	struct OptionsProperties
+	struct OptionsProperties : ButtonBaseProperties
 	{
-		GameObject*					pOptionsButton{};
-		std::wstring				assetPath{ L"Textures/UI/OptionsBox.tga" };
+		OptionsProperties()
+		{
+			assetPath = L"Textures/UI/OptionsBox.tga";
+			buttonPos = { 9, -168 };
+			padding = 8;
+		}
 
-		XMFLOAT2 					buttonPos = { 9, -168 }; // this is the position local to the center of the screen
-		float						padding = 8; // this is the horizontal padding between the buttons
-		XMFLOAT2					buttonSize = { 72, 24 };
-
-		std::vector<UI_ButtonComponent*>	buttonComponents;
-
-
+		XMFLOAT2 buttonSize = { 72, 24 };
 	} OptionsProps;
 
-	struct NewGameProperties
+	struct NewGameProperties : ButtonBaseProperties
 	{
-		GameObject*					pNewGameButton{};
-		std::wstring				assetPath{ L"Textures/UI/NewGameBox.tga" };
-		std::wstring				assetPathHover{ L"Textures/UI/NewgameBoxHover.tga" };
+		NewGameProperties()
+		{
+			assetPath = L"Textures/UI/NewGameBox.tga";
+			assetPathHover = L"Textures/UI/NewgameBoxHover.tga";
+			buttonPos = { 64, -102 };
+			padding = 13;
+		}
 
-		//XMFLOAT2 			
-		XMFLOAT2 					buttonPos = { 64, -102 }; // this is the position local to the center of the screen
-		float						padding = 13; // this is the horizontal padding between the buttons
-		XMFLOAT2					buttonSize1 = { 124, 24 };
-		XMFLOAT2					buttonSize2 = { 72, 24 };
-		XMFLOAT2                    pictureButtonPos{ -83, 80 };
-		XMFLOAT2 					pictureButtonSize = { 168, 106 };
-
-		
-		std::vector<UI_ButtonComponent*>	buttonComponents;
-
+		std::wstring assetPathHover;
+		XMFLOAT2 buttonSize1 = { 124, 24 };
+		XMFLOAT2 buttonSize2 = { 72, 24 };
+		XMFLOAT2 pictureButtonPos{ -83, 80 };
+		XMFLOAT2 pictureButtonSize = { 168, 106 };
 	} NewGameProps;
+
+
+	//----------------------------------------------------------------------------------------------
+
 
 	enum class MenuState
 	{
@@ -108,7 +148,7 @@ private:
 	} m_MenuState{ MenuState::Menu };
 
 	GameObject* m_pMenuCamera{};
-	GameObject* m_pMenuItem;
+	GameObject* m_pMenuObject{};
 
 	std::vector<SpriteComponent*> m_pSpriteComponents;
 

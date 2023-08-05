@@ -15,14 +15,16 @@ public:
 	// has the mouse clicked on the button
 	bool GetHovering() const { return m_Hovering; }
 	const std::wstring& GetText() const { return m_Text; }
+	void SetText(const std::wstring& text) { m_Text = text; }
 
 	void SetEnabled(bool enabled) { m_Enabled = enabled; }
 
 private:
 	void Initialize(const SceneContext& sceneContext) override;
 	void Update(const SceneContext&) override;
+	void Draw(const SceneContext&) override; //update_W9
 
-	void DrawButtonText(const SceneContext& sceneContext) const;
+	void DrawButtonText() const;
 	void SoundOnHoverStart();
 	void PlayFmodSound(FMOD::Sound* pSound);
 

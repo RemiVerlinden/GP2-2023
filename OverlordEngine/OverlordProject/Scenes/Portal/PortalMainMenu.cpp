@@ -11,6 +11,19 @@ PortalMainMenu::PortalMainMenu() :
 {
 }
 
+GameObject* PortalMainMenu::GetMenuObject()
+{
+	RemoveChild(m_pMenuObject);
+	return m_pMenuObject;
+}
+
+void PortalMainMenu::SetMenuObject(GameObject* pObject) 
+{
+	m_pMenuObject = AddChild(pObject);
+}
+
+
+
 void PortalMainMenu::Initialize()
 {
 	m_SceneContext.settings.showInfoOverlay = false;
@@ -18,7 +31,7 @@ void PortalMainMenu::Initialize()
 	m_SceneContext.settings.drawGrid = false;
 	m_SceneContext.settings.enableOnGUI = false;
 	m_SceneContext.settings.clearColor = (XMFLOAT4)Colors::Black;
-
+	
 	// CAMERA 
 	{
 		m_pMenuCamera = new FixedCamera();
@@ -33,33 +46,32 @@ void PortalMainMenu::Initialize()
 
 	// UI MAIN MENU BUTTONS
 	{
-		ButtonProps.position.y = m_SceneContext.windowHeight / 2; // make sure that the buttons are always spawned from the center of the screen
+		MainUIProps.position.y = m_SceneContext.windowHeight / 2; // make sure that the buttons are always spawned from the center of the screen
 		GameLogoProps.position.y = m_SceneContext.windowHeight / 2 - GameLogoProps.fontSize; // just like with the logo
 
-		m_pMenuItem = new GameObject();
-		AddChild(m_pMenuItem);
+		m_pMenuObject = new GameObject();
+		AddChild(m_pMenuObject);
 
-		for (size_t buttonIndex = 0; buttonIndex < ButtonProps.buttonCount; ++buttonIndex)
+		for (size_t buttonIndex = 0; buttonIndex < MainUIProps.buttonCount; ++buttonIndex)
 		{
 			XMFLOAT4 boundingBox;
-			XMFLOAT2 position{ ButtonProps.position.x, ButtonProps.position.y + (ButtonProps.size.y * buttonIndex) };
+			XMFLOAT2 position{ MainUIProps.position.x, MainUIProps.position.y + (MainUIProps.size.y * buttonIndex) };
 
 			boundingBox.x = position.x;
 			boundingBox.y = position.y;
-			boundingBox.z = ButtonProps.size.x;
-			boundingBox.w = ButtonProps.size.y;
+			boundingBox.z = MainUIProps.size.x;
+			boundingBox.w = MainUIProps.size.y;
 
-			UI_ButtonComponent* component = m_pMenuItem->AddComponent(new UI_ButtonComponent(ButtonProps.text[buttonIndex], ButtonProps.color, boundingBox));
-			ButtonProps.buttonComponents.emplace_back(component);
+			UI_ButtonComponent* component = m_pMenuObject->AddComponent(new UI_ButtonComponent(MainUIProps.text[buttonIndex], MainUIProps.color, boundingBox));
+			MainUIProps.buttonComponents.emplace_back(component);
 		}
 	}
 
 	// NEW GAME UI
 	{
 		{
-			NewGameProps.pNewGameButton = new GameObject();
-			auto pComponent = NewGameProps.pNewGameButton->AddComponent(new SpriteComponent(NewGameProps.assetPath, { 0.5f,0.5f }));
-			NewGameProps.pNewGameButton->GetTransform()->Translate(m_SceneContext.windowWidth / 2, m_SceneContext.windowHeight / 2, 0);
+			auto pComponent = m_pMenuObject->AddComponent(new SpriteComponent(NewGameProps.assetPath, { 0.5f,0.5f }));
+			m_pMenuObject->GetTransform()->Translate(m_SceneContext.windowWidth / 2, m_SceneContext.windowHeight / 2, 0);
 
 			m_pSpriteComponents.emplace_back(pComponent);
 		}
@@ -73,7 +85,7 @@ void PortalMainMenu::Initialize()
 			boundingBox.z = NewGameProps.buttonSize1.x;
 			boundingBox.w = NewGameProps.buttonSize1.y;
 
-			UI_ButtonComponent* pComponent = NewGameProps.pNewGameButton->AddComponent(new UI_ButtonComponent(L"START", { 1,1,1,0 }, boundingBox));
+			UI_ButtonComponent* pComponent = m_pMenuObject->AddComponent(new UI_ButtonComponent(L"START", { 1,1,1,0 }, boundingBox));
 			NewGameProps.buttonComponents.emplace_back(pComponent);
 		}
 
@@ -88,7 +100,7 @@ void PortalMainMenu::Initialize()
 
 			boundingBox.x += NewGameProps.buttonSize1.x + NewGameProps.padding; // since this is the second button, I keep the same position but just add an offset
 
-			UI_ButtonComponent* pComponent = NewGameProps.pNewGameButton->AddComponent(new UI_ButtonComponent(L"CANCEL", { 1,1,1,0 }, boundingBox));
+			UI_ButtonComponent* pComponent = m_pMenuObject->AddComponent(new UI_ButtonComponent(L"CANCEL", { 1,1,1,0 }, boundingBox));
 			NewGameProps.buttonComponents.emplace_back(pComponent);
 		}
 
@@ -101,19 +113,16 @@ void PortalMainMenu::Initialize()
 			boundingBox.z = NewGameProps.pictureButtonSize.x;
 			boundingBox.w = NewGameProps.pictureButtonSize.y;
 
-			UI_ButtonComponent* pComponent = NewGameProps.pNewGameButton->AddComponent(new UI_ButtonComponent(L"PICTURE", { 1,1,1,0 }, boundingBox));
+			UI_ButtonComponent* pComponent = m_pMenuObject->AddComponent(new UI_ButtonComponent(L"PICTURE", { 1,1,1,0 }, boundingBox));
 			NewGameProps.buttonComponents.emplace_back(pComponent);
 		}
-
-		AddChild(NewGameProps.pNewGameButton);
 	}
 
 	// OPTIONS UI
 	{
 		{
-			OptionsProps.pOptionsButton = new GameObject();
-			auto pComponent = OptionsProps.pOptionsButton->AddComponent(new SpriteComponent(OptionsProps.assetPath, { 0.5f,0.5f }));
-			OptionsProps.pOptionsButton->GetTransform()->Translate(m_SceneContext.windowWidth / 2, m_SceneContext.windowHeight / 2, 0);
+			auto pComponent = m_pMenuObject->AddComponent(new SpriteComponent(OptionsProps.assetPath, { 0.5f,0.5f }));
+			m_pMenuObject->GetTransform()->Translate(m_SceneContext.windowWidth / 2, m_SceneContext.windowHeight / 2, 0);
 
 			m_pSpriteComponents.emplace_back(pComponent);
 		}
@@ -127,7 +136,7 @@ void PortalMainMenu::Initialize()
 			boundingBox.z = OptionsProps.buttonSize.x;
 			boundingBox.w = OptionsProps.buttonSize.y;
 
-			UI_ButtonComponent* pComponent = OptionsProps.pOptionsButton->AddComponent(new UI_ButtonComponent(L"OK", { 1,1,1,0 }, boundingBox));
+			UI_ButtonComponent* pComponent = m_pMenuObject->AddComponent(new UI_ButtonComponent(L"OK", { 1,1,1,0 }, boundingBox));
 			OptionsProps.buttonComponents.emplace_back(pComponent);
 		}
 
@@ -142,23 +151,18 @@ void PortalMainMenu::Initialize()
 
 			boundingBox.x += OptionsProps.buttonSize.x + OptionsProps.padding; // since this is the second button, I keep the same position but just add an offset
 
-			UI_ButtonComponent* pComponent = OptionsProps.pOptionsButton->AddComponent(new UI_ButtonComponent(L"CANCEL", { 1,1,1,0 }, boundingBox));
+			UI_ButtonComponent* pComponent = m_pMenuObject->AddComponent(new UI_ButtonComponent(L"CANCEL", { 1,1,1,0 }, boundingBox));
 			OptionsProps.buttonComponents.emplace_back(pComponent);
 		}
-
-		AddChild(OptionsProps.pOptionsButton);
 	}
 	// QUIT UI
 	{
 		// QUIT BOX
 		{
-			auto pButtonObject = new GameObject();
-			auto pComponent = pButtonObject->AddComponent(new SpriteComponent(QuitProps.assetPath, { 0.5f,0.5f }));
-			pButtonObject->GetTransform()->Translate(m_SceneContext.windowWidth / 2, m_SceneContext.windowHeight / 2, 0);
+			auto pComponent = m_pMenuObject->AddComponent(new SpriteComponent(QuitProps.assetPath, { 0.5f,0.5f }));
+			m_pMenuObject->GetTransform()->Translate(m_SceneContext.windowWidth / 2, m_SceneContext.windowHeight / 2, 0);
 
 			m_pSpriteComponents.emplace_back(pComponent);
-
-			QuitProps.pQuitButton = pButtonObject;
 		}
 
 		// QUIT BUTTON OK
@@ -170,7 +174,7 @@ void PortalMainMenu::Initialize()
 			boundingBox.z = QuitProps.buttonSize1.x;
 			boundingBox.w = QuitProps.buttonSize1.y;
 
-			UI_ButtonComponent* pComponent = QuitProps.pQuitButton->AddComponent(new UI_ButtonComponent(L"QUIT GAME", { 1,1,1,0 }, boundingBox));
+			UI_ButtonComponent* pComponent = m_pMenuObject->AddComponent(new UI_ButtonComponent(L"QUIT GAME", { 1,1,1,0 }, boundingBox));
 			QuitProps.buttonComponents.emplace_back(pComponent);
 		}
 
@@ -185,26 +189,30 @@ void PortalMainMenu::Initialize()
 
 			boundingBox.x += QuitProps.buttonSize1.x + QuitProps.padding; // since this is the second button, I keep the same position but just add an offset
 
-			UI_ButtonComponent* pComponent = QuitProps.pQuitButton->AddComponent(new UI_ButtonComponent(L"CANCEL", { 1,1,1,0 }, boundingBox));
+			UI_ButtonComponent* pComponent = m_pMenuObject->AddComponent(new UI_ButtonComponent(L"CANCEL", { 1,1,1,0 }, boundingBox));
 			QuitProps.buttonComponents.emplace_back(pComponent);
 		}
 
-		AddChild(QuitProps.pQuitButton);
 	}
 
 }
 
 void PortalMainMenu::Update()
 {
+	UpdateUI();
+}
 
-	std::vector<std::vector<UI_ButtonComponent*>*> buttonComponentVec;
-	buttonComponentVec.emplace_back(&ButtonProps.buttonComponents);
-	buttonComponentVec.emplace_back(&NewGameProps.buttonComponents);
-	buttonComponentVec.emplace_back(&OptionsProps.buttonComponents);
-	buttonComponentVec.emplace_back(&QuitProps.buttonComponents);
-	
-	for (std::vector<UI_ButtonComponent*>* vec : buttonComponentVec)
-		for (UI_ButtonComponent* pComponent : *vec)
+void PortalMainMenu::Draw()
+{
+	DrawUI();
+}
+
+void PortalMainMenu::UpdateUI()
+{
+
+	std::vector<UI_ButtonComponent*> buttonComponentVec = m_pMenuObject->GetComponents<UI_ButtonComponent>();
+
+		for (UI_ButtonComponent* pComponent : buttonComponentVec)
 		{
 			pComponent->SetEnabled(false);
 		}
@@ -226,7 +234,7 @@ void PortalMainMenu::Update()
 	}
 }
 
-void PortalMainMenu::Draw()
+void PortalMainMenu::DrawUI()
 {
 	//Optional
 	switch (m_MenuState)
@@ -251,6 +259,16 @@ void PortalMainMenu::OnGUI()
 	ImGui::Text("This only activates if\n SceneSettings.enableOnGUI is True.\n\n");
 	ImGui::Text("Use ImGui to add custom\n controllable scene parameters!");
 	ImGui::ColorEdit3("Demo ClearColor", &m_SceneContext.settings.clearColor.x, ImGuiColorEditFlags_NoInputs);
+}
+
+void PortalMainMenu::OnSceneActivated()
+{
+	MainUIProps.buttonComponents[0]->SetText(L"NEW GAME"); // when in the main menu, the name of the first button is "NEW GAME"
+}
+
+void PortalMainMenu::OnSceneDeactivated()
+{
+	MainUIProps.buttonComponents[0]->SetText(L"RESUME"); // when in different scenes, the name of the first button is "RESUME"
 }
 
 void PortalMainMenu::DrawLogo()
@@ -282,7 +300,7 @@ void PortalMainMenu::DrawQuit()
 
 void PortalMainMenu::UpdateMenu()
 {
-	for (UI_ButtonComponent* component : ButtonProps.buttonComponents)
+	for (UI_ButtonComponent* component : MainUIProps.buttonComponents)
 	{
 		component->SetEnabled(true);
 
@@ -299,6 +317,12 @@ void PortalMainMenu::UpdateMenu()
 		else if (component->GetText() == L"QUIT")
 		{
 			m_MenuState = MenuState::Quit;
+		}
+		else if (component->GetText() == L"RESUME")
+		{
+
+			SceneManager::Get()->SetActiveGameScene(L"PortalScene");
+			SceneManager::Get()->GetActiveScene()->PauseScene(false);
 		}
 	}
 
@@ -319,19 +343,15 @@ void PortalMainMenu::UpdateNewGame()
 
 		if (!pComponent->GetClicked()) continue;
 
-		if (pComponent->GetText() == L"START")
+		if (pComponent->GetText() == L"START" || pComponent->GetText() == L"PICTURE")
 		{
+			m_MenuState = MenuState::Menu;
 			SceneManager::Get()->NextScene();
 		}
 
 		if (pComponent->GetText() == L"CANCEL")
 		{
 			m_MenuState = MenuState::Menu;
-		}
-
-		if (pComponent->GetText() == L"PICTURE")
-		{
-			SceneManager::Get()->NextScene();
 		}
 	}
 }

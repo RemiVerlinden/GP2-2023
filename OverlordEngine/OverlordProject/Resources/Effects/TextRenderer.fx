@@ -69,6 +69,7 @@ void MainGS(point VS_DATA vertex[1], inout TriangleStream<GS_DATA> triStream)
 {
 	//Create a Quad using the character information of the given vertex
 	//Note that the Vertex.CharSize is in screenspace, TextureCoordinates aren't ;) [Range 0 > 1]
+	vertex[0].Position.z = 0.1f;
 
 	float3 cornerPos;
 	float2 cornerTexCoord;

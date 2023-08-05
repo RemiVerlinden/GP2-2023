@@ -6,7 +6,7 @@ UI_ButtonComponent::UI_ButtonComponent(const std::wstring& text, const XMFLOAT4&
 	, m_TextColor(m_TextColor)
 	, m_BoundingBox(boundingBox)
 {
-	
+	m_enablePostDraw = true;
 }
 
 void UI_ButtonComponent::Initialize(const SceneContext& /*sceneContext*/)
@@ -44,7 +44,7 @@ bool UI_ButtonComponent::GetClicked() const
 	return m_Enabled ? m_Clicked : false;
 }
 
-void UI_ButtonComponent::Update(const SceneContext& context)
+void UI_ButtonComponent::Update(const SceneContext& /*context*/)
 {
 	if (!m_Enabled) return;
 
@@ -70,12 +70,12 @@ void UI_ButtonComponent::Update(const SceneContext& context)
 		}
 	}
 
-	DrawButtonText(context); // I am drawing in the update loop loooool nobody will ever know
+	DrawButtonText();
 
 	SoundOnHoverStart();
 }
 
-void UI_ButtonComponent::DrawButtonText(const SceneContext& /*sceneContext*/) const
+void UI_ButtonComponent::DrawButtonText() const
 {
 	XMFLOAT2 position = XMFLOAT2{ m_BoundingBox.x, m_BoundingBox.y };
 	position.y += m_FontSize / 2; // make sure the font is drawn in the center of the boundingbox
@@ -86,6 +86,12 @@ void UI_ButtonComponent::DrawButtonText(const SceneContext& /*sceneContext*/) co
 		color.w = 0.7f;
 
 	TextRenderer::Get()->DrawText(m_pFont, m_Text, position, color);
+
+}
+
+void UI_ButtonComponent::Draw(const SceneContext& /*context*/)
+{
+	if (!m_Enabled) return;
 
 }
 

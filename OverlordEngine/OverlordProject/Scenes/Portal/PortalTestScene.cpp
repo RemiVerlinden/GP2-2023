@@ -11,6 +11,10 @@
 #include "Portal\MapLoader.h"
 #include "SceneInputDefines\PortalInput.h"
 #include "Prefabs\BoneObject.h"
+#include "Scenes\Portal\PortalMainMenu.h"
+#include "Materials/Post/PostBlur.h"
+
+
 
 void PortalTestScene::Initialize()
 {
@@ -19,7 +23,9 @@ void PortalTestScene::Initialize()
 	m_SceneContext.settings.drawGrid = false;
 	m_SceneContext.settings.drawPhysXDebug = true;
 
-
+	// Get the menu scene
+	m_pMenuScene = dynamic_cast<PortalMainMenu*>(SceneManager::Get()->GetScene(L"PortalMainMenu"));
+	m_pMenuTexture = ContentManager::Load<TextureData>(L"Textures/UI/background.dds");
 	//Ground Plane
 	const auto pDefaultMaterial = PxGetPhysics().createMaterial(0.5f, 0.5f, 0.5f);
 	//GameSceneExt::CreatePhysXGroundPlane(*this, pDefaultMaterial);
@@ -37,7 +43,7 @@ void PortalTestScene::Initialize()
 	AddChild(pBone);
 
 	m_pCharacter = AddChild(new Character(characterDesc));
-	m_pCharacter->GetTransform()->Translate(-35,1,7.5f);
+	m_pCharacter->GetTransform()->Translate(-35, 1, 7.5f);
 	//m_pCharacter->GetTransform()->Translate(0,1,0);
 
 	//Create portals
@@ -49,14 +55,14 @@ void PortalTestScene::Initialize()
 	PortalRenderer::Get()->InitializePortalComponents(portalComponents);
 
 
-	MapLoader maploader{ *this };
-	maploader.LoadMap(L"chamber02");
+	//MapLoader maploader{ *this };
+	//maploader.LoadMap(L"chamber02");
 
-	MapLoader::InteractiveElements& interactiveElements = maploader.GetInteractiveElements();
-	m_pCube = interactiveElements.cubes[0];
-	m_pDoor = interactiveElements.doors[0]->GetComponent<DoorComponent>();
+	//MapLoader::InteractiveElements& interactiveElements = maploader.GetInteractiveElements();
+	//m_pCube = interactiveElements.cubes[0];
+	//m_pDoor = interactiveElements.doors[0]->GetComponent<DoorComponent>();
 
-	interactiveElements.buttons[0]->GetComponent<ButtonAnimComponent>()->AddInteractionComponent(m_pDoor);
+	//interactiveElements.buttons[0]->GetComponent<ButtonAnimComponent>()->AddInteractionComponent(m_pDoor);
 
 
 	m_pCharacter->InitializeCharacterMeshes();
@@ -86,6 +92,21 @@ void PortalTestScene::Initialize()
 
 	inputAction = InputAction(Input::FireSecondary, InputState::pressed, -1, VK_RBUTTON, XINPUT_GAMEPAD_LEFT_SHOULDER);
 	m_SceneContext.pInput->AddInputAction(inputAction);
+
+
+	// POST PROCESSING
+	m_pPostBlur = MaterialManager::Get()->CreateMaterial<PostBlur>();
+	//AddPostProcessingEffect(m_pPostBlur);
+	//m_pPostBlur->SetIsEnabled(false);
+
+
+
+}
+
+PortalTestScene::~PortalTestScene()
+{
+	if (m_ScenePaused)
+		RemoveChild(m_pMenuObject);
 }
 
 void PortalTestScene::CreatePortals(CameraComponent* playerCamera)
@@ -139,7 +160,7 @@ void PortalTestScene::CreatePortals(CameraComponent* playerCamera)
 	orangePortal->SetLinkedPortal(bluePortal);
 	bluePortal->SetLinkedPortal(orangePortal);
 
-	orangePortal->GetTransform()->TranslateWorld({3, -10.f, -2});
+	orangePortal->GetTransform()->TranslateWorld({ 3, -10.f, -2 });
 	bluePortal->GetTransform()->TranslateWorld({ -3, -10, -2 });
 
 }
@@ -167,7 +188,7 @@ void PortalTestScene::MovePortal(Portal portal)
 	//newPortalPos.y -= 1.5f;
 
 	m_pPortals[portal]->GetTransform()->Translate(newPortalPos);
-	
+
 	XMFLOAT4 rotation = m_pCharacter->GetCameraComponent()->GetTransform()->GetWorldRotation();
 	if (portal == Orange)
 	{
@@ -184,6 +205,8 @@ void PortalTestScene::MovePortal(Portal portal)
 
 	m_pPortals[portal]->GetComponent<PortalComponent>()->SetHasPortalMoved(true);
 }
+
+
 
 void PortalTestScene::OnGUI()
 {
@@ -223,10 +246,65 @@ void PortalTestScene::Update()
 	// group0 is the player and environment, group1 is for all objects that ignore player, group2 is for interaction with the button and some trigger stuff
 	// group3 will be for all objects that are portalable
 	if (m_SceneContext.pInput->IsKeyboardKey(InputState::pressed, 'G'))
-	if (const auto pPickedObject = m_SceneContext.pCamera->Pick(CollisionGroup::Group0 | CollisionGroup::Group1 | CollisionGroup::Group2))
+		if (const auto pPickedObject = m_SceneContext.pCamera->Pick(CollisionGroup::Group0 | CollisionGroup::Group1 | CollisionGroup::Group2))
+		{
+			//delete hit object from scene
+			std::wcout << L"hit object: " << pPickedObject->GetTag() << std::endl;
+		}
+
+	if (m_SceneContext.pInput->IsKeyboardKey(InputState::pressed, VK_ESCAPE))
 	{
-		//delete hit object from scene
-		std::wcout << L"hit object: " << pPickedObject->GetTag() << std::endl;
+		m_ScenePaused = !m_ScenePaused;
+	}
+
+	UpdateMenu();
+}
+
+void PortalTestScene::Draw()
+{
+
+	if (m_ScenePaused) 
+	{
+		SpriteRenderer::Get()->AppendSprite(m_pMenuTexture, { 0,0 }, XMFLOAT4{ 1,1,1,0.5f }, {}, { m_SceneContext.windowWidth / 100, m_SceneContext.windowHeight / 100 }, 0, 0.2f);
+	}
+
+}
+
+void PortalTestScene::UpdateMenu()
+{
+	// Initially false, it will keep the previous value of m_ScenePaused.
+	static bool m_ScenePausedPrev = false;
+
+	// Detect a change in m_ScenePaused.
+	if (m_ScenePaused != m_ScenePausedPrev)
+	{
+		// m_ScenePaused has changed, update m_ScenePausedPrev.
+		m_ScenePausedPrev = m_ScenePaused;
+
+		if (m_ScenePaused)
+		{
+			m_SceneContext.pGameTime->Stop();
+			m_pMenuObject = AddChild(m_pMenuScene->GetMenuObject());
+			m_pMenuScene->UpdateUI();
+			m_pMenuScene->DrawUI();
+		}
+		else
+		{
+			RemoveChild(m_pMenuObject);
+			m_pMenuScene->SetMenuObject(m_pMenuObject);
+			m_SceneContext.pGameTime->Start();
+		}
+
+		// Set blur
+		m_pPostBlur->SetIsEnabled(m_ScenePaused);
+	}
+
+
+	if (m_ScenePaused)
+	{
+		// render a black transparent background during pause then 
+		m_pMenuScene->UpdateUI();
+		m_pMenuScene->DrawUI();
 	}
 }
 
@@ -238,4 +316,5 @@ void PortalTestScene::OnSceneActivated()
 	m_SceneContext.settings.drawPhysXDebug = false;
 
 	m_pCharacter->GetCameraComponent()->SetActive(true);
+	m_ScenePaused = false;
 }

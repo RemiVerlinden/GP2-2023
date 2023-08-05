@@ -202,8 +202,8 @@ void GameScene::RootDraw()
 	//SpriteRenderer Draw
 	SpriteRenderer::Get()->Draw(m_SceneContext);
 
-	//TextRenderer Draw
 	TextRenderer::Get()->Draw(m_SceneContext);
+	//TextRenderer Draw
 
 	//Object-Scene Post-Draw
 	PostDraw();
@@ -245,7 +245,9 @@ void GameScene::RootDraw()
 		RenderTarget* pInitRenderTarget = m_pGame->GetRenderTarget();
 		if (pPrevRenderTarget == pInitRenderTarget)
 		{
+
 			m_pGame->SetRenderTarget(nullptr);
+
 			SpriteRenderer::Get()->DrawImmediate(m_SceneContext.d3dContext, pPrevRenderTarget->GetColorShaderResourceView(), XMFLOAT2{0,0});
 		}
 		//3. All Materials are applied after each other, time to draw the final result to the screen

@@ -169,7 +169,6 @@ void SpriteRenderer::Draw(const SceneContext& sceneContext)
 void SpriteRenderer::AppendSprite(TextureData* pTexture, const XMFLOAT2& position, const XMFLOAT4& color, const XMFLOAT2& pivot, const XMFLOAT2& scale, float rotation, float depth)
 {
 	VertexSprite vertex{};
-
 	const auto it = std::ranges::find(m_Textures, pTexture);
 
 	if (it == m_Textures.end())
@@ -188,6 +187,8 @@ void SpriteRenderer::AppendSprite(TextureData* pTexture, const XMFLOAT2& positio
 
 	m_Sprites.push_back(vertex);
 }
+
+
 
 void SpriteRenderer::DrawImmediate(const D3D11Context& d3dContext, ID3D11ShaderResourceView* pSrv, const XMFLOAT2& position, const XMFLOAT4& color, const XMFLOAT2& pivot, const XMFLOAT2& scale, float rotation)
 {

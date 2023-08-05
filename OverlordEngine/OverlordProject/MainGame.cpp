@@ -185,8 +185,8 @@ void MainGame::Initialize()
 LRESULT MainGame::WindowProcedureHook(HWND /*hWnd*/, UINT message, WPARAM wParam, LPARAM lParam)
 {
 
-		if(wParam == VK_ESCAPE)
-			PostQuitMessage(0);
+		//if(wParam == VK_ESCAPE)
+		//	PostQuitMessage(0);
 
 	if(message == WM_KEYUP)
 	{

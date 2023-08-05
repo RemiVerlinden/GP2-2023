@@ -37,6 +37,7 @@ void SceneManager::AddGameScene(GameScene* pScene)
 	}
 }
 
+
 void SceneManager::RemoveGameScene(GameScene* pScene, bool deleteObject)
 {
 	const auto it = std::ranges::find(m_pScenes, pScene);
@@ -141,8 +142,10 @@ void SceneManager::Update()
 
 void SceneManager::Draw() const
 {
-	if (m_ActiveScene != nullptr)
+	if (m_ActiveScene != nullptr) 
+	{
 		m_ActiveScene->RootDraw();
+	}
 }
 
 void SceneManager::OnGUI() const
@@ -151,3 +154,15 @@ void SceneManager::OnGUI() const
 		m_ActiveScene->RootOnGUI();
 }
 
+GameScene* SceneManager::GetScene(const std::wstring& sceneName) const
+{
+	const auto it = std::ranges::find_if(m_pScenes, [sceneName](const GameScene* pScene)
+	{
+		return wcscmp(pScene->m_SceneName.c_str(), sceneName.c_str()) == 0;
+	});
+	if (it != m_pScenes.end())
+	{
+		return *it;
+	}
+	return nullptr;
+}

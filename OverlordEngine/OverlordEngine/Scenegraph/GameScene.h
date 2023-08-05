@@ -37,7 +37,7 @@ public:
 
 	PhysxProxy* GetPhysxProxy() const { return m_pPhysxProxy; }
 	void SetActiveCamera(CameraComponent* pCameraComponent);
-
+	void PauseScene(bool pause) { m_ScenePaused = pause; }; // this has no functionality in the base GameScene, you can use it to pause whatever you want in derived scenes
 protected:
 	virtual void Initialize() = 0;
 	virtual void PostInitialize() {};
@@ -52,6 +52,8 @@ protected:
 	virtual void OnSceneDeactivated() {}
 
 	SceneContext m_SceneContext{};
+	bool m_ScenePaused{ false };
+
 private:
 	friend class PortalRenderer;
 	void SimpleDrawMeshes();
@@ -74,4 +76,5 @@ private:
 
 	std::vector<PostProcessingMaterial*> m_PostProcessingMaterials{};
 	OverlordGame* m_pGame{};
+
 };

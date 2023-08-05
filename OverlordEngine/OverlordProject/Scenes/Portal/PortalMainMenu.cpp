@@ -92,6 +92,19 @@ void PortalMainMenu::Initialize()
 			NewGameProps.buttonComponents.emplace_back(pComponent);
 		}
 
+		// NEW GAME BUTTON PICTURE BUTTON
+		{
+			XMFLOAT4 boundingBox;
+
+			boundingBox.x = m_SceneContext.windowWidth / 2 + NewGameProps.pictureButtonPos.x; // make sure that the buttons are always spawned from the center of the screen
+			boundingBox.y = m_SceneContext.windowHeight / 2 - NewGameProps.pictureButtonPos.y; // we do minus because the y axis is inverted
+			boundingBox.z = NewGameProps.pictureButtonSize.x;
+			boundingBox.w = NewGameProps.pictureButtonSize.y;
+
+			UI_ButtonComponent* pComponent = NewGameProps.pNewGameButton->AddComponent(new UI_ButtonComponent(L"PICTURE", { 1,1,1,0 }, boundingBox));
+			NewGameProps.buttonComponents.emplace_back(pComponent);
+		}
+
 		AddChild(NewGameProps.pNewGameButton);
 	}
 
@@ -184,11 +197,17 @@ void PortalMainMenu::Initialize()
 void PortalMainMenu::Update()
 {
 
-	auto buttonComponents = m_pMenuItem->GetComponents<UI_ButtonComponent>();
-	for (UI_ButtonComponent* component : buttonComponents)
-	{
-		component->SetEnabled(false);
-	}
+	std::vector<std::vector<UI_ButtonComponent*>*> buttonComponentVec;
+	buttonComponentVec.emplace_back(&ButtonProps.buttonComponents);
+	buttonComponentVec.emplace_back(&NewGameProps.buttonComponents);
+	buttonComponentVec.emplace_back(&OptionsProps.buttonComponents);
+	buttonComponentVec.emplace_back(&QuitProps.buttonComponents);
+	
+	for (std::vector<UI_ButtonComponent*>* vec : buttonComponentVec)
+		for (UI_ButtonComponent* pComponent : *vec)
+		{
+			pComponent->SetEnabled(false);
+		}
 
 	switch (m_MenuState)
 	{
@@ -249,6 +268,7 @@ void PortalMainMenu::DrawLogo()
 
 void PortalMainMenu::DrawNewGame()
 {
+
 }
 
 void PortalMainMenu::DrawOptions()
@@ -291,6 +311,12 @@ void PortalMainMenu::UpdateNewGame()
 	{
 		pComponent->SetEnabled(true);
 
+		std::wstring* assetPath = &NewGameProps.assetPath;
+		if (pComponent->GetHovering() && pComponent->GetText() == L"PICTURE")
+			assetPath = &NewGameProps.assetPathHover;
+
+		m_pSpriteComponents.at(static_cast<int>(MenuState::NewGame))->SetTexture(*assetPath);
+
 		if (!pComponent->GetClicked()) continue;
 
 		if (pComponent->GetText() == L"START")
@@ -301,6 +327,11 @@ void PortalMainMenu::UpdateNewGame()
 		if (pComponent->GetText() == L"CANCEL")
 		{
 			m_MenuState = MenuState::Menu;
+		}
+
+		if (pComponent->GetText() == L"PICTURE")
+		{
+			SceneManager::Get()->NextScene();
 		}
 	}
 }

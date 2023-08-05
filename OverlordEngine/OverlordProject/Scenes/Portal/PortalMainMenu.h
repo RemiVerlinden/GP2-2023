@@ -84,12 +84,16 @@ private:
 	{
 		GameObject*					pNewGameButton{};
 		std::wstring				assetPath{ L"Textures/UI/NewGameBox.tga" };
+		std::wstring				assetPathHover{ L"Textures/UI/NewgameBoxHover.tga" };
 
 		//XMFLOAT2 			
 		XMFLOAT2 					buttonPos = { 64, -102 }; // this is the position local to the center of the screen
 		float						padding = 13; // this is the horizontal padding between the buttons
 		XMFLOAT2					buttonSize1 = { 124, 24 };
 		XMFLOAT2					buttonSize2 = { 72, 24 };
+		XMFLOAT2                    pictureButtonPos{ -83, 80 };
+		XMFLOAT2 					pictureButtonSize = { 168, 106 };
+
 		
 		std::vector<UI_ButtonComponent*>	buttonComponents;
 

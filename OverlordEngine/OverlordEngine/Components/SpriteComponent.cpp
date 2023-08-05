@@ -14,6 +14,8 @@ void SpriteComponent::Initialize(const SceneContext& /*sceneContext*/)
 
 void SpriteComponent::SetTexture(const std::wstring& spriteAsset)
 {
+	if (spriteAsset == m_SpriteAsset) return;
+
 	m_SpriteAsset = spriteAsset;
 	m_pTexture = ContentManager::Load<TextureData>(m_SpriteAsset);
 }

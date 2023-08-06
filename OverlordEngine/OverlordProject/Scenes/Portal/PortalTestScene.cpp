@@ -38,9 +38,6 @@ void PortalTestScene::Initialize()
 	characterDesc.actionId_MoveRight = Input::CharacterMoveRight;
 	characterDesc.actionId_Jump = Input::CharacterJump;
 
-	auto pBoneMaterial = MaterialManager::Get()->CreateMaterial<ColorMaterial>();
-	auto pBone = new BoneObject(pBoneMaterial, 1);
-	AddChild(pBone);
 
 	m_pCharacter = AddChild(new Character(characterDesc));
 	m_pCharacter->GetTransform()->Translate(-35, 1, 7.5f);
@@ -68,8 +65,6 @@ void PortalTestScene::Initialize()
 	m_pCharacter->InitializeCharacterMeshes();
 
 
-	pBone->GetTransform()->Rotate(0, 0, 0);
-	pBone->GetTransform()->Translate(2, 1, 1);
 
 	//Input
 	auto inputAction = InputAction(Input::CharacterMoveLeft, InputState::down, 'A');
@@ -221,8 +216,6 @@ void PortalTestScene::OnGUI()
 
 void PortalTestScene::Update()
 {
-	auto pos = m_SceneContext.pCamera->GetTransform()->GetWorldPosition();
-	std::cout << pos.x << " " << pos.y << " " << pos.z << std::endl;
 	if (m_SceneContext.pInput->IsMouseButton(InputState::pressed, VK_RBUTTON))
 	{
 		MovePortal(Orange);

@@ -156,7 +156,7 @@ private:
 
 	bool m_QuitPressed{ false };
 
-	XMFLOAT3 m_Translate{ -22.43f, 9.49f,  -2.00f };
+	XMFLOAT3 m_Translate{ -22.43f, 9.37f,  -2.00f };
 	XMFLOAT3 m_StartRotation{ 17.80f, 122.90f, 3.0f };
 };
 

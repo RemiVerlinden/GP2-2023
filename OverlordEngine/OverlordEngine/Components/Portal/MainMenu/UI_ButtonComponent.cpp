@@ -82,7 +82,7 @@ void UI_ButtonComponent::DrawButtonText() const
 	
 
 	XMFLOAT4 color = m_TextColor;
-	if (m_Hovering)
+	if (m_Hovering && color.w != 0.f) // if the alpha is 0, dont bother changing it
 		color.w = 0.7f;
 
 	TextRenderer::Get()->DrawText(m_pFont, m_Text, position, color);

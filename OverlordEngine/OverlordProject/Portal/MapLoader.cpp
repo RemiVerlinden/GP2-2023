@@ -8,6 +8,7 @@
 #include "Materials\Portal\PhongMaterial_Skinned.h"
 #include "Materials\Portal\Glass\FrostedGlassMaterial.h"
 #include "Materials\Portal\Glass\RefractingGlassMaterial.h"
+#include "Materials\Portal\Models\MonitorMaterial.h"
 #include "Materials\ColorMaterial.h"
 #include "Materials\Portal\NoDrawMaterial.h"
 #include "ThreadPool.h"
@@ -45,7 +46,7 @@ GameObject* MapLoader::LoadMap(const std::wstring& mapName)
 
 MapLoader::InteractiveElements& MapLoader::GetInteractiveElements()
 {
-	return m_InteractiveElements;	
+	return m_InteractiveElements;
 }
 
 
@@ -126,6 +127,9 @@ void MapLoader::LoadMapTexturesDebug(const std::wstring& mapName, ModelComponent
 				LoadNoDrawShaderForSubmesh(shaderInfo);
 				//LoadRefractingGlassShaderForSubmesh(shaderInfo);
 				break;
+			case  MapLoader::ShaderType::monitor:
+				LoadMonitorShaderForSubmesh(shaderInfo);
+				break;
 		}
 	}
 }
@@ -199,6 +203,9 @@ void MapLoader::LoadMapTexturesRelease(const std::wstring& mapName, ModelCompone
 				LoadNoDrawShaderForSubmesh(shaderInfo);
 				//LoadRefractingGlassShaderForSubmesh(shaderInfo);
 				break;
+			case  MapLoader::ShaderType::monitor:
+				LoadMonitorShaderForSubmesh(shaderInfo);
+				break;
 		}
 
 
@@ -245,7 +252,7 @@ void MapLoader::FindTexurePaths(SubmeshShaderInfo& shaderInfo)
 	{
 		fs::path filePathDiffuse = SearchForMatchingFile(mapPath, std::wregex(materialName));
 
-	
+
 		if (!std::filesystem::exists(filePathDiffuse) || filePathDiffuse.empty())
 		{
 			Logger::LogWarning(L"File path {} does not exist - material name: {}", filePathDiffuse.wstring(), materialName);
@@ -324,7 +331,7 @@ void MapLoader::LoadLightShaderForSubmesh(SubmeshShaderInfo& shaderInfo)
 	shaderInfo.pModel->SetMaterial(pLightMaterial, shaderInfo.submeshID);
 }
 
-void MapLoader::LoadFrostedGlassShaderForSubmesh(SubmeshShaderInfo& shaderInfo) 
+void MapLoader::LoadFrostedGlassShaderForSubmesh(SubmeshShaderInfo& shaderInfo)
 {
 	FrostedGlassMaterial* pFrostedGlassMaterial = MaterialManager::Get()->CreateMaterial<FrostedGlassMaterial>();
 	pFrostedGlassMaterial->SetDiffuseTexture(ShortenTexturePath(shaderInfo.diffusePath));
@@ -335,7 +342,7 @@ void MapLoader::LoadFrostedGlassShaderForSubmesh(SubmeshShaderInfo& shaderInfo)
 	shaderInfo.pModel->SetMaterial(pFrostedGlassMaterial, shaderInfo.submeshID);
 
 }
-void MapLoader::LoadRefractingGlassShaderForSubmesh(SubmeshShaderInfo& shaderInfo) 
+void MapLoader::LoadRefractingGlassShaderForSubmesh(SubmeshShaderInfo& shaderInfo)
 {
 	RefractingGlassMaterial* pRefractingGlassMaterial = MaterialManager::Get()->CreateMaterial<RefractingGlassMaterial>();
 
@@ -347,6 +354,13 @@ void MapLoader::LoadRefractingGlassShaderForSubmesh(SubmeshShaderInfo& shaderInf
 	// still need to look at the fx file and update it
 
 	shaderInfo.pModel->SetMaterial(pRefractingGlassMaterial, shaderInfo.submeshID);
+}
+
+void MapLoader::LoadMonitorShaderForSubmesh(SubmeshShaderInfo& shaderInfo)
+{
+	MonitorMaterial* pMonitorMaterial = MaterialManager::Get()->CreateMaterial<MonitorMaterial>();
+
+	shaderInfo.pModel->SetMaterial(pMonitorMaterial, shaderInfo.submeshID);
 }
 
 
@@ -368,7 +382,7 @@ MapLoader::ShaderType MapLoader::IdentifyShaderType(const std::wstring& submeshN
 	// In the obj file of the level, I have all noDraw meshes in ID 0
 	// but for some reason when the ovm level file is read, it decides to rename the noDraw to frosted glass.
 	// so I just force the ID 0 to be noDraw
-	if(shaderInfo.submeshID == 0) return ShaderType::noDraw; 
+	if (shaderInfo.submeshID == 0) return ShaderType::noDraw;
 
 	std::wregex myRegex{L"elevatorshaft_wal"};
 	if (std::regex_search(submeshName, myRegex))
@@ -387,6 +401,12 @@ MapLoader::ShaderType MapLoader::IdentifyShaderType(const std::wstring& submeshN
 	if (std::regex_search(submeshName, searchFrostRegex))
 	{
 		return ShaderType::frostedGlass;
+	}
+
+	std::wregex searchMonitorRegex{L"lab_monitor_screen"};
+	if (std::regex_search(submeshName, searchMonitorRegex))
+	{
+		return ShaderType::monitor;
 	}
 
 
@@ -425,7 +445,7 @@ void MapLoader::LoadDynamicProps(const std::wstring& mapName)
 {
 	DynamicPropsParseNames parserNames;
 	// Prepare the map of names to functions
-	std::map<std::wstring, void(MapLoader::*)(const XMFLOAT3&)> spawnFuncs = 
+	std::map<std::wstring, void(MapLoader::*)(const XMFLOAT3&)> spawnFuncs =
 	{
 		{parserNames.button, &MapLoader::SpawnButton},
 		{parserNames.elevator, &MapLoader::SpawnElevator},
@@ -483,7 +503,7 @@ void MapLoader::SpawnButton(const XMFLOAT3& position)
 	ModelComponent* pModel = pButton->AddComponent(new ModelComponent(props.modelPath));
 	pModel->SetMaterial(pPhong);
 
-	[[maybe_unused]]ButtonAnimComponent* pButtonAnim = pButton->AddComponent(new ButtonAnimComponent());
+	[[maybe_unused]] ButtonAnimComponent* pButtonAnim = pButton->AddComponent(new ButtonAnimComponent());
 
 	pButton->GetTransform()->Translate(position);
 
@@ -517,7 +537,7 @@ void MapLoader::SpawnButton(const XMFLOAT3& position)
 			if (objectInTrigger == 0) pButtonAnim->SetPressed(false);
 		}
 	});
-	
+
 
 	m_InteractiveElements.buttons.emplace_back(pButton);
 }

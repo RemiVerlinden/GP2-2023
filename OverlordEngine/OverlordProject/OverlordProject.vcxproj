@@ -98,6 +98,7 @@
     <ClCompile Include="Materials\Portal\DecalMaterial.cpp" />
     <ClCompile Include="Materials\Portal\Glass\FrostedGlassMaterial.cpp" />
     <ClCompile Include="Materials\Portal\Glass\GlassMaterial_Skinned.cpp" />
+    <ClCompile Include="Materials\Portal\Models\MonitorMaterial.cpp" />
     <ClCompile Include="Materials\Portal\NoDrawMaterial.cpp" />
     <ClCompile Include="Materials\Portal\PhongMaterial.cpp" />
     <ClCompile Include="Materials\Portal\PhongMaterial_Skinned.cpp" />
@@ -182,6 +183,7 @@
     <ClInclude Include="Materials\Portal\DecalMaterial.h" />
     <ClInclude Include="Materials\Portal\Glass\FrostedGlassMaterial.h" />
     <ClInclude Include="Materials\Portal\Glass\GlassMaterial_Skinned.h" />
+    <ClInclude Include="Materials\Portal\Models\MonitorMaterial.h" />
     <ClInclude Include="Materials\Portal\NoDrawMaterial.h" />
     <ClInclude Include="Materials\Portal\PhongMaterial.h" />
     <ClInclude Include="Materials\Portal\PhongMaterial_Skinned.h" />

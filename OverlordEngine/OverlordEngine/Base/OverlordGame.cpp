@@ -1,11 +1,11 @@
 #include "stdafx.h"
 #include "OverlordGame.h"
 
-
 OverlordGame::OverlordGame():
 	m_IsActive(true)
 {
 	Logger::Initialize();
+	srand(static_cast<unsigned int>(time(nullptr))); // random seed based on the current time
 }
 
 

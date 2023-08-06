@@ -14,7 +14,7 @@ public:
 	void SetOpacity(const float opacity);
 protected:
 	void InitializeEffectVariables() override;
-	void OnUpdateModelVariables(const SceneContext& /*sceneContext*/, const ModelComponent* /*pModel*/) const;
+	void OnUpdateModelVariables(const SceneContext& /*sceneContext*/, const ModelComponent* /*pModel*/) const override;
 private:
 	TextureData* m_pDiffuseTexture{};
 	float m_Opacity{};

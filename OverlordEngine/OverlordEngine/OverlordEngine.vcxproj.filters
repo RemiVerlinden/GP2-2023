@@ -156,5 +156,6 @@
     <ClInclude Include="Misc\Statemachine\Portalgun\PGunReleaseState.h" />
     <ClInclude Include="Misc\Statemachine\Portalgun\PGunStateIncludes.h" />
     <ClInclude Include="Components\Portal\MainMenu\UI_ButtonComponent.h" />
+    <ClInclude Include="Misc\CommonStructs.h" />
   </ItemGroup>
 </Project>

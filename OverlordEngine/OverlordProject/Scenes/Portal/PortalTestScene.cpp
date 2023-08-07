@@ -13,7 +13,7 @@
 #include "Prefabs\BoneObject.h"
 #include "Scenes\Portal\PortalMainMenu.h"
 #include "Materials/Post/PostBlur.h"
-
+#include "Components\CameraComponent.h"
 
 
 void PortalTestScene::Initialize()
@@ -182,21 +182,76 @@ void PortalTestScene::MovePortal(Portal portal)
 	newPortalPos.z += forwardFloat3.z;
 	//newPortalPos.y -= 1.5f;
 
-	m_pPortals[portal]->GetTransform()->Translate(newPortalPos);
+	const float offsetDistance = .01f; // Change this to the desired offset distance
 
-	XMFLOAT4 rotation = m_pCharacter->GetCameraComponent()->GetTransform()->GetWorldRotation();
+if (auto [pHitObject, hit] = m_SceneContext.pCamera->CrosshairRaycast(CollisionGroup::Group0 | CollisionGroup::Group1 | CollisionGroup::Group2); pHitObject != nullptr)
+{
+    // Default portal facing direction
+    XMVECTOR defaultDir = XMVectorSet(0, 0, 1, 0); // Assuming +Z as default
+    
+    // Compute rotation axis and angle
+    XMVECTOR hitNormal = XMLoadFloat3(&hit.normal);
+
+	// If the portal is orange, invert the normal vector.
 	if (portal == Orange)
 	{
-		XMVECTOR axis = XMVectorSet(0, 1, 0, 0);
-		float angle = XM_PI;
-		XMVECTOR rotationVec = XMQuaternionRotationAxis(axis, angle);
-		XMVECTOR newRotation = XMQuaternionMultiply(rotationVec, XMLoadFloat4(&rotation));
-		XMFLOAT4 newRotationFloat4;
-		XMStoreFloat4(&newRotationFloat4, newRotation);
-		rotationVec = XMQuaternionNormalize(newRotation);
-		XMStoreFloat4(&rotation, newRotation);
+		hitNormal = XMVectorNegate(hitNormal);
 	}
-	m_pPortals[portal]->GetTransform()->RotateWorld(XMLoadFloat4(&rotation));
+
+	XMVECTOR rotationAxis = XMVector3Cross(defaultDir, hitNormal);
+	float rotationAngle = acosf(XMVectorGetX(XMVector3Dot(defaultDir, hitNormal)));
+
+	// Check for a nearly zero-length rotation axis, which indicates parallel or antiparallel vectors
+	XMVECTOR axisLength = XMVector3Length(rotationAxis);
+	if (XMVectorGetX(axisLength) < 1e-6f) { // 1e-6f is a small threshold; adjust as needed
+		if (XMVectorGetX(XMVector3Dot(defaultDir, hitNormal)) < 0) {
+			// Vectors are antiparallel
+			rotationAxis = XMVectorSet(0, 1, 0, 0); // You can choose any perpendicular axis here
+			rotationAngle = XM_PI; // 180 degrees
+		}
+		else {
+			// Vectors are parallel
+			// No need to rotate in this case, but for safety, you can set to identity
+			rotationAngle = 0.0f;
+			rotationAxis = XMVectorSet(1, 0, 0, 0); // Arbitrary since angle is zero
+		}
+	}
+
+	// Create rotation quaternion
+	XMVECTOR rotationQuat = XMQuaternionRotationAxis(rotationAxis, rotationAngle);
+    
+    // Offset the portal position slightly away from the wall
+	XMVECTOR offset = XMVectorScale(XMLoadFloat3(&hit.normal), offsetDistance); // Notice we use the original normal for the offset, not the possibly negated one
+    XMVECTOR finalPosition = XMVectorAdd(XMLoadFloat3(&hit.position), offset);
+    
+    // Set portal's transform
+    std::wcout << L"hit object: " << pHitObject->GetTag() << std::endl;
+    
+    XMFLOAT3 finalPositionFloat3;
+    XMStoreFloat3(&finalPositionFloat3, finalPosition);
+    
+    m_pPortals[portal]->GetTransform()->Rotate(rotationQuat); // Assuming such a function exists
+    m_pPortals[portal]->GetTransform()->TranslateWorld(finalPositionFloat3);
+}
+
+
+
+
+
+
+	//XMFLOAT4 rotation = m_pCharacter->GetCameraComponent()->GetTransform()->GetWorldRotation();
+	//if (portal == Orange)
+	//{
+	//	XMVECTOR axis = XMVectorSet(0, 1, 0, 0);
+	//	float angle = XM_PI;
+	//	XMVECTOR rotationVec = XMQuaternionRotationAxis(axis, angle);
+	//	XMVECTOR newRotation = XMQuaternionMultiply(rotationVec, XMLoadFloat4(&rotation));
+	//	XMFLOAT4 newRotationFloat4;
+	//	XMStoreFloat4(&newRotationFloat4, newRotation);
+	//	rotationVec = XMQuaternionNormalize(newRotation);
+	//	XMStoreFloat4(&rotation, newRotation);
+	//}
+	//m_pPortals[portal]->GetTransform()->RotateWorld(XMLoadFloat4(&rotation));
 
 	m_pPortals[portal]->GetComponent<PortalComponent>()->SetHasPortalMoved(true);
 }
@@ -241,10 +296,10 @@ void PortalTestScene::Update()
 	// group0 is the player and environment, group1 is for all objects that ignore player, group2 is for interaction with the button and some trigger stuff
 	// group3 will be for all objects that are portalable
 	if (m_SceneContext.pInput->IsKeyboardKey(InputState::pressed, 'G'))
-		if (const auto pPickedObject = m_SceneContext.pCamera->Pick(CollisionGroup::Group0 | CollisionGroup::Group1 | CollisionGroup::Group2))
+		if ( const auto [pHitObject,hit] = m_SceneContext.pCamera->PickDetailed(CollisionGroup::Group0 | CollisionGroup::Group1 | CollisionGroup::Group2); pHitObject != nullptr)
 		{
 			//delete hit object from scene
-			std::wcout << L"hit object: " << pPickedObject->GetTag() << std::endl;
+			std::wcout << L"hit object: " << pHitObject->GetTag() << std::endl;
 		}
 
 	if (m_SceneContext.pInput->IsKeyboardKey(InputState::pressed, VK_ESCAPE))

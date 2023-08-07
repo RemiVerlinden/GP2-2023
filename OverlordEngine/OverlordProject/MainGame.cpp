@@ -153,7 +153,7 @@ void MainGame::Initialize()
 #endif
 
 #ifdef PORTAL
-	SceneManager::Get()->AddGameScene(new PortalMainMenu());
+	//SceneManager::Get()->AddGameScene(new PortalMainMenu());
 	SceneManager::Get()->AddGameScene(new PortalTestScene());
 #endif
 

@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "CameraComponent.h"
-
 CameraComponent::CameraComponent() :
 	m_FarPlane(2500.0f),
 	m_NearPlane(0.1f),
@@ -48,7 +47,6 @@ void CameraComponent::Update(const SceneContext& sceneContext)
 	XMStoreFloat4x4(&m_ViewProjectionInverse, viewProjectionInv);
 }
 
-
 void CameraComponent::SetActive(bool active)
 {
 	if (m_IsActive == active) return;
@@ -75,6 +73,11 @@ void CameraComponent::SetProjection(const XMMATRIX& newProjection)
 }
 
 GameObject* CameraComponent::Pick(CollisionGroup ignoreGroups) const
+{
+	return PickDetailed(ignoreGroups).first;
+}
+
+std::pair<GameObject*, CameraComponent::RaycastHit> CameraComponent::PickDetailed(CollisionGroup ignoreGroups) const
 {
 	//get mouse position
 	const PxVec2 mousePos
@@ -113,17 +116,94 @@ GameObject* CameraComponent::Pick(CollisionGroup ignoreGroups) const
 	filterData.data.word0 = ~static_cast<UINT>(ignoreGroups);
 
 	//if raycast hits something
-	PxRaycastBuffer hit{};
-	if (m_pScene->GetPhysxProxy()->Raycast(PxVec3(origin.x, origin.y, origin.z), PxVec3(direction.x, direction.y, direction.z), PX_MAX_F32, hit, PxHitFlag::eDEFAULT, filterData))
+	PxRaycastBuffer pxHit{};
+	RaycastHit hit{};
+	if (m_pScene->GetPhysxProxy()->Raycast(PxVec3(origin.x, origin.y, origin.z), PxVec3(direction.x, direction.y, direction.z), PX_MAX_F32, pxHit, PxHitFlag::eDEFAULT, filterData))
 	{
 		//get rigid body component from pxActor data
-		RigidBodyComponent* rb = reinterpret_cast<RigidBodyComponent*>(hit.getAnyHit(0).actor->userData);
+		RigidBodyComponent* rb = reinterpret_cast<RigidBodyComponent*>(pxHit.getAnyHit(0).actor->userData);
+
+		{
+			const PxRaycastHit& h = pxHit.getAnyHit(0);
+
+			PxVec3 pos, normal;
+			pos = h.position;
+			normal = h.normal;
+
+
+			hit.position = XMFLOAT3(pos.x, pos.y, pos.z);
+			hit.normal = XMFLOAT3(normal.x, normal.y, normal.z);
+			hit.distance = h.distance;
+		}
+
 		//get owning game object and return it
-		return rb->GetGameObject();
+		return std::make_pair(rb->GetGameObject(), hit);
 	}
 
 	//return nullptr if no hit was found
-	return nullptr;
+	return std::make_pair((GameObject*)nullptr, hit);
+}
+
+std::pair<GameObject*, CameraComponent::RaycastHit> CameraComponent::CrosshairRaycast(CollisionGroup ignoreGroups) const
+{
+	// Calculate screen center
+	const PxVec2 screenSize{ m_pScene->GetSceneContext().windowWidth ,m_pScene->GetSceneContext().windowHeight };
+	const PxVec2 centerPos{ screenSize.x / 2.0f, screenSize.y / 2.0f };
+
+	//get world view and projection matrices
+	XMMATRIX view, proj;
+	view = XMLoadFloat4x4(&m_View);
+	proj = XMLoadFloat4x4(&m_Projection);
+
+	//create 2 points in screen space
+	XMVECTOR nearPointScreen, farPointScreen;
+	nearPointScreen = XMVectorSet(centerPos.x, centerPos.y, 0.0f, 1.f);
+	farPointScreen = XMVectorSet(centerPos.x, centerPos.y, 1.f, 1.f);
+
+	//unproject points to world space
+	XMVECTOR nearPointWorld, farPointWorld;
+	nearPointWorld = XMVector3Unproject(nearPointScreen, 0, 0, screenSize.x, screenSize.y, 0, 1, proj, view, XMMatrixIdentity());
+	farPointWorld = XMVector3Unproject(farPointScreen, 0, 0, screenSize.x, screenSize.y, 0, 1, proj, view, XMMatrixIdentity());
+
+	//create direction using 2 points
+	XMVECTOR rayDirection;
+	rayDirection = XMVector3Normalize(farPointWorld - nearPointWorld);
+
+	//store SIMD variables in usable local variables
+	XMFLOAT3 origin, direction;
+	XMStoreFloat3(&origin, nearPointWorld);
+	XMStoreFloat3(&direction, rayDirection);
+
+	//define filter using ignored groups setting
+	PxQueryFilterData filterData{};
+	filterData.data.word0 = ~static_cast<UINT>(ignoreGroups);
+
+	//if raycast hits something
+	PxRaycastBuffer pxHit{};
+	RaycastHit hit{};
+	if (m_pScene->GetPhysxProxy()->Raycast(PxVec3(origin.x, origin.y, origin.z), PxVec3(direction.x, direction.y, direction.z), PX_MAX_F32, pxHit, PxHitFlag::eDEFAULT, filterData))
+	{
+		//get rigid body component from pxActor data
+		RigidBodyComponent* rb = reinterpret_cast<RigidBodyComponent*>(pxHit.getAnyHit(0).actor->userData);
+
+		{
+			const PxRaycastHit& h = pxHit.getAnyHit(0);
+
+			PxVec3 pos, normal;
+			pos = h.position;
+			normal = h.normal;
+
+			hit.position = XMFLOAT3(pos.x, pos.y, pos.z);
+			hit.normal = XMFLOAT3(normal.x, normal.y, normal.z);
+			hit.distance = h.distance;
+		}
+
+		//get owning game object and return it
+		return std::make_pair(rb->GetGameObject(), hit);
+	}
+
+	//return nullptr if no hit was found
+	return std::make_pair((GameObject*)nullptr, hit);
 }
 
 

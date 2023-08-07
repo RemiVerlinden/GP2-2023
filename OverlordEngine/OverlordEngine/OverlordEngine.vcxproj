@@ -118,6 +118,7 @@
     <ClInclude Include="Lab_Todos.h" />
     <ClInclude Include="Managers\LightManager.h" />
     <ClInclude Include="Misc\CameraViewMapMaterial.h" />
+    <ClInclude Include="Misc\CommonStructs.h" />
     <ClInclude Include="Misc\Statemachine\Portalgun\PGunDrawState.h" />
     <ClInclude Include="Misc\Statemachine\Portalgun\PGunFireState.h" />
     <ClInclude Include="Misc\Statemachine\Portalgun\PGunFizzleState.h" />

@@ -3,6 +3,13 @@
 class CameraComponent: public BaseComponent
 {
 public:
+	struct RaycastHit
+	{
+		XMFLOAT3 position;
+		XMFLOAT3 normal;
+		float distance;
+	};
+
 	CameraComponent();
 	~CameraComponent() override = default;
 
@@ -37,6 +44,9 @@ public:
 	const XMFLOAT4X4& GetLocalToWorldMatrix() const { return m_ViewInverse; }
 
 	GameObject* Pick(CollisionGroup ignoreGroups = CollisionGroup::None) const;
+	// Exact same as Pick(), but also returns the hit-data aswell.
+	std::pair<GameObject*, CameraComponent::RaycastHit> PickDetailed(CollisionGroup ignoreGroups = CollisionGroup::None) const;
+	std::pair<GameObject*, CameraComponent::RaycastHit> CrosshairRaycast(CollisionGroup ignoreGroups = CollisionGroup::None) const;
 
 protected:
 

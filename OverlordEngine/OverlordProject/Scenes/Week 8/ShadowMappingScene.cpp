@@ -11,6 +11,10 @@ void ShadowMappingScene::Initialize()
 	m_SceneContext.settings.enableOnGUI = true;
 
 	m_SceneContext.pLights->SetDirectionalLight({ -95.6139526f,66.1346436f,-41.1850471f }, { 0.740129888f, -0.597205281f, 0.309117377f });
+	Light spotlight;
+	spotlight.direction = { 0.740129888f, -0.597205281f, 0.309117377f, 1.f };
+	spotlight.position = { -95.6139526f,66.1346436f,-41.1850471f, 11.f };
+	m_SceneContext.pLights->AddLight(spotlight);
 
 	auto MakeArrowObject = [&](const XMFLOAT4& color) -> GameObject*
 	{
@@ -85,7 +89,14 @@ void ShadowMappingScene::Update()
 	if (m_SceneContext.pInput->IsActionTriggered(0))
 	{
 		const auto pCameraTransform = m_SceneContext.pCamera->GetTransform();
-		m_SceneContext.pLights->SetDirectionalLight(pCameraTransform->GetPosition(), pCameraTransform->GetForward());
+		//m_SceneContext.pLights->SetDirectionalLight(pCameraTransform->GetPosition(), pCameraTransform->GetForward());
+		auto& spotlight = m_SceneContext.pLights->GetLight(0);
+
+		XMFLOAT3 pos = pCameraTransform->GetPosition();  // Your original XMFLOAT3
+		spotlight.position = XMFLOAT4(pos.x, pos.y, pos.z, 1.0f);  // Convert to XMFLOAT4
+
+		XMFLOAT3 rot = pCameraTransform->GetForward();  // Your original XMFLOAT3
+		spotlight.direction = XMFLOAT4(rot.x, rot.y, rot.z, 1.0f);  // Convert to XMFLOAT4
 	}
 }
 

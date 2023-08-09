@@ -75,6 +75,17 @@ void ShadowMapRenderer::Begin(const SceneContext& sceneContext)
 	XMVECTOR upVec = XMVectorSet(0, 1, 0, 0);
 	auto view = XMMatrixLookAtLH(eyePosition, eyePosition + direction, upVec);
 
+	//float fovAngle = XMConvertToRadians(90.f);  // 45 degrees FOV, adjust this to your spotlight's cone angle.
+	//XMMATRIX projection = XMMatrixPerspectiveFovLH(fovAngle, sceneContext.aspectRatio, nearZ, farZ);
+
+	//// Get the eyePosition and direction from the spotlight
+	//auto eyePosition = XMLoadFloat4(&sceneContext.pLights->GetLight(0).position);  // Assuming you have a GetSpotLight() function
+	//auto direction = XMLoadFloat4(&sceneContext.pLights->GetLight(0).direction);
+
+	//XMVECTOR upVec = XMVectorSet(0, 1, 0, 0);
+	//auto view = XMMatrixLookAtLH(eyePosition, eyePosition + direction, upVec);
+
+
 
 	//- Use the Projection & View Matrix to calculate the ViewProjection of this Light, store in m_LightVP
 	XMMATRIX viewproj = view * projection;

@@ -20,7 +20,7 @@ TestPortalAnimations::~TestPortalAnimations()
 void TestPortalAnimations::Initialize()
 {
 	m_SceneContext.settings.enableOnGUI = true;
-	const XMFLOAT4 aliceBlue{ DirectX::Colors::Black };
+	const XMFLOAT4 aliceBlue{ DirectX::Colors::Gray };
 	m_SceneContext.settings.clearColor = aliceBlue;
 
 

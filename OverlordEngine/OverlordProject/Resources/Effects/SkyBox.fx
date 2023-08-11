@@ -1,92 +1,74 @@
-float4x4 gWorld : WORLD;
-float4x4 gWorldViewProj : WORLDVIEWPROJECTION;
-
-Texture2D gCubeMap;
 SamplerState samLinear
 {
-	Filter = MIN_MAG_MIP_LINEAR;
-	AddressU = Wrap;// or Mirror or Clamp or Border
-	AddressV = Wrap;// or Mirror or Clamp or Border
+    Filter = MIN_MAG_MIP_LINEAR;
+    AddressU = Wrap;
+    AddressV = Wrap;
 };
 
-RasterizerState Solid
+TextureCube gDiffuseMap : CubeMap;
+
+cbuffer cbChangesEveryFrame
 {
-	FillMode = SOLID;
-	CullMode = FRONT;
-};
+	matrix matWorldViewProj : WorldViewProjection;
+}
 
-struct VS_INPUT {
-	float3 pos : POSITION;
-	float3 normal : NORMAL;
-	float2 texCoord : TEXCOORD;
-};
-struct VS_OUTPUT {
-	float4 pos : SV_POSITION;
-	float3 normal : NORMAL;
-	float2 texCoord : TEXCOORD;
-	float4 lPos : TEXCOORD1;
-};
-
-DepthStencilState EnableDepth
+struct VS_IN
 {
-	DepthEnable = TRUE;
-	DepthFunc = LESS_EQUAL;
-	DepthWriteMask = ALL;
+	float3 posL : POSITION;
 };
 
-RasterizerState NoCulling
+struct VS_OUT
 {
-	CullMode = NONE;
-};
-
-BlendState NoBlending
-{
-	BlendEnable[0] = TRUE;
+	float4 posH : SV_POSITION;
+	float3 texC : TEXCOORD;
 };
 
 //--------------------------------------------------------------------------------------
 // Vertex Shader
 //--------------------------------------------------------------------------------------
-VS_OUTPUT VS(VS_INPUT input) {
-
-	VS_OUTPUT output;
-	// Step 1:	convert position into float4 and multiply with matWorldViewProj
-	output.pos = mul(float4(input.pos, 1.0f), gWorldViewProj);
-	// Step 2:	rotate the normal: NO TRANSLATION
-	//			this is achieved by clipping the 4x4 to a 3x3 matrix, 
-	//			thus removing the postion row of the matrix
-	output.normal = normalize(mul(input.normal, (float3x3)gWorld));
-	output.texCoord = input.texCoord;
-	//output.lpos = mul(float4(input.pos, 1.0f), gWorldViewProj).xyww;
-	return output;
-}
-
-//--------------------------------------------------------------------------------------
-// Pixel Shader
-//--------------------------------------------------------------------------------------
-float4 PS(VS_OUTPUT input) : SV_TARGET{
-
-	float4 diffuseColor = gCubeMap.Sample(samLinear,input.texCoord);
-	float3 color_rgb = diffuseColor.rgb;
-	float color_a = diffuseColor.a;
-
-	return float4(color_rgb , color_a);
-}
-
-//--------------------------------------------------------------------------------------
-// Technique
-//--------------------------------------------------------------------------------------
-technique11 Default
+VS_OUT VS( VS_IN vIn )
 {
-	pass P0
-	{
-		SetRasterizerState(NoCulling);
-		SetDepthStencilState(EnableDepth, 0);
-		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
 
-		SetVertexShader(CompileShader(vs_4_0, VS()));
-		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_4_0, PS()));
-	}
+	VS_OUT vOut = (VS_OUT)0;
+
+	// set z = w so that z/w = 1 (i.e., skydome always on far plane).
+	vOut.posH = mul( float4(vIn.posL,0.0f), matWorldViewProj).xyww;
+
+	// use local vertex position as cubemap lookup vector
+	vOut.texC = vIn.posL;
+
+	return vOut;
+}
+//--------------------------------------------------------------------------------------
+// Pixel XMeshShader
+//--------------------------------------------------------------------------------------
+float4 PS( VS_OUT pIn): SV_Target
+{
+	return gDiffuseMap.Sample(samLinear, pIn.texC);
 }
 
+RasterizerState NoCull
+{
+	CullMode = NONE;
+};
+
+DepthStencilState LessEqualDSS
+{
+	// Make sure the depth function is LESS_EQUAL and not just LESS.
+    // Otherwise, the normalized depth values at z = 1 (NDC) will
+    // fail the depth test if the depth buffer was cleared to 1.
+	DepthFunc = LESS_EQUAL;
+};
+
+
+technique10 Render
+{
+    pass P0
+    {
+        SetVertexShader( CompileShader( vs_4_0, VS() ) );
+        SetGeometryShader( NULL );
+        SetPixelShader( CompileShader( ps_4_0, PS() ) );
+		SetRasterizerState(NoCull);
+		SetDepthStencilState(LessEqualDSS,0);
+    }
+}

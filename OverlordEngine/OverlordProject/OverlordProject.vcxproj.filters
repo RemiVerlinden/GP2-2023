@@ -57,6 +57,8 @@
     <ClCompile Include="Portal\ViewBob.cpp" />
     <ClCompile Include="Scenes\Portal\PortalMainMenu.cpp" />
     <ClCompile Include="Materials\Portal\Models\MonitorMaterial.cpp" />
+    <ClCompile Include="Prefabs\ArrowObject.cpp" />
+    <ClCompile Include="Materials\Portal\SkyBoxMaterial.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainGame.h" />
@@ -116,5 +118,7 @@
     <ClInclude Include="Portal\ViewBob.h" />
     <ClInclude Include="Scenes\Portal\PortalMainMenu.h" />
     <ClInclude Include="Materials\Portal\Models\MonitorMaterial.h" />
+    <ClInclude Include="Prefabs\ArrowObject.h" />
+    <ClInclude Include="Materials\Portal\SkyBoxMaterial.h" />
   </ItemGroup>
 </Project>

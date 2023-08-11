@@ -173,7 +173,7 @@ void GameScene::RootDraw()
 	//SHADOW_PASS
 	// GENERATE SHADOW MAPS
 	//+++++++++++
-	TODO_W8(L"Implement Shadow Pass")
+	//TODO_W8(L"Implement Shadow Pass")
 	//1. BEGIN > ShadowMapRenderer::Begin (Initiate the ShadowPass)
 		ShadowMapRenderer::Get()->Begin(m_SceneContext);
 	//2. DRAW_LOOP > For every GameObject (m_pChildren), call GameObject::RootShadowMapDraw
@@ -183,6 +183,17 @@ void GameScene::RootDraw()
 	}
 	//3. END > ShadowMapRenderer::End (Terminate the ShadowPass)
 	ShadowMapRenderer::Get()->End(m_SceneContext);
+
+	//1. BEGIN > ShadowMapRenderer::Begin (Initiate the ShadowPass)
+	ShadowMapRendererCube::Get()->Begin(m_SceneContext);
+	//2. DRAW_LOOP > For every GameObject (m_pChildren), call GameObject::RootShadowMapDraw
+	for (const auto pChild : m_pChildren)
+	{
+		pChild->RootShadowMapCubeDraw(m_SceneContext);
+	}
+	//3. END > ShadowMapRenderer::End (Terminate the ShadowPass)
+	ShadowMapRendererCube::Get()->End(m_SceneContext);
+
 #pragma endregion
 
 #pragma region PORTAL STUFF

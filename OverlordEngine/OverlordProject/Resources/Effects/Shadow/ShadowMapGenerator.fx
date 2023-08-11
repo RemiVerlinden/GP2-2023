@@ -1,7 +1,8 @@
 float4x4 gWorld;
-float4x4 gLightViewProj;
+float4x4 gLightViewProjArray[6];
 float4x4 gBones[125];
- 
+ float C = 20.f;
+
 DepthStencilState depthStencilState
 {
 	DepthEnable = TRUE;
@@ -21,7 +22,8 @@ float4 ShadowMapVS(float3 position:POSITION):SV_POSITION
 {
 	//TODO: return the position of the vertex in correct space (hint: seen from the view of the light)
 	float4 pos = float4(position, 1.0f);
-	float4 output = mul(pos, mul(gWorld, gLightViewProj));
+	float4 output = mul(pos, mul(gWorld, gLightViewProjArray[0]));
+	
 	return output;
 }
 
@@ -50,6 +52,15 @@ float4 ShadowMapVS_Skinned(float3 position:POSITION, float4 BoneIndices : BLENDI
 // Pixel Shaders
 //--------------------------------------------------------------------------------------
 void ShadowMapPS_VOID(float4 position:SV_POSITION){}
+
+float ShadowMapPS_ESM(float4 position:SV_POSITION) : SV_DEPTH
+{
+    // Compute depth in [0,1] range
+    float depth = position.z / position.w;
+    // Convert depth into exponential form
+    return exp(-C * depth);
+}
+
 
 technique11 GenerateShadows
 {

@@ -52,7 +52,6 @@
     <ClCompile Include="Misc\PostProcessingMaterial.cpp" />
     <ClCompile Include="Misc\ShadowMapMaterial.cpp" />
     <ClCompile Include="Managers\LightManager.cpp" />
-    <ClCompile Include="Graphics\ShadowMapRenderer.cpp" />
     <ClCompile Include="Components\ParticleEmitterComponent.cpp" />
     <ClCompile Include="Graphics\CameraViewMapRenderer.cpp" />
     <ClCompile Include="Misc\CameraViewMapMaterial.cpp" />
@@ -66,6 +65,10 @@
     <ClCompile Include="Misc\Statemachine\Portalgun\PGunIdleState.cpp" />
     <ClCompile Include="Misc\Statemachine\Portalgun\PGunFireState.cpp" />
     <ClCompile Include="Components\Portal\MainMenu\UI_ButtonComponent.cpp" />
+    <ClCompile Include="Graphics\ShadowMapRenderer.cpp" />
+    <ClCompile Include="Graphics\ShadowMapRendererCube.cpp" />
+    <ClCompile Include="Misc\ShadowMapMaterialCube.cpp" />
+    <ClCompile Include="Graphics\SpriteRendererCube.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -129,7 +132,6 @@
     <ClInclude Include="Misc\PostProcessingMaterial.h" />
     <ClInclude Include="Misc\ShadowMapMaterial.h" />
     <ClInclude Include="Managers\LightManager.h" />
-    <ClInclude Include="Graphics\ShadowMapRenderer.h" />
     <ClInclude Include="Components\ParticleEmitterComponent.h" />
     <ClInclude Include="Utils\mathlib.cpp" />
     <ClInclude Include="Utils\mathlib.h" />
@@ -157,5 +159,9 @@
     <ClInclude Include="Misc\Statemachine\Portalgun\PGunStateIncludes.h" />
     <ClInclude Include="Components\Portal\MainMenu\UI_ButtonComponent.h" />
     <ClInclude Include="Misc\CommonStructs.h" />
+    <ClInclude Include="Graphics\ShadowMapRenderer.h" />
+    <ClInclude Include="Graphics\ShadowMapRendererCube.h" />
+    <ClInclude Include="Misc\ShadowMapMaterialCube.h" />
+    <ClInclude Include="Graphics\SpriteRendererCube.h" />
   </ItemGroup>
 </Project>

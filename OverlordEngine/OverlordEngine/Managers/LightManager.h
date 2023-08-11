@@ -10,6 +10,7 @@ enum class LightType : uint32_t
 struct Light
 {
 	XMFLOAT4 direction; //16B
+	XMFLOAT3 up; //12B
 	XMFLOAT4 position; //16B
 	XMFLOAT4 color; //16B
 	float intensity; //4B

@@ -1,13 +1,13 @@
 #pragma once
-class ShadowMapMaterial;
+class ShadowMapMaterialCube;
 
-class ShadowMapRenderer: public Singleton<ShadowMapRenderer>
+class ShadowMapRendererCube: public Singleton<ShadowMapRendererCube>
 {
 public:
-	ShadowMapRenderer(const ShadowMapRenderer& other) = delete;
-	ShadowMapRenderer(ShadowMapRenderer&& other) noexcept = delete;
-	ShadowMapRenderer& operator=(const ShadowMapRenderer& other) = delete;
-	ShadowMapRenderer& operator=(ShadowMapRenderer&& other) noexcept = delete;
+	ShadowMapRendererCube(const ShadowMapRendererCube& other) = delete;
+	ShadowMapRendererCube(ShadowMapRendererCube&& other) noexcept = delete;
+	ShadowMapRendererCube& operator=(const ShadowMapRendererCube& other) = delete;
+	ShadowMapRendererCube& operator=(ShadowMapRendererCube&& other) noexcept = delete;
 
 	void UpdateMeshFilter(const SceneContext& sceneContext, MeshFilter* pMeshFilter) const;
 
@@ -16,7 +16,7 @@ public:
 	void End(const SceneContext&) const;
 
 	ID3D11ShaderResourceView* GetShadowMap() const;
-	const XMFLOAT4X4& GetLightVP() const { return m_LightVP[0]; }
+	const std::vector<XMFLOAT4X4>& GetLightVP() const { return m_LightVP; };
 
 	void Debug_DrawDepthSRV(const XMFLOAT2& position = { 0.f,0.f }, const XMFLOAT2& scale = { 1.f,1.f }, const XMFLOAT2& pivot = {0.f,0.f}) const;
 
@@ -24,9 +24,9 @@ protected:
 	void Initialize() override;
 
 private:
-	friend class Singleton<ShadowMapRenderer>;
-	ShadowMapRenderer() = default;
-	~ShadowMapRenderer();
+	friend class Singleton<ShadowMapRendererCube>;
+	ShadowMapRendererCube() = default;
+	~ShadowMapRendererCube();
 
 	//Rendertarget to render the 'shadowmap' to (depth-only)
 	//Contains depth information for all rendered shadow-casting meshes from a light's perspective (usual the main directional light)
@@ -44,11 +44,13 @@ private:
 		Count
 	};
 
-	ShadowMapMaterial* m_pShadowMapGenerator{ nullptr };
+	ShadowMapMaterialCube* m_pShadowMapGenerator{ nullptr };
 
 	//Information about each technique (static/skinned) is stored in a MaterialTechniqueContext structure
 	//This information is automatically create by the Material class, we only store it in a local array for fast retrieval 
 	static int const NUM_TYPES{ 2 };
 	MaterialTechniqueContext m_GeneratorTechniqueContexts[NUM_TYPES];
+
+	TextureData* m_pCubeMap{ nullptr };
 };
 

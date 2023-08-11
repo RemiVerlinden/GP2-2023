@@ -24,8 +24,10 @@ OverlordGame::~OverlordGame()
 	PhysXManager::Destroy();
 	SoundManager::Destroy();
 	SpriteRenderer::Destroy();
+	SpriteRendererCube::Destroy();
 	TextRenderer::Destroy();
 	ShadowMapRenderer::Destroy();
+	ShadowMapRendererCube::Destroy();
 	//CameraViewMapRenderer::Destroy();
 #ifdef ENABLEPORTALRENDERER
 	PortalRenderer::Destroy();
@@ -335,8 +337,10 @@ HRESULT OverlordGame::InitializeGame()
 	MaterialManager::Create(m_GameContext);
 	SceneManager::Create(m_GameContext);
 	SpriteRenderer::Create(m_GameContext);
+	SpriteRendererCube::Create(m_GameContext);
 	TextRenderer::Create(m_GameContext);
 	ShadowMapRenderer::Create(m_GameContext);
+	ShadowMapRendererCube::Create(m_GameContext);
 #ifdef ENABLEPORTALRENDERER
 	PortalRenderer::Create(m_GameContext);
 #endif

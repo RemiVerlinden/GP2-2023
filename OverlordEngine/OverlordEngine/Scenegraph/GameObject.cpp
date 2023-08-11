@@ -151,6 +151,22 @@ void GameObject::RootShadowMapDraw(const SceneContext& sceneContext) const
 	}
 }
 
+void GameObject::RootShadowMapCubeDraw(const SceneContext& sceneContext) const
+{
+	//Component Shadow-Draw
+	for (BaseComponent* pComp : m_pComponents)
+	{
+		if (pComp->m_enableShadowMapDraw)
+			pComp->ShadowMapCubeDraw(sceneContext);
+	}
+
+	//Root-Object Shadow-Draw
+	for (GameObject* pChild : m_pChildren)
+	{
+		pChild->RootShadowMapCubeDraw(sceneContext);
+	}
+}
+
 void GameObject::RootOnSceneAttach(GameScene* pScene)
 {
 	ASSERT_NULL(pScene, L"OnSceneAttach called but GameScene is NULL");

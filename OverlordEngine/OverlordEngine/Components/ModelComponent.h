@@ -29,6 +29,7 @@ protected:
 	void Draw(const SceneContext& sceneContext) override;
 
 	void ShadowMapDraw(const SceneContext& sceneContext) override; //update_W9
+	void ShadowMapCubeDraw(const SceneContext& sceneContext) override; 
 
 private:
 	std::wstring m_AssetFile{};

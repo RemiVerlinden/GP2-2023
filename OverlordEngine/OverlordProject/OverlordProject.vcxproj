@@ -104,6 +104,7 @@
     <ClCompile Include="Materials\Portal\PhongMaterial_Skinned.cpp" />
     <ClCompile Include="Materials\Portal\PortalMaterial.cpp" />
     <ClCompile Include="Materials\Portal\Glass\RefractingGlassMaterial.cpp" />
+    <ClCompile Include="Materials\Portal\SkyBoxMaterial.cpp" />
     <ClCompile Include="Materials\Portal\StaticMapMaterial.cpp" />
     <ClCompile Include="Materials\Portal\Weapon\PortalGun_Glow_Material.cpp" />
     <ClCompile Include="Materials\Post\PostBlur.cpp" />
@@ -128,6 +129,7 @@
       </FunctionLevelLinking>
     </ClCompile>
     <ClCompile Include="Portal\ViewBob.cpp" />
+    <ClCompile Include="Prefabs\ArrowObject.cpp" />
     <ClCompile Include="Prefabs\BoneObject.cpp" />
     <ClCompile Include="Prefabs\Character.cpp" />
     <ClCompile Include="Scenes\Portal\PortalProps.cpp" />
@@ -189,6 +191,7 @@
     <ClInclude Include="Materials\Portal\PhongMaterial_Skinned.h" />
     <ClInclude Include="Materials\Portal\PortalMaterial.h" />
     <ClInclude Include="Materials\Portal\Glass\RefractingGlassMaterial.h" />
+    <ClInclude Include="Materials\Portal\SkyBoxMaterial.h" />
     <ClInclude Include="Materials\Portal\StaticMapMaterial.h" />
     <ClInclude Include="Materials\Portal\Weapon\PortalGun_Glow_Material.h" />
     <ClInclude Include="Materials\Post\PostColorGrading.h" />
@@ -204,6 +207,7 @@
     <ClInclude Include="Materials\UberMaterial.h" />
     <ClInclude Include="Portal\MapLoader.h" />
     <ClInclude Include="Portal\ViewBob.h" />
+    <ClInclude Include="Prefabs\ArrowObject.h" />
     <ClInclude Include="Prefabs\BoneObject.h" />
     <ClInclude Include="Prefabs\Character.h" />
     <ClInclude Include="SceneInputDefines\PortalInput.h" />

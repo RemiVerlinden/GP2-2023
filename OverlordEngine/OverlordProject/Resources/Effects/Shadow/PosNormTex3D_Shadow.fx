@@ -3,6 +3,8 @@ float4x4 gWorldViewProj : WORLDVIEWPROJECTION;
 float4x4 gWorldViewProj_Light;
 float3 gLightDirection = float3(-0.577f, -0.577f, 0.577f);
 float gShadowMapBias = 0.001f;
+float gShadowMapBiasPerspectiveMultiplier = 100;
+
 float2 gResolution = float2(50, 50	);
 float gAmbientLight = 0.35f;
 
@@ -95,7 +97,7 @@ float2 texOffset(int u, int v)
 	return float2(u,v);
 }
 
-float EvaluateShadowMap(float4 lpos)
+float EvaluateShadowMap(float4 lpos, float3 normal)
 {
 	//TODO: complete
 		//re-homogenize position after interpolation
@@ -111,21 +113,11 @@ float EvaluateShadowMap(float4 lpos)
 	lpos.x = lpos.x / 2 + 0.5;
 	lpos.y = lpos.y / -2 + 0.5;
 
-	lpos.z -= gShadowMapBias;
-
-	//PCF sampling for shadow map
-	float sum = 0;
-	float x, y;
-
-	//perform PCF filtering on a 4 x 4 texel neighborhood
-	for (y = -1.5; y <= 1.5; y += 1.0)
-	{
-		for (x = -1.5; x <= 1.5; x += 1.0)
-		{
-			sum += gShadowMap.SampleCmpLevelZero(cmpSampler, lpos.xy + texOffset(x, y), lpos.z);
-		}
-	}
-	return sum / 16.0f;
+	//apply shadow map bias
+	lpos.z -= gShadowMapBias / (lpos.z*gShadowMapBiasPerspectiveMultiplier); // if set to 0 while shadow map is in perspective, I get perfect shadows(with acne)
+	
+	float shadowValue = gShadowMap.SampleCmpLevelZero(cmpSampler, lpos.xy, lpos.z);
+	return shadowValue;
 }
 
 //--------------------------------------------------------------------------------------
@@ -133,18 +125,18 @@ float EvaluateShadowMap(float4 lpos)
 //--------------------------------------------------------------------------------------
 float4 PS(VS_OUTPUT input) : SV_TARGET
 {
-	float shadowValue = EvaluateShadowMap(input.lPos);
-	if (shadowValue < gAmbientLight) shadowValue = gAmbientLight;
+	float shadowValue = EvaluateShadowMap(input.lPos, input.normal);
+	// if (shadowValue < gAmbientLight) shadowValue = gAmbientLight;
 
 	float4 diffuseColor = gDiffuseMap.Sample( samLinear,input.texCoord );
 	float3 color_rgb = diffuseColor.rgb;
 	float color_a = diffuseColor.a;
 	
 	//HalfLambert Diffuse :)
-	float diffuseStrength = dot(input.normal, -gLightDirection);
-	diffuseStrength = diffuseStrength * 0.5 + 0.5;
-	diffuseStrength = saturate(diffuseStrength);
-	color_rgb = color_rgb * diffuseStrength;
+	// float diffuseStrength = dot(input.normal, -gLightDirection);
+	// diffuseStrength = diffuseStrength * 0.5 + 0.5;
+	// diffuseStrength = saturate(diffuseStrength);
+	// color_rgb = color_rgb * diffuseStrength;
 
 	return float4( color_rgb * shadowValue , color_a );
 }

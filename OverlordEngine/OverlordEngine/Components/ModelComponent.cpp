@@ -45,7 +45,8 @@ void ModelComponent::Initialize(const SceneContext& sceneContext)
 	{
 		TODO_W8(L"Update MeshFilter for ShadowMapGenerator")
 			//1. Use ShadowMapRenderer::UpdateMeshFilter to update this MeshFilter for ShadowMap Rendering
-			ShadowMapRenderer::Get()->UpdateMeshFilter(sceneContext, m_pMeshFilter);
+			//ShadowMapRenderer::Get()->UpdateMeshFilter(sceneContext, m_pMeshFilter);
+			ShadowMapRendererCube::Get()->UpdateMeshFilter(sceneContext, m_pMeshFilter);
 		TODO_W8(L"Enable ShadowMapDraw function call (m_enableShadowMapDraw = true)")
 		//2. Make sure to set m_enableShadowMapDraw to true, otherwise BaseComponent::ShadowMapDraw is not called
 		m_enableShadowMapDraw = true;
@@ -135,6 +136,23 @@ void ModelComponent::ShadowMapDraw(const SceneContext& sceneContext)
 			const std::vector<XMFLOAT4X4>& boneTransforms = (m_pAnimator) ? m_pAnimator->GetBoneTransforms() : std::vector<XMFLOAT4X4>{};
 
 			ShadowMapRenderer::Get()->DrawMesh(sceneContext, m_pMeshFilter, GetTransform()->GetWorld(), boneTransforms);
+		}
+}
+
+void ModelComponent::ShadowMapCubeDraw(const SceneContext& sceneContext)
+{
+	//We only draw this Mesh to the ShadowMap if it casts shadows
+	if (!m_CastShadows)return;
+
+	TODO_W8(L"Draw Mesh to ShadowMapRenderer (Static/Skinned)")
+		//This function is only called during the ShadowPass (and if m_enableShadowMapDraw is true)
+		//Here we want to Draw this Mesh to the ShadowMap, using the ShadowMapRenderer::DrawMesh function
+		//1. Call ShadowMapRenderer::DrawMesh with the required function arguments BUT boneTransforms are only required for skinned meshes of course..
+		if (m_enableShadowMapDraw)
+		{
+			const std::vector<XMFLOAT4X4>& boneTransforms = (m_pAnimator) ? m_pAnimator->GetBoneTransforms() : std::vector<XMFLOAT4X4>{};
+
+			ShadowMapRendererCube::Get()->DrawMesh(sceneContext, m_pMeshFilter, GetTransform()->GetWorld(), boneTransforms);
 		}
 }
 

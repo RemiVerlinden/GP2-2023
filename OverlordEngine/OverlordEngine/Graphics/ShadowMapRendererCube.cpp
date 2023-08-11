@@ -1,13 +1,13 @@
 #include "stdafx.h"
-#include "ShadowMapRenderer.h"
-#include "Misc/ShadowMapMaterial.h"
+#include "ShadowMapRendererCube.h"
+#include "Misc/ShadowMapMaterialCube.h"
 
-ShadowMapRenderer::~ShadowMapRenderer()
+ShadowMapRendererCube::~ShadowMapRendererCube()
 {
 	SafeDelete(m_pShadowRenderTarget)
 }
 
-void ShadowMapRenderer::Initialize()
+void ShadowMapRendererCube::Initialize()
 {
 	TODO_W8(L"Implement Initialize")
 		//1. Create a separate RenderTarget (see RenderTarget class), store in m_pShadowRenderTarget
@@ -18,30 +18,32 @@ void ShadowMapRenderer::Initialize()
 
 	RENDERTARGET_DESC desc;
 
+	desc.isCubemap = true; // CUBE MAP
+
 	desc.enableDepthBuffer = true;
 	desc.enableDepthSRV = true;
-	desc.enableColorBuffer = false;
-	desc.enableColorSRV = false;
+	desc.enableColorBuffer = true;
+	desc.enableColorSRV = true;
 	desc.generateMipMaps_Color = false;
-	desc.width = m_GameContext.windowWidth;
-	desc.height = m_GameContext.windowHeight;
+	desc.cubemapResolution = 512;
+
 	desc.depthFormat = DXGI_FORMAT_D32_FLOAT;
 
 
 	HANDLE_ERROR(m_pShadowRenderTarget->Create(desc));
 
-	m_pShadowMapGenerator = MaterialManager::Get()->CreateMaterial<ShadowMapMaterial>();
+	m_pShadowMapGenerator = MaterialManager::Get()->CreateMaterial<ShadowMapMaterialCube>(); // CUBE MAP
 
 	for (int ID = 0; ID < (int)ShadowGeneratorType::Count; ++ID)
 		m_GeneratorTechniqueContexts[ID] = m_pShadowMapGenerator->GetTechniqueContext(ID);
 
 	m_IsInitialized = true;
 
-
 	m_LightVP.resize(6);
+	m_pCubeMap = ContentManager::Load<TextureData>(L"Textures/earth-cubemap.dds");
 }
 
-void ShadowMapRenderer::UpdateMeshFilter(const SceneContext& sceneContext, MeshFilter* pMeshFilter) const
+void ShadowMapRendererCube::UpdateMeshFilter(const SceneContext& sceneContext, MeshFilter* pMeshFilter) const
 {
 	TODO_W8(L"Implement UpdateMeshFilter")
 		//Here we want to Update the MeshFilter of ModelComponents that need to be rendered to the ShadowMap
@@ -57,110 +59,60 @@ void ShadowMapRenderer::UpdateMeshFilter(const SceneContext& sceneContext, MeshF
 	pMeshFilter->BuildVertexBuffer(sceneContext, context.inputLayoutID, context.inputLayoutSize, context.pInputLayoutDescriptions);
 }
 
-void ShadowMapRenderer::Begin(const SceneContext& sceneContext)
+void ShadowMapRendererCube::Begin(const SceneContext& sceneContext)
 {
-	TODO_W8(L"Implement Begin")
-
-		constexpr ID3D11ShaderResourceView* const pSRV[] = { nullptr };
+	constexpr ID3D11ShaderResourceView* const pSRV[] = { nullptr };
 	sceneContext.d3dContext.pDeviceContext->PSSetShaderResources(1, 1, pSRV);
 
 	float nearZ = 0.1f;
 	float farZ = 200.0f;
-	//float aspectRatio = sceneContext.aspectRatio;
+	float aspectRatio = sceneContext.aspectRatio;
 
-	//bool perspective = true; // orthographic or perspective
+	std::vector<XMMATRIX> view(6);
 
-	const XMMATRIX projection = XMMatrixPerspectiveFovLH(XM_PIDIV2, 1, nearZ, farZ);
-	std::vector<XMMATRIX> view;
-	view.resize(6);
+	const Light& spotLight = sceneContext.pLights->GetLight(0);
+	aspectRatio = 1;
 
-	// ORTHOGRAPHIC
-	//if (!perspective)
-	//{
-	//	float viewWidth = 100.f * sceneContext.aspectRatio;
-	//	float viewHeight = 100.0f;
-	//	projection = XMMatrixOrthographicLH(viewWidth, viewHeight, nearZ, farZ);
+	float fovAngle = spotLight.spotLightAngle;
+	const XMMATRIX projection = XMMatrixPerspectiveFovLH(fovAngle, aspectRatio, nearZ, farZ);
 
-	//	//- Use XMMatrixLookAtLH to create a View Matrix
-	//	//*eyePosition: Position of the Direction Light (SceneContext::pLights > Retrieve Directional Light)
-	//	//*focusPosition: Calculate using the Direction Light position and direction
-	//	auto eyePosition = XMLoadFloat4(&sceneContext.pLights->GetDirectionalLight().position);
-	//	auto direction = XMLoadFloat4(&sceneContext.pLights->GetDirectionalLight().direction);
-	//	XMVECTOR upVec = XMVectorSet(0, 1, 0, 0);
-	//	view[0] = XMMatrixLookAtLH(eyePosition, eyePosition + direction, upVec);
-	//}
-	//else // PERSPECTIVE
+	// Get the eyePosition and direction from the spotlight
+	auto eyePosition = XMLoadFloat4(&spotLight.position);  // Assuming you have a GetSpotLight() function
+	auto direction = XMLoadFloat4(&spotLight.direction);
+
+	XMVECTOR upVec = XMVectorSet(0, 1, 0, 0);
+
+	const XMFLOAT3 directions[6] = {
+	XMFLOAT3(1.0f, 0.0f, 0.0f),  // Positive X
+	XMFLOAT3(-1.0f, 0.0f, 0.0f), // Negative X
+	XMFLOAT3(0.0f, 1.0f, 0.0f),  // Positive Y
+	XMFLOAT3(0.0f, -1.0f, 0.0f), // Negative Y
+	XMFLOAT3(0.0f, 0.0f, 1.0f),  // Positive Z
+	XMFLOAT3(0.0f, 0.0f, -1.0f)  // Negative Z
+	};
+
+	std::vector<XMMATRIX> viewproj(6);
+	for (int i = 0; i < 6; i++)
 	{
-		const Light& spotLight = sceneContext.pLights->GetLight(0);
+		direction = XMLoadFloat3(&directions[i]);
 
+		if (i == 4 || i == 5) // Positive X and Negative X
+			upVec = XMVectorSet(1, 0, 0, 0);
+		if (i == 2) // Positive Y
+			upVec = XMVectorSet(0, 0, -1, 0);
+		else if (i == 3) // Negative Y
+			upVec = XMVectorSet(0, 0, 1, 0);
 
-
-		{
-			// Get the eyePosition and direction from the spotlight
-			auto eyePosition = XMLoadFloat4(&spotLight.position);  // Assuming you have a GetSpotLight() function
-			XMVECTOR direction;
-
-			XMVECTOR upVec = XMVectorSet(0, 1, 0, 0);
-
-			const XMFLOAT3 directions[6] = {
-			XMFLOAT3(1.0f, 0.0f, 0.0f),  // Positive X
-			XMFLOAT3(-1.0f, 0.0f, 0.0f), // Negative X
-			XMFLOAT3(0.0f, 1.0f, 0.0f),  // Positive Y
-			XMFLOAT3(0.0f, -1.0f, 0.0f), // Negative Y
-			XMFLOAT3(0.0f, 0.0f, 1.0f),  // Positive Z
-			XMFLOAT3(0.0f, 0.0f, -1.0f)  // Negative Z
-			};
-
-			std::vector<XMMATRIX> viewproj(6);
-			for (int i = 0; i < 6; i++)
-			{
-				direction = XMLoadFloat3(&directions[i]);
-
-				if (i == 4 || i == 5) // Positive X and Negative X
-					upVec = XMVectorSet(1, 0, 0, 0);
-				if (i == 2) // Positive Y
-					upVec = XMVectorSet(0, 0, -1, 0);
-				else if (i == 3) // Negative Y
-					upVec = XMVectorSet(0, 0, 1, 0);
-
-				view[i] = XMMatrixLookAtLH(eyePosition, eyePosition + direction, upVec);
-				viewproj[i] = view[i] * projection;
-				XMStoreFloat4x4(&m_LightVP[i], viewproj[i]);
-			}
-
-			//{
-			//	aspectRatio = 1;
-
-
-
-			//	// Get the eyePosition and direction from the spotlight
-			//	auto eyePos = XMLoadFloat4(&spotLight.position);  // Assuming you have a GetSpotLight() function
-			//	auto dir = XMLoadFloat4(&spotLight.direction);
-
-
-			//	XMVECTOR upVector = XMVectorSet(0, 1, 0, 0); // default up vector
-
-
-			//	//XMVECTOR upVec = XMLoadFloat3(&sceneContext.pLights->GetLight(0).up);
-			//	view[0] = XMMatrixLookAtLH(eyePos, eyePos + dir, upVector);
-			//	viewproj[0] = view[0] * projection;
-			//	XMStoreFloat4x4(&m_LightVP[0], viewproj[0]);
-			//}
-
-			//- Use the Projection & View Matrix to calculate the ViewProjection of this Light, store in m_LightVP
-
-			//3. Update this matrix (m_LightVP) on the ShadowMapMaterial effect
-			m_pShadowMapGenerator->SetVariable_MatrixArray(L"gLightViewProjArray", reinterpret_cast<const float*>(m_LightVP.data()), (UINT)m_LightVP.size());
-		}
+		view[i] = XMMatrixLookAtLH(eyePosition, eyePosition + direction, upVec);
+		viewproj[i] = view[i] * projection;
+		XMStoreFloat4x4(&m_LightVP[i], viewproj[i]);
 	}
 
 
+
 	//- Use the Projection & View Matrix to calculate the ViewProjection of this Light, store in m_LightVP
-	//XMMATRIX viewproj = view * projection;
-	//XMStoreFloat4x4(&m_LightVP, viewproj);
 
 	//3. Update this matrix (m_LightVP) on the ShadowMapMaterial effect
-	//m_pShadowMapGenerator->SetVariable_Matrix(L"gLightViewProj", m_LightVP);
 
 	//4. Set the Main Game RenderTarget to m_pShadowRenderTarget (OverlordGame::SetRenderTarget) - Hint: every Singleton object has access to the GameContext...
 	m_GameContext.pGame->SetRenderTarget(m_pShadowRenderTarget);
@@ -168,7 +120,7 @@ void ShadowMapRenderer::Begin(const SceneContext& sceneContext)
 	m_pShadowRenderTarget->Clear();
 }
 
-void ShadowMapRenderer::DrawMesh(const SceneContext& sceneContext, MeshFilter* pMeshFilter, const XMFLOAT4X4& meshWorld, const std::vector<XMFLOAT4X4>& meshBones)
+void ShadowMapRendererCube::DrawMesh(const SceneContext& sceneContext, MeshFilter* pMeshFilter, const XMFLOAT4X4& meshWorld, const std::vector<XMFLOAT4X4>& meshBones)
 {
 	TODO_W8(L"Implement DrawMesh")
 		//This function is called for every mesh that needs to be rendered on the shadowmap (= cast shadows)
@@ -182,6 +134,7 @@ void ShadowMapRenderer::DrawMesh(const SceneContext& sceneContext, MeshFilter* p
 	if (meshType == ShadowGeneratorType::Skinned)
 		m_pShadowMapGenerator->SetVariable_MatrixArray(L"gBones", reinterpret_cast<const float*>(meshBones.data()), static_cast<UINT>(meshBones.size()));
 
+	m_pShadowMapGenerator->SetVariable_MatrixArray(L"gLightViewProjArray", reinterpret_cast<const float*>(m_LightVP.data()), (UINT)m_LightVP.size());
 
 	m_pShadowMapGenerator->SetTechnique((int)meshType);
 
@@ -214,7 +167,7 @@ void ShadowMapRenderer::DrawMesh(const SceneContext& sceneContext, MeshFilter* p
 	}
 }
 
-void ShadowMapRenderer::End(const SceneContext& /*sceneContext*/) const
+void ShadowMapRendererCube::End(const SceneContext& /*sceneContext*/) const
 {
 	TODO_W8(L"Implement End")
 
@@ -248,16 +201,16 @@ void ShadowMapRenderer::End(const SceneContext& /*sceneContext*/) const
 	//}
 }
 
-ID3D11ShaderResourceView* ShadowMapRenderer::GetShadowMap() const
+ID3D11ShaderResourceView* ShadowMapRendererCube::GetShadowMap() const
 {
 	return m_pShadowRenderTarget->GetDepthShaderResourceView();
 }
 
-void ShadowMapRenderer::Debug_DrawDepthSRV(const XMFLOAT2& position, const XMFLOAT2& scale, const XMFLOAT2& pivot) const
+void ShadowMapRendererCube::Debug_DrawDepthSRV(const XMFLOAT2& position, const XMFLOAT2& scale, const XMFLOAT2& pivot) const
 {
 	if (m_pShadowRenderTarget->HasDepthSRV())
 	{
-		SpriteRenderer::Get()->DrawImmediate(m_GameContext.d3dContext, m_pShadowRenderTarget->GetDepthShaderResourceView(), position, XMFLOAT4{ Colors::White }, pivot, scale);
+		SpriteRendererCube::Get()->DrawImmediate(m_GameContext.d3dContext, m_pShadowRenderTarget->GetDepthShaderResourceView(), position, XMFLOAT4{Colors::White}, pivot, scale);
 
 		//Remove from Pipeline
 		constexpr ID3D11ShaderResourceView* const pSRV[] = { nullptr };

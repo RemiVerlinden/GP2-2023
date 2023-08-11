@@ -2,7 +2,8 @@ float4x4 gWorld : WORLD;
 float4x4 gWorldViewProj : WORLDVIEWPROJECTION; 
 float4x4 gWorldViewProj_Light;
 float3 gLightDirection = float3(-0.577f, -0.577f, 0.577f);
-float gShadowMapBias = 0.01f;
+float gShadowMapBias = 0.001f;
+float gShadowMapBiasPerspectiveMultiplier = 100;
 float4x4 gBones[125];
 
 Texture2D gDiffuseMap;
@@ -93,7 +94,7 @@ float2 texOffset(int u, int v)
 	return float2(u / 1280,v / 720);
 }
 
-float EvaluateShadowMap(float4 lpos)
+float EvaluateShadowMap(float4 lpos, float3 normal)
 {
 	//re-homogenize position after interpolation
     lpos.xyz /= lpos.w;
@@ -112,23 +113,11 @@ float EvaluateShadowMap(float4 lpos)
 	lpos.y = lpos.y * -0.5f + 0.5f;
 	
 	//apply shadow map bias
-	lpos.z -= gShadowMapBias;
+
+	lpos.z -= gShadowMapBias / (lpos.z*gShadowMapBiasPerspectiveMultiplier); // if set to 0 while shadow map is in perspective, I get perfect shadows(with acne)
 	
-	//PCF sampling for shadow map
-	float sum = 0;
-	float x, y;
-	
-	//perform PCF filtering on a 4 x 4 texel neighborhood
-	for (y = -1.5f; y <= 1.5f; y += 1.0f)
-	{
-		for (x = -1.5f; x <= 1.5f; x += 1.0f)
-		{
-			sum += gShadowMap.SampleCmpLevelZero(cmpSampler, lpos.xy + texOffset(x, y), lpos.z);
-		}
-	}
-	
-	float shadowFactor = (sum / 16.0f);
-	return shadowFactor * 0.5f + 0.5f;
+	float shadowValue = gShadowMap.SampleCmpLevelZero(cmpSampler, lpos.xy, lpos.z);
+	return shadowValue;
 }
 
 //--------------------------------------------------------------------------------------
@@ -136,7 +125,7 @@ float EvaluateShadowMap(float4 lpos)
 //--------------------------------------------------------------------------------------
 float4 PS(VS_OUTPUT input) : SV_TARGET
 {
-	float shadowValue = EvaluateShadowMap(input.lPos);
+	float shadowValue = EvaluateShadowMap(input.lPos, input.normal);
 
 	float4 diffuseColor = gDiffuseMap.Sample( samLinear,input.texCoord );
 	float3 color_rgb= diffuseColor.rgb;

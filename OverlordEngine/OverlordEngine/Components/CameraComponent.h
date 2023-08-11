@@ -19,6 +19,7 @@ public:
 	CameraComponent& operator=(CameraComponent&& other) noexcept = delete;
 
 	void SetFieldOfView(float fov) { m_FOV = fov; }
+	float GetFieldOfView() const { return m_FOV; }
 	void SetOrthoSize(float size) { m_Size = size; }
 	void SetNearClippingPlane(float nearPlane) { m_NearPlane = nearPlane; }
 	void SetFarClippingPlane(float farPlane) { m_FarPlane = farPlane; }

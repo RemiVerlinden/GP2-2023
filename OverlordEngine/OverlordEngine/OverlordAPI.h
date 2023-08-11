@@ -56,8 +56,10 @@
 
 #include "Graphics/CameraViewMapRenderer.h"
 #include "Graphics/ShadowMapRenderer.h" //Week 8
+#include "Graphics/ShadowMapRendererCube.h" //Week 8
 #include "Graphics/DebugRenderer.h"
 #include "Graphics/SpriteRenderer.h" //Week 4
+#include "Graphics/SpriteRendererCube.h"
 #include "Graphics/TextRenderer.h" //Week 5
 #include "Graphics/PortalRenderer.h" //portal
 

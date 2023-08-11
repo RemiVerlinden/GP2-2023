@@ -3,7 +3,10 @@
 
 #include "Materials/Shadow/DiffuseMaterial_Shadow.h"
 #include "Materials/Shadow/DiffuseMaterial_Shadow_Skinned.h"
+#include "Materials/Portal/SkyBoxMaterial.h"
 #include "Materials\ColorMaterial.h"
+#include "../OverlordProject/Prefabs/ArrowObject.h"
+
 
 void ShadowMappingScene::Initialize()
 {
@@ -14,19 +17,21 @@ void ShadowMappingScene::Initialize()
 	Light spotlight;
 	spotlight.direction = { 0.740129888f, -0.597205281f, 0.309117377f, 1.f };
 	spotlight.position = { -95.6139526f,66.1346436f,-41.1850471f, 11.f };
+	spotlight.spotLightAngle = m_SceneContext.pCamera->GetFieldOfView();
+	spotlight.spotLightAngle = XMConvertToRadians(90.f);
 	m_SceneContext.pLights->AddLight(spotlight);
 
-	auto MakeArrowObject = [&](const XMFLOAT4& color) -> GameObject*
-	{
-		GameObject* pArrowObject = AddChild(new GameObject());
-		auto pMeshComponent = pArrowObject->AddComponent(new ModelComponent(L"Meshes/Arrow.ovm"));
-		auto pArrowMaterial = MaterialManager::Get()->CreateMaterial<ColorMaterial>();
-		pArrowMaterial->SetColor(color);
-		pMeshComponent->SetMaterial(pArrowMaterial);
+	//auto MakeArrowObject = [&](const XMFLOAT4& color) -> GameObject*
+	//{
+	//	GameObject* pArrowObject = AddChild(new GameObject());
+	//	auto pMeshComponent = pArrowObject->AddComponent(new ModelComponent(L"Meshes/Arrow.ovm"));
+	//	auto pArrowMaterial = MaterialManager::Get()->CreateMaterial<ColorMaterial>();
+	//	pArrowMaterial->SetColor(color);
+	//	pMeshComponent->SetMaterial(pArrowMaterial);
 
-		return pArrowObject;
-	};
-	MakeArrowObject(XMFLOAT4(Colors::White));
+	//	return pArrowObject;
+	//};
+	//MakeArrowObject(XMFLOAT4(Colors::White));
 
 	//Materials
 	//*********
@@ -81,6 +86,48 @@ void ShadowMappingScene::Initialize()
 	//Input
 	//*****
 	m_SceneContext.pInput->AddInputAction(InputAction(0, InputState::pressed, VK_SPACE));
+
+	// SKYBOX
+	{
+		m_pSkybox = new GameObject();
+
+		const auto pSkyBoxMaterial = MaterialManager::Get()->CreateMaterial<SkyBoxmaterial>();
+		pSkyBoxMaterial->SetSkyBoxTexture(L"Textures/earth-cubemap.dds");
+
+		m_pSkybox->AddComponent(new ModelComponent(L"Meshes/Box.ovm"));
+		m_pSkybox->GetComponent<ModelComponent>()->SetMaterial(pSkyBoxMaterial);
+		AddChild(m_pSkybox);
+	}
+
+	// TESTING
+	{
+		const auto pMaterial = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Shadow>();
+		pMaterial->SetDiffuseTexture(L"Labs/Week8/Textures/GroundBrick.jpg");
+
+		m_pBoneObject = new ArrowObject(pMaterial);
+		AddChild(m_pBoneObject);
+		m_pBoneObject->GetTransform()->Translate(0, 50, 0);
+		m_pBoneObject->GetTransform()->Scale(5,5,5);
+		//{
+		//	// Get the eyePosition and direction from the spotlight
+		//	auto pos = XMFLOAT3{ 0, 0, 0 };
+		//	auto eyePosition = XMLoadFloat3(&pos);
+
+		//	XMVECTOR upVec = XMVectorSet(0, 1, 0, 0);
+
+		//	const XMFLOAT3 direction = XMFLOAT3(0.0f, 0.0f, 1.0f);
+
+		//	XMMATRIX viewproj, view, projection;
+
+		//	projection = XMMatrixPerspectiveFovLH(XM_PI / 2, 1, 0.1f, 200);
+		//	view = XMMatrixLookAtLH(eyePosition, eyePosition + XMLoadFloat3(&direction), upVec);
+		//	viewproj = view * projection;
+
+		//	XMFLOAT4X4 finalMatrix;
+		//	XMStoreFloat4x4(&finalMatrix, viewproj);
+		//	m_pBoneObject->GetTransform()->SetTransform(finalMatrix);
+		//}
+	}
 }
 
 void ShadowMappingScene::Update()
@@ -88,23 +135,24 @@ void ShadowMappingScene::Update()
 	//Change Light Direction (SPACE > Camera Position/Direction)
 	if (m_SceneContext.pInput->IsActionTriggered(0))
 	{
-		const auto pCameraTransform = m_SceneContext.pCamera->GetTransform();
 		//m_SceneContext.pLights->SetDirectionalLight(pCameraTransform->GetPosition(), pCameraTransform->GetForward());
+
+		const auto pCameraTransform = m_SceneContext.pCamera->GetTransform();
+		XMFLOAT3 pos = pCameraTransform->GetPosition();
+		XMFLOAT3 forward = pCameraTransform->GetForward();
+
 		auto& spotlight = m_SceneContext.pLights->GetLight(0);
-
-		XMFLOAT3 pos = pCameraTransform->GetPosition();  // Your original XMFLOAT3
-		spotlight.position = XMFLOAT4(pos.x, pos.y, pos.z, 1.0f);  // Convert to XMFLOAT4
-
-		XMFLOAT3 rot = pCameraTransform->GetForward();  // Your original XMFLOAT3
-		spotlight.direction = XMFLOAT4(rot.x, rot.y, rot.z, 1.0f);  // Convert to XMFLOAT4
+		spotlight.position = XMFLOAT4(pos.x, pos.y, pos.z, 0.0f);
+		spotlight.direction = XMFLOAT4(forward.x, forward.y, forward.z, 0.0f);
+		spotlight.up = pCameraTransform->GetUp();
 	}
 }
 
 void ShadowMappingScene::PostDraw()
 {
 	//Draw ShadowMap (Debug Visualization)
-	if (m_DrawShadowMap) {
-
+	if (m_DrawShadowMap)
+	{
 		ShadowMapRenderer::Get()->Debug_DrawDepthSRV({ m_SceneContext.windowWidth - 10.f, 10.f }, { m_ShadowMapScale, m_ShadowMapScale }, { 1.f,0.f });
 	}
 }
@@ -118,7 +166,7 @@ void ShadowMappingScene::OnGUI()
 	static XMFLOAT3 scale = { 0.1f, 0.1f, 0.1f };
 	ImGui::SliderFloat("x", &pos.x, -50.f, 50.f);
 	ImGui::SliderFloat("y", &pos.z, -50.f, 50.f);
-	ImGui::DragFloat3("scale", reinterpret_cast<float*>(&scale), 0.1f,0, 5);
+	ImGui::DragFloat3("scale", reinterpret_cast<float*>(&scale), 0.1f, 0, 5);
 
 	m_pSecondCharacter->GetTransform()->Translate(pos);
 	m_pSecondCharacter->GetTransform()->Scale(scale);

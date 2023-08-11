@@ -2,6 +2,10 @@
 
 struct RENDERTARGET_DESC
 {
+	bool isCubemap{ false };
+	// prefer a value that is the power of 2 (ex: 512 or 1024 )
+	UINT cubemapResolution{ 0 }; // cubemap must have square texture so this counts as width and height
+
 	UINT width{0};
 	UINT height{0};
 
@@ -29,6 +33,11 @@ struct RENDERTARGET_DESC
 
 	void IsValid()
 	{
+		if (cubemapResolution) 
+		{
+			width = cubemapResolution;
+			height = cubemapResolution;
+		}
 		ASSERT_IF(!(pColor || pDepth) && (width <= 0 || height <= 0), L"Invalid Width and/or Height for RenderTarget");
 		ASSERT_IF(!(enableColorBuffer || enableDepthBuffer), L"Rendertarget must contain at least one buffer! (Color AND/OR Depth)");
 
@@ -85,6 +94,8 @@ private:
 	ID3D11Texture2D* m_pColor{ nullptr };
 	ID3D11DepthStencilView* m_pDepthStencilView{ nullptr };
 	ID3D11Texture2D* m_pDepth{ nullptr };
+
+	ID3D11DepthStencilView* m_pDepthStencilViews[6];
 
 	HRESULT CreateColor();
 	HRESULT CreateDepth();

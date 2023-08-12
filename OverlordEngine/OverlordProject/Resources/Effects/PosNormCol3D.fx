@@ -1,16 +1,13 @@
 float4x4 gWorld : WORLD;
 float4x4 gWorldViewProj : WORLDVIEWPROJECTION; 
-float3 gLightDirection = float3(-0.577f, -0.577f, 0.577f);
 
-struct VS_INPUT{
+struct VS_INPUT
+{
 	float3 pos : POSITION;
-	float3 normal : NORMAL;
-	float4 color : COLOR;
 };
-struct VS_OUTPUT{
+struct VS_OUTPUT
+{
 	float4 pos : SV_POSITION;
-	float3 normal : NORMAL;
-	float4 color : COLOR;
 };
 
 DepthStencilState EnableDepth

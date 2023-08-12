@@ -92,7 +92,7 @@ void ShadowMappingScene::Initialize()
 		m_pSkybox = new GameObject();
 
 		const auto pSkyBoxMaterial = MaterialManager::Get()->CreateMaterial<SkyBoxmaterial>();
-		pSkyBoxMaterial->SetSkyBoxTexture(L"Textures/earth-cubemap.dds");
+		//pSkyBoxMaterial->SetSkyBoxTexture(L"Textures/earth-cubemap.dds");
 
 		m_pSkybox->AddComponent(new ModelComponent(L"Meshes/Box.ovm"));
 		m_pSkybox->GetComponent<ModelComponent>()->SetMaterial(pSkyBoxMaterial);
@@ -128,6 +128,13 @@ void ShadowMappingScene::Initialize()
 		//	m_pBoneObject->GetTransform()->SetTransform(finalMatrix);
 		//}
 	}
+
+	GetActiveCamera()->SetFieldOfView(XM_PIDIV2);
+	GetActiveCamera()->SetNearClippingPlane(0.1f);
+	GetActiveCamera()->SetFarClippingPlane(200.f);
+	FreeCamera* freeCamera = dynamic_cast<FreeCamera*>(GetActiveCamera()->GetTransform()->GetGameObject());
+	freeCamera->SetRotation(0, 90);
+	freeCamera->GetTransform()->Translate(0, 50, 0);
 }
 
 void ShadowMappingScene::Update()
@@ -153,7 +160,7 @@ void ShadowMappingScene::PostDraw()
 	//Draw ShadowMap (Debug Visualization)
 	if (m_DrawShadowMap)
 	{
-		ShadowMapRenderer::Get()->Debug_DrawDepthSRV({ m_SceneContext.windowWidth - 10.f, 10.f }, { m_ShadowMapScale, m_ShadowMapScale }, { 1.f,0.f });
+		ShadowMapRendererCube::Get()->Debug_DrawDepthSRV({ m_SceneContext.windowWidth - 10.f, 10.f }, { m_ShadowMapScale, m_ShadowMapScale }, { 1.f,0.f });
 	}
 }
 

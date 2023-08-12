@@ -152,7 +152,10 @@ void ModelComponent::ShadowMapCubeDraw(const SceneContext& sceneContext)
 		{
 			const std::vector<XMFLOAT4X4>& boneTransforms = (m_pAnimator) ? m_pAnimator->GetBoneTransforms() : std::vector<XMFLOAT4X4>{};
 
-			ShadowMapRendererCube::Get()->DrawMesh(sceneContext, m_pMeshFilter, GetTransform()->GetWorld(), boneTransforms);
+			for (UINT face = 0; face < 6; ++face) // total of 6 faces on cubemap
+			{
+				ShadowMapRendererCube::Get()->DrawMesh(sceneContext, face,m_pMeshFilter, GetTransform()->GetWorld(), boneTransforms);
+			}
 		}
 }
 

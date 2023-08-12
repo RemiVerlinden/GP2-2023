@@ -20,11 +20,11 @@ void ShadowMapRenderer::Initialize()
 
 	desc.enableDepthBuffer = true;
 	desc.enableDepthSRV = true;
-	desc.enableColorBuffer = false;
-	desc.enableColorSRV = false;
-	desc.generateMipMaps_Color = false;
+	desc.enableColorBuffer = true;
+	desc.enableColorSRV = true;
+	desc.generateMipMaps_Color = true;
 	desc.width = m_GameContext.windowWidth;
-	desc.height = m_GameContext.windowHeight;
+	desc.height = m_GameContext.windowWidth;
 	desc.depthFormat = DXGI_FORMAT_D32_FLOAT;
 
 
@@ -150,7 +150,7 @@ void ShadowMapRenderer::Begin(const SceneContext& sceneContext)
 			//- Use the Projection & View Matrix to calculate the ViewProjection of this Light, store in m_LightVP
 
 			//3. Update this matrix (m_LightVP) on the ShadowMapMaterial effect
-			m_pShadowMapGenerator->SetVariable_MatrixArray(L"gLightViewProjArray", reinterpret_cast<const float*>(m_LightVP.data()), (UINT)m_LightVP.size());
+			m_pShadowMapGenerator->SetVariable_Matrix(L"gLightViewProj", m_LightVP[0]);
 		}
 	}
 
@@ -181,6 +181,10 @@ void ShadowMapRenderer::DrawMesh(const SceneContext& sceneContext, MeshFilter* p
 	m_pShadowMapGenerator->SetVariable_Matrix(L"gWorld", meshWorld);
 	if (meshType == ShadowGeneratorType::Skinned)
 		m_pShadowMapGenerator->SetVariable_MatrixArray(L"gBones", reinterpret_cast<const float*>(meshBones.data()), static_cast<UINT>(meshBones.size()));
+
+
+	//auto pCameraVP = sceneContext.pCamera->GetViewProjection();
+	//m_pShadowMapGenerator->SetVariable_Matrix(L"gLightViewProj", pCameraVP);
 
 
 	m_pShadowMapGenerator->SetTechnique((int)meshType);
@@ -257,7 +261,7 @@ void ShadowMapRenderer::Debug_DrawDepthSRV(const XMFLOAT2& position, const XMFLO
 {
 	if (m_pShadowRenderTarget->HasDepthSRV())
 	{
-		SpriteRenderer::Get()->DrawImmediate(m_GameContext.d3dContext, m_pShadowRenderTarget->GetDepthShaderResourceView(), position, XMFLOAT4{ Colors::White }, pivot, scale);
+		SpriteRenderer::Get()->DrawImmediate(m_GameContext.d3dContext, m_pShadowRenderTarget->GetColorShaderResourceView(), position, XMFLOAT4{ Colors::White }, pivot, scale);
 
 		//Remove from Pipeline
 		constexpr ID3D11ShaderResourceView* const pSRV[] = { nullptr };

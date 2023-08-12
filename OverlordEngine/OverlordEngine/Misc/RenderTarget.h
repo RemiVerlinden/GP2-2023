@@ -33,11 +33,6 @@ struct RENDERTARGET_DESC
 
 	void IsValid()
 	{
-		if (cubemapResolution) 
-		{
-			width = cubemapResolution;
-			height = cubemapResolution;
-		}
 		ASSERT_IF(!(pColor || pDepth) && (width <= 0 || height <= 0), L"Invalid Width and/or Height for RenderTarget");
 		ASSERT_IF(!(enableColorBuffer || enableDepthBuffer), L"Rendertarget must contain at least one buffer! (Color AND/OR Depth)");
 
@@ -72,6 +67,9 @@ public:
 	ID3D11RenderTargetView* GetRenderTargetView() const { return m_pRenderTargetView; }
 	ID3D11DepthStencilView* GetDepthStencilView() const { return m_pDepthStencilView; }
 
+	ID3D11RenderTargetView* GetRenderTargetViewForFace(UINT face) const;
+	ID3D11DepthStencilView* GetDepthStencilViewForFace(UINT face) const;
+
 	ID3D11ShaderResourceView* GetColorShaderResourceView() const;
 	ID3D11ShaderResourceView* GetDepthShaderResourceView() const;
 
@@ -94,8 +92,10 @@ private:
 	ID3D11Texture2D* m_pColor{ nullptr };
 	ID3D11DepthStencilView* m_pDepthStencilView{ nullptr };
 	ID3D11Texture2D* m_pDepth{ nullptr };
+	std::vector<ID3D11RenderTargetView*> m_pRTVcube;
+	std::vector<ID3D11DepthStencilView*> m_pDSVcube;
 
-	ID3D11DepthStencilView* m_pDepthStencilViews[6];
+
 
 	HRESULT CreateColor();
 	HRESULT CreateDepth();
@@ -107,6 +107,5 @@ private:
 
 	bool m_ColorBufferSupplied{false};
 	bool m_DepthBufferSupplied{false};
-
 };
 

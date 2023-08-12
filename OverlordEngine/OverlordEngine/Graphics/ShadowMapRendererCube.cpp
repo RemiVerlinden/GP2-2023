@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "ShadowMapRendererCube.h"
-#include "Misc/ShadowMapMaterialCube.h"
+#include "Misc/ShadowMapMaterial.h"
 
 ShadowMapRendererCube::~ShadowMapRendererCube()
 {
@@ -25,14 +25,16 @@ void ShadowMapRendererCube::Initialize()
 	desc.enableColorBuffer = true;
 	desc.enableColorSRV = true;
 	desc.generateMipMaps_Color = false;
-	desc.cubemapResolution = 512;
+	desc.cubemapResolution = m_CubemapResolution;
+	desc.width = m_CubemapResolution;
+	desc.height = m_CubemapResolution;
 
 	desc.depthFormat = DXGI_FORMAT_D32_FLOAT;
 
 
 	HANDLE_ERROR(m_pShadowRenderTarget->Create(desc));
 
-	m_pShadowMapGenerator = MaterialManager::Get()->CreateMaterial<ShadowMapMaterialCube>(); // CUBE MAP
+	m_pShadowMapGenerator = MaterialManager::Get()->CreateMaterial<ShadowMapMaterial>(); // CUBE MAP
 
 	for (int ID = 0; ID < (int)ShadowGeneratorType::Count; ++ID)
 		m_GeneratorTechniqueContexts[ID] = m_pShadowMapGenerator->GetTechniqueContext(ID);
@@ -66,21 +68,28 @@ void ShadowMapRendererCube::Begin(const SceneContext& sceneContext)
 
 	float nearZ = 0.1f;
 	float farZ = 200.0f;
-	float aspectRatio = sceneContext.aspectRatio;
+	float aspectRatio = 1;
 
 	std::vector<XMMATRIX> view(6);
 
 	const Light& spotLight = sceneContext.pLights->GetLight(0);
-	aspectRatio = 1;
 
-	float fovAngle = spotLight.spotLightAngle;
+	float fovAngle = XM_PIDIV2;
 	const XMMATRIX projection = XMMatrixPerspectiveFovLH(fovAngle, aspectRatio, nearZ, farZ);
 
 	// Get the eyePosition and direction from the spotlight
 	auto eyePosition = XMLoadFloat4(&spotLight.position);  // Assuming you have a GetSpotLight() function
 	auto direction = XMLoadFloat4(&spotLight.direction);
 
-	XMVECTOR upVec = XMVectorSet(0, 1, 0, 0);
+	std::vector<XMVECTOR> upVec = 
+	{
+		XMVectorSet(0, 1, 0, 0), // Positive X
+		XMVectorSet(0, 1, 0, 0), // Negative X
+		XMVectorSet(0, 0, -1, 0), // Positive Y
+		XMVectorSet(0, 0, 1, 0), // Negative Y
+		XMVectorSet(0, 1, 0, 0), // Positive Z
+		XMVectorSet(0, 1, 0, 0) // Negative Z
+	};
 
 	const XMFLOAT3 directions[6] = {
 	XMFLOAT3(1.0f, 0.0f, 0.0f),  // Positive X
@@ -96,18 +105,19 @@ void ShadowMapRendererCube::Begin(const SceneContext& sceneContext)
 	{
 		direction = XMLoadFloat3(&directions[i]);
 
-		if (i == 4 || i == 5) // Positive X and Negative X
-			upVec = XMVectorSet(1, 0, 0, 0);
-		if (i == 2) // Positive Y
-			upVec = XMVectorSet(0, 0, -1, 0);
-		else if (i == 3) // Negative Y
-			upVec = XMVectorSet(0, 0, 1, 0);
-
-		view[i] = XMMatrixLookAtLH(eyePosition, eyePosition + direction, upVec);
+		view[i] = XMMatrixLookAtLH(eyePosition, eyePosition + direction, upVec[i]);
 		viewproj[i] = view[i] * projection;
 		XMStoreFloat4x4(&m_LightVP[i], viewproj[i]);
 	}
 
+	D3D11_VIEWPORT cubemapVP;
+	cubemapVP.Width = static_cast<float>(m_CubemapResolution);
+	cubemapVP.Height = static_cast<float>(m_CubemapResolution);
+	cubemapVP.MinDepth = 0.0f;
+	cubemapVP.MaxDepth = 1.0f;
+	cubemapVP.TopLeftX = 0;
+	cubemapVP.TopLeftY = 0;
+	m_GameContext.d3dContext.pDeviceContext->RSSetViewports(1, &cubemapVP);
 
 
 	//- Use the Projection & View Matrix to calculate the ViewProjection of this Light, store in m_LightVP
@@ -115,15 +125,15 @@ void ShadowMapRendererCube::Begin(const SceneContext& sceneContext)
 	//3. Update this matrix (m_LightVP) on the ShadowMapMaterial effect
 
 	//4. Set the Main Game RenderTarget to m_pShadowRenderTarget (OverlordGame::SetRenderTarget) - Hint: every Singleton object has access to the GameContext...
-	m_GameContext.pGame->SetRenderTarget(m_pShadowRenderTarget);
 	//5. Clear the ShadowMap rendertarget (RenderTarget::Clear)
 	m_pShadowRenderTarget->Clear();
 }
 
-void ShadowMapRendererCube::DrawMesh(const SceneContext& sceneContext, MeshFilter* pMeshFilter, const XMFLOAT4X4& meshWorld, const std::vector<XMFLOAT4X4>& meshBones)
+void ShadowMapRendererCube::DrawMesh(const SceneContext& sceneContext, int face,MeshFilter* pMeshFilter, const XMFLOAT4X4& meshWorld, const std::vector<XMFLOAT4X4>& meshBones)
 {
 	TODO_W8(L"Implement DrawMesh")
 		//This function is called for every mesh that needs to be rendered on the shadowmap (= cast shadows)
+		m_GameContext.pGame->SetRenderTarget(m_pShadowRenderTarget, face);
 
 		//1. Figure out the correct ShadowGeneratorType (Static or Skinned)
 		ShadowGeneratorType meshType = pMeshFilter->HasAnimations() ? ShadowGeneratorType::Skinned : ShadowGeneratorType::Static;
@@ -134,7 +144,7 @@ void ShadowMapRendererCube::DrawMesh(const SceneContext& sceneContext, MeshFilte
 	if (meshType == ShadowGeneratorType::Skinned)
 		m_pShadowMapGenerator->SetVariable_MatrixArray(L"gBones", reinterpret_cast<const float*>(meshBones.data()), static_cast<UINT>(meshBones.size()));
 
-	m_pShadowMapGenerator->SetVariable_MatrixArray(L"gLightViewProjArray", reinterpret_cast<const float*>(m_LightVP.data()), (UINT)m_LightVP.size());
+	m_pShadowMapGenerator->SetVariable_Matrix(L"gLightViewProj", m_LightVP[face]);
 
 	m_pShadowMapGenerator->SetTechnique((int)meshType);
 
@@ -172,6 +182,14 @@ void ShadowMapRendererCube::End(const SceneContext& /*sceneContext*/) const
 	TODO_W8(L"Implement End")
 
 		m_GameContext.pGame->SetRenderTarget(nullptr);
+	D3D11_VIEWPORT screenVP;
+	screenVP.Width = static_cast<float>(m_GameContext.windowWidth);
+	screenVP.Height = static_cast<float>(m_GameContext.windowHeight);
+	screenVP.MinDepth = 0.0f;
+	screenVP.MaxDepth = 1.0f;
+	screenVP.TopLeftX = 0;
+	screenVP.TopLeftY = 0;
+	m_GameContext.d3dContext.pDeviceContext->RSSetViewports(1, &screenVP);
 
 
 	//// Create a device context
@@ -203,14 +221,14 @@ void ShadowMapRendererCube::End(const SceneContext& /*sceneContext*/) const
 
 ID3D11ShaderResourceView* ShadowMapRendererCube::GetShadowMap() const
 {
-	return m_pShadowRenderTarget->GetDepthShaderResourceView();
+	return m_pShadowRenderTarget->GetColorShaderResourceView();
 }
 
 void ShadowMapRendererCube::Debug_DrawDepthSRV(const XMFLOAT2& position, const XMFLOAT2& scale, const XMFLOAT2& pivot) const
 {
 	if (m_pShadowRenderTarget->HasDepthSRV())
 	{
-		SpriteRendererCube::Get()->DrawImmediate(m_GameContext.d3dContext, m_pShadowRenderTarget->GetDepthShaderResourceView(), position, XMFLOAT4{Colors::White}, pivot, scale);
+		SpriteRendererCube::Get()->DrawImmediate(m_GameContext.d3dContext, m_pShadowRenderTarget->GetColorShaderResourceView(), position, XMFLOAT4{Colors::White}, pivot, scale);
 
 		//Remove from Pipeline
 		constexpr ID3D11ShaderResourceView* const pSRV[] = { nullptr };

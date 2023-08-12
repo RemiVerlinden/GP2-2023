@@ -1,5 +1,5 @@
 float4x4 gWorld;
-float4x4 gLightViewProjArray[6];
+float4x4 gLightViewProj;
 float4x4 gBones[125];
  float C = 20.f;
 
@@ -22,7 +22,7 @@ float4 ShadowMapVS(float3 position:POSITION):SV_POSITION
 {
 	//TODO: return the position of the vertex in correct space (hint: seen from the view of the light)
 	float4 pos = float4(position, 1.0f);
-	float4 output = mul(pos, mul(gWorld, gLightViewProjArray[0]));
+	float4 output = mul(pos, mul(gWorld, gLightViewProj));
 	
 	return output;
 }
@@ -61,6 +61,11 @@ float ShadowMapPS_ESM(float4 position:SV_POSITION) : SV_DEPTH
     return exp(-C * depth);
 }
 
+float4 PS(float4 position:SV_POSITION) : SV_TARGET{
+
+	float3 diffuseColor = float3(1,1,1);
+	return float4(diffuseColor,1.f);
+}
 
 technique11 GenerateShadows
 {
@@ -70,7 +75,7 @@ technique11 GenerateShadows
 	    SetDepthStencilState(depthStencilState, 0);
 		SetVertexShader(CompileShader(vs_4_0, ShadowMapVS()));
 		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_4_0, ShadowMapPS_VOID()));
+		SetPixelShader(CompileShader(ps_4_0, PS()));
 	}
 }
 
@@ -82,6 +87,6 @@ technique11 GenerateShadows_Skinned
 		SetDepthStencilState(depthStencilState, 0);
 		SetVertexShader(CompileShader(vs_4_0, ShadowMapVS_Skinned()));
 		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_4_0, ShadowMapPS_VOID()));
+		SetPixelShader(CompileShader(ps_4_0, PS()));
 	}
 }

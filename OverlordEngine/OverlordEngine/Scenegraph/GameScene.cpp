@@ -177,10 +177,12 @@ void GameScene::RootDraw()
 	//1. BEGIN > ShadowMapRenderer::Begin (Initiate the ShadowPass)
 		ShadowMapRenderer::Get()->Begin(m_SceneContext);
 	//2. DRAW_LOOP > For every GameObject (m_pChildren), call GameObject::RootShadowMapDraw
+
 	for (const auto pChild : m_pChildren)
 	{
 		pChild->RootShadowMapDraw(m_SceneContext);
 	}
+
 	//3. END > ShadowMapRenderer::End (Terminate the ShadowPass)
 	ShadowMapRenderer::Get()->End(m_SceneContext);
 

@@ -19,7 +19,7 @@ public:
 
 	HRESULT Run(HINSTANCE hInstance);
 
-	void SetRenderTarget(RenderTarget* renderTarget);
+	void SetRenderTarget(RenderTarget* renderTarget, UINT face = 0);
 	RenderTarget* GetRenderTarget() const;
 
 protected:

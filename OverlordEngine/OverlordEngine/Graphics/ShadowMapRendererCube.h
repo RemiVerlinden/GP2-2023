@@ -1,5 +1,5 @@
 #pragma once
-class ShadowMapMaterialCube;
+class ShadowMapMaterial;
 
 class ShadowMapRendererCube: public Singleton<ShadowMapRendererCube>
 {
@@ -12,7 +12,7 @@ public:
 	void UpdateMeshFilter(const SceneContext& sceneContext, MeshFilter* pMeshFilter) const;
 
 	void Begin(const SceneContext&);
-	void DrawMesh(const SceneContext& sceneContext, MeshFilter* pMeshFilter, const XMFLOAT4X4& meshWorld, const std::vector<XMFLOAT4X4>& meshBones = {});
+	void DrawMesh(const SceneContext& sceneContext, int face, MeshFilter* pMeshFilter, const XMFLOAT4X4& meshWorld, const std::vector<XMFLOAT4X4>& meshBones = {});
 	void End(const SceneContext&) const;
 
 	ID3D11ShaderResourceView* GetShadowMap() const;
@@ -44,7 +44,7 @@ private:
 		Count
 	};
 
-	ShadowMapMaterialCube* m_pShadowMapGenerator{ nullptr };
+	ShadowMapMaterial* m_pShadowMapGenerator{ nullptr };
 
 	//Information about each technique (static/skinned) is stored in a MaterialTechniqueContext structure
 	//This information is automatically create by the Material class, we only store it in a local array for fast retrieval 
@@ -52,5 +52,7 @@ private:
 	MaterialTechniqueContext m_GeneratorTechniqueContexts[NUM_TYPES];
 
 	TextureData* m_pCubeMap{ nullptr };
+
+	UINT m_CubemapResolution{ 1024 };
 };
 

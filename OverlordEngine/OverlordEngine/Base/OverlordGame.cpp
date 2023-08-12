@@ -497,13 +497,14 @@ void OverlordGame::GameLoop() const
 	GameStats::EndFrame();
 }
 
-void OverlordGame::SetRenderTarget(RenderTarget* renderTarget)
+void OverlordGame::SetRenderTarget(RenderTarget* renderTarget, UINT face)
 {
-	if(renderTarget == nullptr)
+	if (renderTarget == nullptr)
 		renderTarget = m_pDefaultRenderTarget;
 
-	const auto pRTV = renderTarget->GetRenderTargetView();
-	m_GameContext.d3dContext.pDeviceContext->OMSetRenderTargets(1, &pRTV, renderTarget->GetDepthStencilView());
+	const auto pRTV = renderTarget->GetRenderTargetViewForFace(face); // if rendertarget is not for cubemaps, face will be ignored
+	const auto pDSV = renderTarget->GetDepthStencilViewForFace(face);
+	m_GameContext.d3dContext.pDeviceContext->OMSetRenderTargets(1, &pRTV, pDSV);
 
 	m_pCurrentRenderTarget = renderTarget;
 }

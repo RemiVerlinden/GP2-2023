@@ -36,6 +36,8 @@ public:
 	void SetVariable_VectorArray(const std::wstring& varName, const float* pData, UINT count) const;
 	void SetVariable_Texture(const std::wstring& varName, const TextureData* pTexture) const;
 	void SetVariable_Texture(const std::wstring& varName, ID3D11ShaderResourceView* pSRV) const;
+	void SetVariable_TextureArray(const std::wstring& varName, ID3D11ShaderResourceView** ppSRVs, UINT count) const;
+	void SetVariable_TextureArray(const std::wstring& varName, const std::vector<const TextureData*>& textures) const;
 
 	void SetTechnique(const std::wstring& techName);
 	void SetTechnique(int index);
@@ -45,6 +47,8 @@ public:
 
 	void UpdateEffectVariables(const SceneContext& sceneContext, const ModelComponent* pModelComponent);
 	void UpdateEffectVariables(const SceneContext& sceneContext, const RenderTarget* pSourceTarget);
+	void UpdateShadowEffectVariables(const SceneContext& sceneContext, const ModelComponent* pModelComponent);
+
 
 	void DrawImGui();
 
@@ -79,6 +83,8 @@ protected:
 	UINT m_numTechniques{};
 	std::wstring m_MaterialName;
 	std::string m_MaterialNameUtf8;
+
+	bool m_EnableShadows{false};
 	
 private:
 	UINT m_MaterialId{UINT_MAX};

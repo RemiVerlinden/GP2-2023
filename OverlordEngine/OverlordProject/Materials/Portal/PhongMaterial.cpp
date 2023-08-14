@@ -29,6 +29,11 @@ void PhongMaterial::SetSpecularTexture(const std::wstring& assetFile)
 	SetVariable_Texture(L"gTextureSpecularIntensity", m_pSpecularTexture->GetShaderResourceView());
 }
 
+void PhongMaterial::InitializeEffectVariables()
+{
+	m_EnableShadows = true;
+}
+
 void PhongMaterial::OnUpdateModelVariables(const SceneContext& sceneContext, const ModelComponent* pModelComponent) const
 {
 	SetVariable_Vector(L"gLightDirection", sceneContext.pLights->GetDirectionalLight().direction);

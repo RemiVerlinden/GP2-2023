@@ -15,6 +15,8 @@ struct Light
 	XMFLOAT4 color; //16B
 	float intensity; //4B
 	float range; //4B
+	float nearPlane = 0.01f;
+	float farPlane = 60.f;
 	float spotLightAngle; //4B
 	LightType type; //4B
 	//4 * 16B (To Shader)
@@ -27,6 +29,8 @@ struct Light
 		color({ 1.f, 1.f, 1.f, 1.f }),
 		intensity(1.f),
 		range(50.f),
+		nearPlane(0.01f),
+		farPlane(60.f),
 		spotLightAngle(45.f),
 		type(LightType::Point),
 		isEnabled(true) {}
@@ -43,7 +47,7 @@ public:
 	LightManager& operator=(LightManager&& other) noexcept = delete;
 
 	//For Deferred Rendering
-	UINT AddLight(const Light& l) { m_Lights.push_back(l); return static_cast<UINT>(m_Lights.size() - 1); }
+	UINT AddLight(GameScene* pScene, const Light& l);
 	Light& GetLight(int id) { return m_Lights[id]; }
 	const std::vector<Light>& GetLights() const { return m_Lights; }
 

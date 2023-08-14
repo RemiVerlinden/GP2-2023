@@ -1,5 +1,8 @@
 float4x4 gWorld;
 float4x4 gLightViewProj;
+float3 gLightPosition;
+float gNearPlane;
+float gFarPlane;
 float4x4 gBones[125];
  float C = 20.f;
 
@@ -7,6 +10,9 @@ DepthStencilState depthStencilState
 {
 	DepthEnable = TRUE;
 	DepthWriteMask = ALL;
+
+	DepthFunc = LESS_EQUAL;
+
 };
 
 RasterizerState rasterizerState
@@ -15,14 +21,23 @@ RasterizerState rasterizerState
 	CullMode = NONE;
 };
 
+struct VS_OUTPUT
+{
+	float4 pos : SV_POSITION;
+	float4 worldPos : TEXCOORD1;
+};
+
 //--------------------------------------------------------------------------------------
 // Vertex Shader [STATIC]
 //--------------------------------------------------------------------------------------
-float4 ShadowMapVS(float3 position:POSITION):SV_POSITION
+VS_OUTPUT ShadowMapVS(float3 position:POSITION)
 {
+	VS_OUTPUT output;
+
 	//TODO: return the position of the vertex in correct space (hint: seen from the view of the light)
 	float4 pos = float4(position, 1.0f);
-	float4 output = mul(pos, mul(gWorld, gLightViewProj));
+	output.worldPos = mul(pos, gWorld);
+	output.pos = mul(pos, mul(gWorld,gLightViewProj));
 	
 	return output;
 }
@@ -30,7 +45,7 @@ float4 ShadowMapVS(float3 position:POSITION):SV_POSITION
 //--------------------------------------------------------------------------------------
 // Vertex Shader [SKINNED]
 //--------------------------------------------------------------------------------------
-float4 ShadowMapVS_Skinned(float3 position:POSITION, float4 BoneIndices : BLENDINDICES, float4 BoneWeights : BLENDWEIGHTS) : SV_POSITION
+VS_OUTPUT ShadowMapVS_Skinned(float3 position:POSITION, float4 BoneIndices : BLENDINDICES, float4 BoneWeights : BLENDWEIGHTS)
 {
 	//TODO: return the position of the ANIMATED vertex in correct space (hint: seen from the view of the light)
 	float4 originalPosition = float4(position, 1.f);
@@ -61,10 +76,11 @@ float ShadowMapPS_ESM(float4 position:SV_POSITION) : SV_DEPTH
     return exp(-C * depth);
 }
 
-float4 PS(float4 position:SV_POSITION) : SV_TARGET{
+float PS(VS_OUTPUT input) : SV_DEPTH{
 
-	float3 diffuseColor = float3(1,1,1);
-	return float4(diffuseColor,1.f);
+	float depth = length(input.worldPos.xyz - gLightPosition);
+	float normalizedDepth = (depth - gNearPlane) / (gFarPlane - gNearPlane);
+	return normalizedDepth;
 }
 
 technique11 GenerateShadows

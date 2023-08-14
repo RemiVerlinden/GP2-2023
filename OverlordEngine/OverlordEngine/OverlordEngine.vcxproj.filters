@@ -69,6 +69,7 @@
     <ClCompile Include="Graphics\ShadowMapRendererCube.cpp" />
     <ClCompile Include="Misc\ShadowMapMaterialCube.cpp" />
     <ClCompile Include="Graphics\SpriteRendererCube.cpp" />
+    <ClCompile Include="Graphics\ShadowMapCube.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -163,5 +164,6 @@
     <ClInclude Include="Graphics\ShadowMapRendererCube.h" />
     <ClInclude Include="Misc\ShadowMapMaterialCube.h" />
     <ClInclude Include="Graphics\SpriteRendererCube.h" />
+    <ClInclude Include="Graphics\ShadowMapCube.h" />
   </ItemGroup>
 </Project>

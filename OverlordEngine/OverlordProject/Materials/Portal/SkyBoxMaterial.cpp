@@ -21,5 +21,5 @@ void SkyBoxmaterial::SetSkyBoxTexture(const std::wstring& assetFile)
 
 void SkyBoxmaterial::OnUpdateModelVariables(const SceneContext&, const ModelComponent*) const
 {
-		SetVariable_Texture(L"gDiffuseMap", ShadowMapRendererCube::Get()->GetShadowMap());
+		SetVariable_Texture(L"gDiffuseMap", ShadowMapRendererCube::Get()->GetShadowMap(1));
 }

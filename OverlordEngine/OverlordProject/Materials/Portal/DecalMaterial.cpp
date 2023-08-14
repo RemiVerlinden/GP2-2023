@@ -15,4 +15,5 @@ void DecalMaterial::SetDecalTexture(const std::wstring& assetFile)
 
 void DecalMaterial::InitializeEffectVariables()
 {
+	m_EnableShadows = true;
 }

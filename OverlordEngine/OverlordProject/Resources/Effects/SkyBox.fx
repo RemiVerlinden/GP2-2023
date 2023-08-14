@@ -4,8 +4,6 @@ SamplerState samLinear
     AddressU = Wrap;
     AddressV = Wrap;
 };
-float4x4 gWorld;
-
 TextureCube gDiffuseMap : CubeMap;
 
 cbuffer cbChangesEveryFrame

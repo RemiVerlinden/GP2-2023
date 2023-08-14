@@ -87,9 +87,41 @@ void BaseMaterial::UpdateEffectVariables(const SceneContext& sceneContext, const
 			m_RootVariableLUT[static_cast<UINT>(eRootVariable::VIEW_INVERSE)]->AsMatrix()->SetMatrix(&viewInv._11);
 		}
 
+
+		if(m_EnableShadows)
+			UpdateShadowEffectVariables(sceneContext, pModelComponent);
+
 		OnUpdateModelVariables(sceneContext, pModelComponent);
 	}
 }
+
+void BaseMaterial::UpdateShadowEffectVariables(const SceneContext& sceneContext, const ModelComponent* /*pModelComponent*/) 
+{
+	SetVariable_Scalar(L"gEnableShadows", m_EnableShadows);
+
+	const auto& lightsVec = sceneContext.pLights->GetLights();
+
+	if (lightsVec.size() <= 0) return;
+
+	std::vector<XMFLOAT4> lightPositions;
+	for (const Light& light : lightsVec)
+		lightPositions.emplace_back(light.position);
+
+
+	//  2. Update the ShadowMap texture
+	auto& cubeMaps = ShadowMapRendererCube::Get()->GetAllShadowCubemaps();
+	BaseMaterial::SetVariable_TextureArray(L"gShadowCubeMap", cubeMaps.data(), (UINT)cubeMaps.size());
+
+	// 3. Update the Light positions (retrieve the positions from the LightManager > sceneContext)
+
+	BaseMaterial::SetVariable_VectorArray(L"gLightPosition", reinterpret_cast<const float*>(lightPositions.data()), (UINT)lightPositions.size());
+
+	BaseMaterial::SetVariable_Scalar(L"gAmountLights", (int)lightsVec.size());
+
+	BaseMaterial::SetVariable_Scalar(L"gNearPlane", ShadowMapRendererCube::GetNearPlane());
+	BaseMaterial::SetVariable_Scalar(L"gFarPlane", ShadowMapRendererCube::GetFarPlane());
+}
+
 
 bool BaseMaterial::NeedsUpdate(const SceneContext& sceneContext, UINT frame, UINT id)
 {
@@ -227,6 +259,28 @@ void BaseMaterial::SetVariable_Texture(const std::wstring& varName, ID3D11Shader
 void BaseMaterial::SetVariable_Texture(const std::wstring& varName, const TextureData* pTexture) const
 {
 	SetVariable_Texture(varName, pTexture->GetShaderResourceView());
+}
+
+void BaseMaterial::SetVariable_TextureArray(const std::wstring& varName, ID3D11ShaderResourceView** ppSRVs, UINT count) const
+{
+	if (const auto pShaderVariable = GetVariable(varName))
+	{
+		HANDLE_ERROR(pShaderVariable->AsShaderResource()->SetResourceArray(ppSRVs, 0, count));
+		return;
+	}
+
+	Logger::LogWarning(L"Shader variable \'{}\' not found for \'{}\'", varName, GetEffectName());
+}
+
+
+void BaseMaterial::SetVariable_TextureArray(const std::wstring& varName, const std::vector<const TextureData*>& textures) const
+{
+	std::vector<ID3D11ShaderResourceView*> srvs;
+	for (const auto& tex : textures)
+	{
+		srvs.push_back(tex->GetShaderResourceView());
+	}
+	SetVariable_TextureArray(varName, srvs.data(), static_cast<UINT>(srvs.size()));
 }
 
 void BaseMaterial::SetTechnique(const std::wstring& techName)

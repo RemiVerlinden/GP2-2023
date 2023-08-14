@@ -1,5 +1,5 @@
 #pragma once
-class StaticMapMaterial : public Material<StaticMapMaterial>
+class StaticMapMaterial final : public Material<StaticMapMaterial>
 {
 public:
 	StaticMapMaterial();

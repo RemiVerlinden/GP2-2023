@@ -14,12 +14,14 @@ void ShadowMappingScene::Initialize()
 	m_SceneContext.settings.enableOnGUI = true;
 
 	m_SceneContext.pLights->SetDirectionalLight({ -95.6139526f,66.1346436f,-41.1850471f }, { 0.740129888f, -0.597205281f, 0.309117377f });
-	Light spotlight;
-	spotlight.direction = { 0.740129888f, -0.597205281f, 0.309117377f, 1.f };
-	spotlight.position = { -95.6139526f,66.1346436f,-41.1850471f, 11.f };
-	spotlight.spotLightAngle = m_SceneContext.pCamera->GetFieldOfView();
-	spotlight.spotLightAngle = XMConvertToRadians(90.f);
-	m_SceneContext.pLights->AddLight(spotlight);
+	Light pointlight1,pointlight2;
+	pointlight1.position = { -95.6139526f,66.1346436f,-41.1850471f, 11.f };
+	pointlight2.position = { 0.f,75.f,0.f,0.f };
+
+
+	m_SceneContext.pLights->AddLight(this, pointlight1);
+	m_SceneContext.pLights->AddLight(this, pointlight2);
+
 
 	//auto MakeArrowObject = [&](const XMFLOAT4& color) -> GameObject*
 	//{
@@ -86,6 +88,7 @@ void ShadowMappingScene::Initialize()
 	//Input
 	//*****
 	m_SceneContext.pInput->AddInputAction(InputAction(0, InputState::pressed, VK_SPACE));
+	m_SceneContext.pInput->AddInputAction(InputAction(1, InputState::pressed, 'L'));
 
 	// SKYBOX
 	{
@@ -153,6 +156,16 @@ void ShadowMappingScene::Update()
 		spotlight.direction = XMFLOAT4(forward.x, forward.y, forward.z, 0.0f);
 		spotlight.up = pCameraTransform->GetUp();
 	}
+
+	if (m_SceneContext.pInput->IsActionTriggered(1))
+	{
+		const auto pCameraTransform = m_SceneContext.pCamera->GetTransform();
+			XMFLOAT3 pos = pCameraTransform->GetPosition();
+
+			auto& spotlight = m_SceneContext.pLights->GetLight(1);
+			spotlight.position = XMFLOAT4(pos.x, pos.y, pos.z, 0.0f);
+	}
+
 }
 
 void ShadowMappingScene::PostDraw()
@@ -160,7 +173,7 @@ void ShadowMappingScene::PostDraw()
 	//Draw ShadowMap (Debug Visualization)
 	if (m_DrawShadowMap)
 	{
-		ShadowMapRendererCube::Get()->Debug_DrawDepthSRV({ m_SceneContext.windowWidth - 10.f, 10.f }, { m_ShadowMapScale, m_ShadowMapScale }, { 1.f,0.f });
+		ShadowMapRendererCube::Get()->Debug_DrawDepthSRV(0, { m_SceneContext.windowWidth - 10.f, 10.f }, { m_ShadowMapScale, m_ShadowMapScale }, { 1.f,0.f });
 	}
 }
 

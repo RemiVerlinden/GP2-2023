@@ -1,7 +1,7 @@
 float4x4 gWorld;
 float4x4 gLightViewProjArray[6];
 float4x4 gBones[125];
-float C = 10.f;
+float C = 1000.f;
 DepthStencilState depthStencilState
 {
 	DepthEnable = TRUE;
@@ -95,6 +95,7 @@ void ShadowMapPS_VOID(float4 position:SV_POSITION){}
 // this is for testing purpose, it makes the depthbuffer more easy to see during sprite render
 float ShadowMapPS_ESM(float4 position:SV_POSITION) : SV_DEPTH
 {
+	return 0.f;
     // Compute depth in [0,1] range
     float depth = position.z / position.w;
     // Convert depth into exponential form
@@ -131,7 +132,7 @@ technique11 GenerateShadows
 		SetDepthStencilState(depthStencilState, 0);
 		SetVertexShader(CompileShader(vs_4_0, ShadowMapVS()));
 		SetGeometryShader(CompileShader(gs_4_0, GS()));
-		SetPixelShader(CompileShader(ps_4_0, ShadowMapPSNULL()));
+		SetPixelShader(CompileShader(ps_4_0, ShadowMapPS_ESM()));
 	}
 }
 
@@ -143,6 +144,6 @@ technique11 GenerateShadows_Skinned
 		SetDepthStencilState(depthStencilState, 0);
 		SetVertexShader(CompileShader(vs_4_0, ShadowMapVS_Skinned()));
 		SetGeometryShader(CompileShader(gs_4_0, GS()));
-		SetPixelShader(CompileShader(ps_4_0, ShadowMapPSNULL()));
+		SetPixelShader(CompileShader(ps_4_0, ShadowMapPS_ESM()));
 	}
 }

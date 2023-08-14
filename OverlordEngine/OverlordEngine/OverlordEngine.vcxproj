@@ -114,6 +114,7 @@
     <ClInclude Include="Components\Portal\PortalgunStatemachineComponent.h" />
     <ClInclude Include="Graphics\CameraViewMapRenderer.h" />
     <ClInclude Include="Graphics\PortalRenderer.h" />
+    <ClInclude Include="Graphics\ShadowMapCube.h" />
     <ClInclude Include="Graphics\ShadowMapRenderer.h" />
     <ClInclude Include="Graphics\ShadowMapRendererCube.h" />
     <ClInclude Include="Graphics\SpriteRendererCube.h" />
@@ -213,6 +214,7 @@
     <ClCompile Include="Components\Portal\PortalgunStatemachineComponent.cpp" />
     <ClCompile Include="Graphics\CameraViewMapRenderer.cpp" />
     <ClCompile Include="Graphics\PortalRenderer.cpp" />
+    <ClCompile Include="Graphics\ShadowMapCube.cpp" />
     <ClCompile Include="Graphics\ShadowMapRenderer.cpp" />
     <ClCompile Include="Graphics\ShadowMapRendererCube.cpp" />
     <ClCompile Include="Graphics\SpriteRendererCube.cpp" />

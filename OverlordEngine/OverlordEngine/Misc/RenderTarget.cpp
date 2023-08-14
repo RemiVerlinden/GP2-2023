@@ -23,6 +23,11 @@ void RenderTarget::CleanUp()
 	SafeRelease(m_pColorShaderResourceView);
 	SafeRelease(m_pDepthShaderResourceView);
 	SafeRelease(m_pDepthStencilView);
+
+	for (int face = 0; face < m_pRTVcube.size(); face++)
+		SafeRelease(m_pRTVcube[face]);
+	for (int face = 0; face < m_pDSVcube.size(); face++)
+		SafeRelease(m_pDSVcube[face]);
 }
 
 HRESULT RenderTarget::Create(RENDERTARGET_DESC desc)

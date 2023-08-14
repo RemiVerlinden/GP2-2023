@@ -23,6 +23,39 @@ void PortalTestScene::Initialize()
 	m_SceneContext.settings.drawGrid = false;
 	m_SceneContext.settings.drawPhysXDebug = true;
 
+	// LIGHTS
+	{
+		std::vector<Light> lightsVec;
+		Light light;
+		
+		//-0.1, 8.6, 8.6
+		light.position = { -30.6f, 6.6f, 7.6f,0.f }; // center room small
+		lightsVec.push_back(light);
+		light.position = { 0.3f, 8.3f, 6.0f,0.f }; // center room big 
+		lightsVec.push_back(light);
+		light.position = { 0.1f, 9.1f, -1.5f,0.f }; // center room big above pit
+		lightsVec.push_back(light);
+		light.position = { -48.3f, 4.3f, 7.7f,0.f }; // elevator beginning
+		lightsVec.push_back(light);
+		light.position = { 35.3f, 3.1f, 7.6f,0.f }; // elevator ending
+		lightsVec.push_back(light);
+		light.position = { 15.4f, 3.5f, 7.8f,0.f }; // behind door
+		lightsVec.push_back(light);
+		light.position = { 5.0f, 8.6f, 19.7f,0.f }; // big observation room bottom light
+		lightsVec.push_back(light);
+		light.position = { 5.0f, 9.3f, 19.6f,0.f }; // big observation room top light
+		lightsVec.push_back(light);
+		light.position = { -17.74f, 8.31f, -7.47f,0.f }; // small observation room bottom light
+		lightsVec.push_back(light);
+		light.position = { -17.74f, 8.9f, -7.47f,0.f }; // small observation room top light
+		lightsVec.push_back(light);
+
+
+
+		for (const Light& currentLight: lightsVec)
+			m_SceneContext.pLights->AddLight(this, currentLight);
+	}
+
 	// Get the menu scene
 	m_pMenuScene = dynamic_cast<PortalMainMenu*>(SceneManager::Get()->GetScene(L"PortalMainMenu"));
 	m_pMenuTexture = ContentManager::Load<TextureData>(L"Textures/UI/background.dds");
@@ -306,6 +339,14 @@ void PortalTestScene::Update()
 	{
 		m_ScenePaused = !m_ScenePaused;
 	}
+
+	auto pos = m_SceneContext.pCamera->GetTransform()->GetPosition();
+
+	float x = pos.x;
+	float y = pos.y;
+	float z = pos.z;
+
+	std::cout << std::fixed << std::setprecision(1) << x << ", " << y << ", " << z << std::endl;
 
 	UpdateMenu();
 }

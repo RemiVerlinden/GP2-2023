@@ -21,20 +21,22 @@ void DiffuseMaterial_Shadow_Skinned::OnUpdateModelVariables(const SceneContext& 
 	//  LightWVP = model_world * light_viewprojection
 	//  (light_viewprojection[LightVP] can be acquired from the ShadowMapRenderer)
 
-	XMMATRIX model_world = XMLoadFloat4x4(&pModel->GetTransform()->GetWorld());
-	XMMATRIX light_viewprojection = XMLoadFloat4x4(&ShadowMapRenderer::Get()->GetLightVP());
-
-	XMMATRIX LightWVP_matrix = model_world * light_viewprojection;
-	XMFLOAT4X4 lightWVP;
-	XMStoreFloat4x4(&lightWVP, LightWVP_matrix);
-
-	SetVariable_Matrix(L"gWorldViewProj_Light", lightWVP);
-
 	//  2. Update the ShadowMap texture
-	SetVariable_Texture(L"gShadowMap", ShadowMapRenderer::Get()->GetShadowMap());
+	auto& cubeMaps = ShadowMapRendererCube::Get()->GetAllShadowCubemaps();
+	SetVariable_TextureArray(L"gShadowCubeMap", cubeMaps.data(), (UINT)cubeMaps.size());
 
-	// 3. Update the Light Direction (retrieve the direction from the LightManager > sceneContext)
-	SetVariable_Vector(L"gLightDirection", sceneContext.pLights->GetLight(0).direction);
+	// 3. Update the Light positions (retrieve the positions from the LightManager > sceneContext)
+	const auto& lightsVec = sceneContext.pLights->GetLights();
+	std::vector<XMFLOAT4> lightPositions;
+	for (const Light& light : lightsVec)
+		lightPositions.emplace_back(light.position);
+
+	SetVariable_VectorArray(L"gLightPosition", reinterpret_cast<const float*>(lightPositions.data()), (UINT)lightPositions.size());
+	
+	SetVariable_Scalar(L"gAmountLights", (int)lightsVec.size());
+
+	SetVariable_Scalar(L"gNearPlane", ShadowMapRendererCube::GetNearPlane());
+	SetVariable_Scalar(L"gFarPlane", ShadowMapRendererCube::GetFarPlane());
 
 	// 4. Update Bones
 	const std::vector<XMFLOAT4X4>& modelBoneTransforms = pModel->GetAnimator()->GetBoneTransforms();

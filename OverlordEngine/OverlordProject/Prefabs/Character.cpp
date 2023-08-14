@@ -24,7 +24,6 @@ void Character::Initialize(const SceneContext& /*sceneContext*/)
 	m_pCameraComponent->SetActive(true); //Uncomment to make this camera the active camera
 	m_pCameraComponent->SetFieldOfView(60 * DirectX::XM_PI / 180.f);
 	m_pCameraHolder->GetTransform()->Translate(0.f, m_CharacterDesc.controller.halfHeight * 0.5f , 0.f);
-
 	// character model and animations
 	m_pPlayerAnimObject = AddChild(new GameObject());
 	m_pPlayerAnimObject->GetTransform()->Translate(0, -m_CharacterDesc.controller.halfHeight, 0);

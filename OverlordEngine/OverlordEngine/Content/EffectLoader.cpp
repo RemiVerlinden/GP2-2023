@@ -54,7 +54,7 @@ ID3DX11Effect* EffectLoader::LoadContent(const ContentLoadInfo& loadInfo)
 		}
 
 		HANDLE_ERROR_INFO(hr, ss.str())
-		return nullptr;
+  		return nullptr;
 	}
 
 	return pEffect;

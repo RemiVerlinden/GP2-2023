@@ -246,16 +246,16 @@ void PortalMainMenu::Update()
 	m_pMenuCamera->GetTransform()->Rotate(rotation);
 
 
-	if (m_SceneContext.pInput->IsKeyboardKey(InputState::pressed, VK_SPACE))
-	{
-		//m_SceneContext.pLights->SetDirectionalLight(pCameraTransform->GetPosition(), pCameraTransform->GetForward());
+	//if (m_SceneContext.pInput->IsKeyboardKey(InputState::pressed, VK_SPACE))
+	//{
+	//	//m_SceneContext.pLights->SetDirectionalLight(pCameraTransform->GetPosition(), pCameraTransform->GetForward());
 
-		const auto pCameraTransform = m_SceneContext.pCamera->GetTransform();
-		XMFLOAT3 pos = pCameraTransform->GetPosition();
+	//	const auto pCameraTransform = m_SceneContext.pCamera->GetTransform();
+	//	XMFLOAT3 pos = pCameraTransform->GetPosition();
 
-		auto& spotlight = m_SceneContext.pLights->GetLight(0);
-		spotlight.position = XMFLOAT4(pos.x, pos.y, pos.z, 0.0f);
-	}
+	//	auto& spotlight = m_SceneContext.pLights->GetLight(0);
+	//	spotlight.position = XMFLOAT4(pos.x, pos.y, pos.z, 0.0f);
+	//}
 }
 
 void PortalMainMenu::Draw()

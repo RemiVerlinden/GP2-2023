@@ -195,7 +195,6 @@ void PortalTestScene::CreatePortals(CameraComponent* playerCamera)
 	orangePortal->GetTransform()->TranslateWorld({ -12.7614f, 2.22742f, 12.8245f });
 	orangePortal->GetTransform()->Rotate(XMFLOAT4{ 0.f, -0.382683f, 0.f, 0.92388f });
 	bluePortal->GetTransform()->TranslateWorld({ -16.6547f, 2.24675f, 0.01f });
-
 }
 
 void PortalTestScene::MovePortal(Portal portal)

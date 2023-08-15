@@ -118,8 +118,17 @@ void BaseMaterial::UpdateShadowEffectVariables(const SceneContext& sceneContext,
 
 	BaseMaterial::SetVariable_Scalar(L"gAmountLights", (int)lightsVec.size());
 
-	BaseMaterial::SetVariable_Scalar(L"gNearPlane", ShadowMapRendererCube::GetNearPlane());
-	BaseMaterial::SetVariable_Scalar(L"gFarPlane", ShadowMapRendererCube::GetFarPlane());
+	auto&[nearPlaneVec,farPlaneVec] = ShadowMapRendererCube::Get()->GetAllNearFarPlanes();
+
+	BaseMaterial::SetVariable_ScalarArray(L"gNearPlanes", reinterpret_cast<const float*>(nearPlaneVec.data()), (UINT)nearPlaneVec.size());
+	BaseMaterial::SetVariable_ScalarArray(L"gFarPlanes", reinterpret_cast<const float*>(farPlaneVec.data()), (UINT)farPlaneVec.size());
+
+
+	std::vector<float>& PCFLevelsVec = ShadowMapRendererCube::Get()->GetAllPCFLevels();
+	BaseMaterial::SetVariable_ScalarArray(L"gPCFsamples", reinterpret_cast<const float*>(PCFLevelsVec.data()), (UINT)PCFLevelsVec.size());
+
+	BaseMaterial::SetVariable_Scalar(L"gAmbientLight", 0.55f);
+	
 }
 
 
@@ -159,6 +168,18 @@ void BaseMaterial::SetVariable_Scalar(const std::wstring& varName, float scalar)
 	if(const auto pShaderVariable = GetVariable(varName))
 	{
 		HANDLE_ERROR(pShaderVariable->AsScalar()->SetFloat(scalar));
+		return;
+	}
+
+	Logger::LogWarning(L"Shader variable \'{}\' not found for \'{}\'", varName, GetEffectName());
+}
+
+// ONLY WORKS ON FLOATS DONT USE FOR BOOL OR INT
+void BaseMaterial::SetVariable_ScalarArray(const std::wstring& varName, const float* pData, UINT count) const
+{
+	if (const auto pShaderVariable = GetVariable(varName))
+	{
+		HANDLE_ERROR(pShaderVariable->AsScalar()->SetFloatArray(pData, 0, count));
 		return;
 	}
 

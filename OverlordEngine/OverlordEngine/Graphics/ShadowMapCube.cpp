@@ -3,10 +3,11 @@
 
 using ShadowGeneratorType = ShadowMapRendererCube::ShadowGeneratorType;
 
-ShadowMapCube::ShadowMapCube(const GameContext& gamecontext, float cubemapResolution, float nearPlane, float farPlane)
+ShadowMapCube::ShadowMapCube(const GameContext& gamecontext, float cubemapResolution, const Light& light)
 	:m_GameContext{gamecontext}
-	,m_NearPlane{nearPlane}
-	,m_FarPlane{farPlane}
+	,m_NearPlane{ light.nearPlane}
+	,m_FarPlane{ light.farPlane}
+	, m_PCFlevel{ static_cast<float>(light.PCFLevel) }
 {
 	m_pShadowRenderTarget = new RenderTarget(gamecontext.d3dContext);
 
@@ -42,8 +43,8 @@ void ShadowMapCube::Begin(const SceneContext& sceneContext, int lightNumber)
 	sceneContext.d3dContext.pDeviceContext->PSSetShaderResources(0, 6, nullSRVs);
 
 
-	const float nearZ = ShadowMapRendererCube::Get()->GetNearPlane();
-	const float farZ = ShadowMapRendererCube::Get()->GetFarPlane();
+	const float nearZ = m_NearPlane;
+	const float farZ = m_FarPlane;
 	float aspectRatio = 1;
 
 	std::vector<XMMATRIX> view(6);
@@ -105,6 +106,8 @@ void ShadowMapCube::DrawMesh(const SceneContext& sceneContext, int face, MeshFil
 	ShadowGeneratorType meshType = pMeshFilter->HasAnimations() ? ShadowGeneratorType::Skinned : ShadowGeneratorType::Static;
 
 	pShadowMapGenerator->SetVariable_Vector(L"gLightPosition", sceneContext.pLights->GetLight(m_LightNumber).position);
+	pShadowMapGenerator->SetVariable_Scalar(L"gNearPlane", m_NearPlane);
+	pShadowMapGenerator->SetVariable_Scalar(L"gFarPlane", m_FarPlane);
 
 	//		- if animated, the boneTransforms
 	pShadowMapGenerator->SetVariable_Matrix(L"gWorld", meshWorld);

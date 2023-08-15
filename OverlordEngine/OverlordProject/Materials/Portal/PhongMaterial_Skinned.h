@@ -15,7 +15,7 @@ public:
 	void SetSpecularTexture(const std::wstring& assetFile);
 	bool UsingSpecularTexture() const { return m_UseSpecularTexture; }
 protected:
-	void InitializeEffectVariables() override {};
+	void InitializeEffectVariables() override;
 	void OnUpdateModelVariables(const SceneContext&, const ModelComponent*) const override;
 
 private:

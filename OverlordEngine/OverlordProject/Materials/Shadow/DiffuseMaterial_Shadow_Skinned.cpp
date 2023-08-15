@@ -35,9 +35,6 @@ void DiffuseMaterial_Shadow_Skinned::OnUpdateModelVariables(const SceneContext& 
 	
 	SetVariable_Scalar(L"gAmountLights", (int)lightsVec.size());
 
-	SetVariable_Scalar(L"gNearPlane", ShadowMapRendererCube::GetNearPlane());
-	SetVariable_Scalar(L"gFarPlane", ShadowMapRendererCube::GetFarPlane());
-
 	// 4. Update Bones
 	const std::vector<XMFLOAT4X4>& modelBoneTransforms = pModel->GetAnimator()->GetBoneTransforms();
 	SetVariable_MatrixArray(L"gBones", reinterpret_cast<const float*>(modelBoneTransforms.data()), static_cast<UINT>(modelBoneTransforms.size()));

@@ -35,11 +35,11 @@ void PortalGun_Glow_Material::OnUpdateModelVariables(const SceneContext& context
 	SetVariable_MatrixArray(L"gBones", (float*)boneTransforms.data(), (UINT)boneTransforms.size());
 }
 
-void PortalGun_Glow_Material::UpdatePlasmaColor(const SceneContext& /*context*/) const
+void PortalGun_Glow_Material::UpdatePlasmaColor(const SceneContext& context) const
 {
-	//if (context.pInput->IsActionTriggered(Input::FirePrimary))
-	//	SetColor(m_BlueColor);
-	//else if (context.pInput->IsActionTriggered(Input::FireSecondary))
-	//	SetColor(m_OrangeColor);
+	if (context.pInput->IsActionTriggered(Input::FirePrimary))
+		SetColor(m_BlueColor);
+	else if (context.pInput->IsActionTriggered(Input::FireSecondary))
+		SetColor(m_OrangeColor);
 
 }

@@ -16,6 +16,7 @@ void DiffuseMaterial_Skinned::SetDiffuseTexture(const std::wstring& assetFile)
 
 void DiffuseMaterial_Skinned::InitializeEffectVariables()
 {
+	m_EnableShadows = true;
 }
 
 void DiffuseMaterial_Skinned::OnUpdateModelVariables(const SceneContext&, const ModelComponent* pModel) const
@@ -35,4 +36,6 @@ void DiffuseMaterial_Skinned::OnUpdateModelVariables(const SceneContext&, const 
 
 
 
+	// I want to disable shadows on this material for now until end of exam.
+	SetVariable_Scalar(L"gEnableShadows", false);
 }

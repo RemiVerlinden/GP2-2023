@@ -35,13 +35,21 @@ void PortalMainMenu::Initialize()
 
 	// LIGHTS
 	{
-		Light pointlight1,pointlight2;
-		pointlight1.position = { -17.74f, 8.31f, - 7.47f,0.f };
-		pointlight2.position = { -17.74f, 8.9f, - 7.47f,0.f };
+		Light light1, light2,light3;
+		light1.position = { -17.7f, 8.31f, - 7.47f,0.f };
+		light2.position = { -17.74f, 8.9f, - 7.5f,0.f };
+		light3.position = { m_Translate.x, m_Translate.y, m_Translate.z ,0.f };
 
+		light1.nearPlane = 0.01f;
+		light2.nearPlane = 0.01f;
 
-		m_SceneContext.pLights->AddLight(this,pointlight1);
-		m_SceneContext.pLights->AddLight(this,pointlight2);
+		light1.farPlane = 20.f;
+		light2.farPlane = 20.f;
+		light3.farPlane = 50.f;
+
+		m_SceneContext.pLights->AddLight(this, light1);
+		m_SceneContext.pLights->AddLight(this,light2);
+		m_SceneContext.pLights->AddLight(this,light3);
 	}
 
 	// CAMERA 

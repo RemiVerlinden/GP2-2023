@@ -21,8 +21,15 @@ public:
 	ModelAnimator* GetAnimator() const;
 	bool HasAnimator() const { return m_pAnimator != nullptr; }
 
-	void SetRenderOnlyThroughPortal(bool renderOnlyThroughPortal) { m_RenderModelPortalOnly = renderOnlyThroughPortal; }
+	enum class PortalRenderContext
+	{
+		RealWorldOnly,  // For objects like the player's weapon, etc...
+		PortalViewOnly, // For objects that should appear only when viewed through portals, like other side of the portal, player character, etc...
+		Everywhere,     // For standard objects that appear both in the real world and in the portal view.
+	};
 
+	void SetPortalrRenderContext(PortalRenderContext renderContext) { m_RenderContext = renderContext; }
+	void SetCastShadows(bool castShadows) { m_enableShadowMapDraw = castShadows; }
 protected:
 	void Initialize(const SceneContext& sceneContext) override;
 	void Update(const SceneContext&) override;
@@ -42,7 +49,7 @@ private:
 
 	ModelAnimator* m_pAnimator{};
 
-	bool m_RenderModelPortalOnly = false;
+	PortalRenderContext m_RenderContext = PortalRenderContext::Everywhere;
 
 	//W9
 	bool m_CastShadows{ true };

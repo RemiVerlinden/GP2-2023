@@ -34,7 +34,4 @@ void DiffuseMaterial_Shadow::OnUpdateModelVariables(const SceneContext& sceneCon
 	SetVariable_VectorArray(L"gLightPosition", reinterpret_cast<const float*>(lightPositions.data()), (UINT)lightPositions.size());
 
 	SetVariable_Scalar(L"gAmountLights", (int)lightsVec.size());
-
-	SetVariable_Scalar(L"gNearPlane", ShadowMapRendererCube::GetNearPlane());
-	SetVariable_Scalar(L"gFarPlane", ShadowMapRendererCube::GetFarPlane());
 }

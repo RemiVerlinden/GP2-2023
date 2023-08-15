@@ -8,8 +8,6 @@ ShadowMapMaterial::ShadowMapMaterial():
 
 void ShadowMapMaterial::InitializeEffectVariables()
 {
-	SetVariable_Scalar(L"gNearPlane", ShadowMapRendererCube::GetNearPlane());
-	SetVariable_Scalar(L"gFarPlane", ShadowMapRendererCube::GetFarPlane());
 }
 
 void ShadowMapMaterial::OnUpdateModelVariables(const SceneContext& sceneContext, const ModelComponent*) const

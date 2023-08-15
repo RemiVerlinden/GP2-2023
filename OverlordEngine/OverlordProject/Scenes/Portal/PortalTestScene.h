@@ -54,7 +54,5 @@ private:
 	GameObject* m_pMenuObject{};
 	TextureData* m_pMenuTexture{};
 	PostBlur* m_pPostBlur{};
-
-
 };
 

@@ -7,10 +7,11 @@ static const int gMaxLights = 20;
 int gAmountLights;
 float4 gLightPosition[gMaxLights];
 TextureCube gShadowCubeMap[gMaxLights];
-float gNearPlane;
-float gFarPlane;
-float gAmbientLight = 0.f;
+float gNearPlanes[gMaxLights];
+float gFarPlanes[gMaxLights];
+float gAmbientLight = 0.25f;
 float gShadowMapBias = 0.01f;
+float gPCFsamples[gMaxLights];
 
 // SAMPLER
 SamplerComparisonState cubeCmpSampler
@@ -23,6 +24,17 @@ SamplerComparisonState cubeCmpSampler
    // sampler comparison state
    ComparisonFunc = LESS_EQUAL;
 };
+
+SamplerState cubeSampler
+{
+    Filter = MIN_MAG_MIP_LINEAR;   // Tri-linear interpolation
+    AddressU = CLAMP;              // Clamp the texture coordinates to the valid range
+    AddressV = CLAMP;
+    AddressW = CLAMP;
+    ComparisonFunc = LESS;        // For shadow mapping, might be useful to add
+    BorderColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
+};
+
 
 //-------------------------------------------
 
@@ -85,38 +97,121 @@ VS_OUTPUT VS(VS_INPUT input){
 //--------------------------------------------------------------------------------------
 // Shadowmap functions
 //--------------------------------------------------------------------------------------
-float EvaluateShadowMap(VS_OUTPUT input, int lightNumber) // true means point is lit
+// Define the filter offsets. Modify these to achieve different shadow looks.
+// float3 vFilter[4] = 
+// {
+//     float3(0.01, 0.01, 0.01),
+//     float3(-0.01, 0.01, 0.01),
+//     float3(0.01, -0.01, 0.01),
+//     float3(-0.01, -0.01, 0.01)
+// };
+
+// float EvaluateShadowMap(VS_OUTPUT input, int lightNumber)
+// {
+//     float3 cubeSampleDirection = input.worldPos.xyz - gLightPosition[lightNumber].xyz;
+//     float depth = length(cubeSampleDirection);
+//     float normalizedDepth = (depth - gNearPlane) / (gFarPlane - gNearPlane);
+//     normalizedDepth -= gShadowMapBias * normalizedDepth * normalizedDepth;
+
+//     cubeSampleDirection = normalize(cubeSampleDirection);
+    
+// 	float viewDistance = length(gLightPosition[lightNumber].xyz);
+// 	float diskRadius = (1.0 + (viewDistance / gFarPlane)) / 25.0;
+
+//     // New Soft Shadow Implementation
+//     float shadowValue = 0.f;
+//     for(int i = 0; i < 4; i++) 
+//     {
+//         float3 sampleDir = normalize(cubeSampleDirection + vFilter[i] * diskRadius);
+//         float depthSample = gShadowCubeMap[lightNumber].SampleLevel(cubeSampler, sampleDir, 0).r;
+// 		if(normalizedDepth < depthSample)
+//         	shadowValue += 1.0 - normalizedDepth;
+//     }
+
+//     return shadowValue / 4.f;
+// }
+
+// float CalculateShadowValue(VS_OUTPUT input)
+// {
+// 	float totalLighting = 0.f;
+
+// 	for(int light = 0; light < gAmountLights; ++light)
+// 	{
+// 		totalLighting += EvaluateShadowMap(input, light);
+// 	}
+	
+// 	// Clamp the lighting so it doesn't go above 1.0 (or some max value)
+// 	// and doesn't go below the ambient light level.
+// 	totalLighting = clamp(totalLighting, gAmbientLight, 1.0f);
+// 	return totalLighting;
+// }
+
+float3 sampleOffsetDirections[21] = 
 {
-	float3 cubeSampleDirection = input.worldPos.xyz - gLightPosition[lightNumber].xyz;
-	float depth = length(cubeSampleDirection);
-	float normalizedDepth = (depth - gNearPlane) / (gFarPlane - gNearPlane);
-	normalizedDepth -= gShadowMapBias * normalizedDepth * normalizedDepth;
+   float3( 0,  0,  0), float3( 1,  1,  1), float3( 1, -1,  1), float3(-1, -1,  1),
+   float3(-1,  1,  1), float3( 1,  1, -1), float3( 1, -1, -1), float3(-1, -1, -1), 
+   float3(-1,  1, -1), float3( 1,  1,  0), float3( 1, -1,  0), float3(-1, -1,  0), 
+   float3(-1,  1,  0), float3( 1,  0,  1), float3(-1,  0,  1), float3( 1,  0, -1), 
+   float3(-1,  0, -1), float3( 0,  1,  1), float3( 0, -1,  1), float3( 0, -1, -1), 
+   float3( 0,  1, -1)
+};
 
-	cubeSampleDirection = normalize(cubeSampleDirection);
-	bool isLit = gShadowCubeMap[lightNumber].SampleCmpLevelZero(cubeCmpSampler, cubeSampleDirection, normalizedDepth);
-	float shadowValue = 0.f;
-	if(isLit)
-	{
-		shadowValue = clamp( 1.0f - normalizedDepth,0.f,1.f);
-	}
+float EvaluateShadowMap(VS_OUTPUT input, int lightNumber)
+{
+    float3 fragToLight = input.worldPos.xyz - gLightPosition[lightNumber].xyz;
+    float currentDepth = length(fragToLight);
+    float normalizedDepth = (currentDepth - gNearPlanes[lightNumber]) / (gFarPlanes[lightNumber] - gNearPlanes[lightNumber]);
+    normalizedDepth -= gShadowMapBias * normalizedDepth * normalizedDepth;
 
+    float3 viewDirection = normalize(fragToLight);
 
-	return shadowValue;
+    float viewDistance = length(fragToLight);
+
+    float diskRadius = (1.0 + (viewDistance / gFarPlanes[lightNumber])) / 850.0;
+
+    float shadow = 0.0;
+    int samples = gPCFsamples[lightNumber];
+    for(int i = 0; i < samples; ++i)
+    {
+        float closestDepth = gShadowCubeMap[lightNumber].Sample(cubeSampler, viewDirection + sampleOffsetDirections[i] * diskRadius).r;
+        if(normalizedDepth < closestDepth)
+            shadow += 1.0 - normalizedDepth;
+    }
+    shadow /= float(samples);
+
+    return shadow;
 }
+
+// float EvaluateShadowMap(VS_OUTPUT input, int lightNumber)
+// {
+// 	float3 cubeSampleDirection = input.worldPos.xyz - gLightPosition[lightNumber].xyz;
+// 	float depth = length(cubeSampleDirection);
+// 	float normalizedDepth = (depth - gNearPlanes[lightNumber]) / (gFarPlanes[lightNumber] - gNearPlanes[lightNumber]);
+// 	normalizedDepth -= gShadowMapBias * normalizedDepth * normalizedDepth;
+
+// 	cubeSampleDirection = normalize(cubeSampleDirection);
+// 	bool isLit = gShadowCubeMap[lightNumber].SampleCmpLevelZero(cubeCmpSampler, cubeSampleDirection, normalizedDepth);
+// 	float shadowValue = 0.f;
+// 	if(isLit)
+// 	{
+// 		shadowValue = clamp( 1.0f - normalizedDepth,0.f,1.f);
+// 	}
+
+
+// 	return shadowValue;
+// }
 
 float CalculateShadowValue(VS_OUTPUT input)
 {
-	float totalLighting = 0.f;
+    float totalLighting = 0.f;
 
-	for(int light = 0; light < gAmountLights; ++light)
-	{
-		totalLighting += EvaluateShadowMap(input, light);
-	}
-	
-	// Clamp the lighting so it doesn't go above 1.0 (or some max value)
-	// and doesn't go below the ambient light level.
-	totalLighting = clamp(totalLighting, gAmbientLight, 1.0f);
-	return totalLighting;
+    for(int light = 0; light < gAmountLights; ++light)
+    {
+        totalLighting += EvaluateShadowMap(input, light);
+    }
+    
+    totalLighting = clamp(totalLighting, gAmbientLight, 1.0f);
+    return totalLighting;
 }
 
 float CalculateHalfLambertDiffuse(VS_OUTPUT input)
@@ -148,7 +243,7 @@ float4 PS(VS_OUTPUT input) : SV_TARGET{
 
 	float3 diffuseColor = gDiffuseMap.Sample( samLinear,input.texCoord );
 	if(gEnableShadows)
-		diffuseColor *= shadowValue;
+		diffuseColor *= shadowValue * diffuseStrength;
 
 	return float4(diffuseColor ,1.f);
 }
@@ -171,3 +266,5 @@ technique11 Default
     }
 }
 
+// cubemap PCF filtering
+//https://kosmonautblog.wordpress.com/2017/03/25/shadow-filtering-for-pointlights/

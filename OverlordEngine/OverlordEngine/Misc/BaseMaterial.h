@@ -25,6 +25,7 @@ public:
 
 	void SetVariable(const std::wstring& varName, const void* pData, uint32_t byteOffset, uint32_t byteCount) const;
 	void SetVariable_Scalar(const std::wstring& varName, float scalar) const;
+	void SetVariable_ScalarArray(const std::wstring& varName, const float* pData, UINT count) const; // asdijndjernufudjsndijnd
 	void SetVariable_Scalar(const std::wstring& varName, bool scalar) const;
 	void SetVariable_Scalar(const std::wstring& varName, int scalar) const;
 	void SetVariable_Matrix(const std::wstring& varName, XMFLOAT4X4 matrix) const;

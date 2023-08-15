@@ -13,15 +13,15 @@ public:
 
 	void Begin(const SceneContext&);
 	void DrawMesh(const SceneContext& sceneContext, int face, MeshFilter* pMeshFilter, const XMFLOAT4X4& meshWorld, const std::vector<XMFLOAT4X4>& meshBones = {});
-	void End(const SceneContext&) const;
+	void End(const SceneContext&);
 
-	void AddShadowMap(GameScene* pScene, float nearPlane, float farPlane);
+	void AddShadowMap(GameScene* pScene, const Light& light);
 	//void RemoveShadowMap(UINT index);
 
 	ID3D11ShaderResourceView* GetShadowMap(UINT index) const;
 	std::vector<ID3D11ShaderResourceView*>& GetAllShadowCubemaps();
-	static inline float GetNearPlane() { return m_NearPlane; };
-	static inline float GetFarPlane() { return 20.f; };
+	std::pair<std::vector<float>, std::vector<float>>& GetAllNearFarPlanes();
+	std::vector<float>& GetAllPCFLevels();
 
 	void Debug_DrawDepthSRV(UINT index, const XMFLOAT2& position = { 0.f,0.f }, const XMFLOAT2& scale = { 1.f,1.f }, const XMFLOAT2& pivot = {0.f,0.f}) const;
 	ShadowMapMaterial* GetShadowMapGenerator() const { return m_pShadowMapGenerator; };
@@ -43,10 +43,13 @@ private:
 
 	void ChangeViewportDimensions(const float width, const float height) const;
 
-	std::vector<std::unique_ptr<ShadowMapCube>> m_ShadowCubes;
-	std::unordered_multimap<GameScene*, ID3D11ShaderResourceView*> m_ShadowCubemapsCache;
-	std::vector<ID3D11ShaderResourceView*> m_ShadowCubemapsSceneCache;
-
+	// ALL THESE VARIABLE ARE ALSO STORED IN SHADOWMAPCUBE CLASS BUT I PUT THEM HERE FOR CACHE BECAUSE I NEED THEM ALL EACH FRAME MULTIPLE TIMES
+	std::unordered_map<GameScene*, std::vector<std::unique_ptr<ShadowMapCube>>> m_ShadowCubes;
+	std::unordered_map<GameScene*, std::vector<ID3D11ShaderResourceView*>> m_ShadowCubemapsCache;
+	std::unordered_map<GameScene*, std::pair<std::vector<float>, std::vector<float>>> m_CubemapsNearFarPlaneCache; // each scene has a pair of vectors, one for near planes and one for far planes
+	std::unordered_map<GameScene*,std::vector<float>> m_LightPCFLevelsCache; // each scene has a pair of vectors, one for near planes and one for far planes
+	//=======================================================================================================================================================================
+	// 
 	//Shadow Generator is responsible of drawing all shadow casting meshes to the ShadowMap
 //There are two techniques, one for static (non-skinned) meshes, and another for skinned meshes (with bones, blendIndices, blendWeights)
 
@@ -60,8 +63,6 @@ private:
 
 
 	// camera info
-	static inline float m_NearPlane{ 0.01f };
-	static inline float m_FarPlane{ 20.f };
 	float m_CubemapResolution{512};
 };
 

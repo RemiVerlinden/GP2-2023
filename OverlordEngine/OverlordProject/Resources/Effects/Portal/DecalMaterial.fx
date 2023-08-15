@@ -1,30 +1,6 @@
 float4x4 gWorld : WORLD;
 float4x4 gWorldViewProj : WORLDVIEWPROJECTION; 
 
-// ---------SHADOWMAP VARIABLES--------------
-bool gEnableShadows = true;
-static const int gMaxLights = 20;
-int gAmountLights;
-float4 gLightPosition[gMaxLights];
-TextureCube gShadowCubeMap[gMaxLights];
-float gNearPlane;
-float gFarPlane;
-float gAmbientLight = 0.35f;
-float gShadowMapBias = 0.01f;
-
-// SAMPLER
-SamplerComparisonState cubeCmpSampler
-{
-   // sampler state
-   Filter = COMPARISON_MIN_MAG_MIP_LINEAR;
-   AddressU = MIRROR;
-   AddressV = MIRROR;
-   AddressW = MIRROR;
-   // sampler comparison state
-   ComparisonFunc = LESS_EQUAL;
-};
-
-//-------------------------------------------
 
 Texture2D gDecalTexture;
 float gAlphaCutoff = 0.1f; // any alpha value that is smaller than this one will be clipped
@@ -70,54 +46,86 @@ BlendState AlphaBlend
     RenderTargetWriteMask[0] = 0x0F;
 };
 
-//--------------------------------------------------------------------------------------
-// Vertex Shader
-//--------------------------------------------------------------------------------------
-VS_OUTPUT VS(VS_INPUT input){
 
-	VS_OUTPUT output;
-	output.pos = mul ( float4(input.pos,1.0f), gWorldViewProj );
-	output.texCoord = input.texCoord;
-	    output.worldPos = mul( float4(input.pos,1.0f), gWorld );
-    output.normal = input.normal;
-	return output;
-}
 
 //--------------------------------------------------------------------------------------
 // Shadowmap functions
 //--------------------------------------------------------------------------------------
-float EvaluateShadowMap(VS_OUTPUT input, int lightNumber) // true means point is lit
+
+// ---------SHADOWMAP VARIABLES--------------
+bool gEnableShadows = true;
+static const int gMaxLights = 20;
+int gAmountLights;
+float4 gLightPosition[gMaxLights];
+TextureCube gShadowCubeMap[gMaxLights];
+float gNearPlanes[20];
+float gFarPlanes[20];
+float gAmbientLight = 0.25f;
+float gShadowMapBias = 0.01f;
+float gPCFsamples = 8;
+
+
+SamplerState cubeSampler
 {
-	float3 cubeSampleDirection = input.worldPos.xyz - gLightPosition[lightNumber].xyz;
-	float depth = length(cubeSampleDirection);
-	float normalizedDepth = (depth - gNearPlane) / (gFarPlane - gNearPlane);
-	normalizedDepth -= gShadowMapBias * normalizedDepth * normalizedDepth;
-
-	cubeSampleDirection = normalize(cubeSampleDirection);
-	bool isLit = gShadowCubeMap[lightNumber].SampleCmpLevelZero(cubeCmpSampler, cubeSampleDirection, normalizedDepth);
-	float shadowValue = 0.f;
-	if(isLit)
-	{
-		shadowValue = clamp( 1.0f - normalizedDepth,0.f,1.f);
-	}
+    Filter = MIN_MAG_MIP_LINEAR;   // Tri-linear interpolation
+    AddressU = CLAMP;              // Clamp the texture coordinates to the valid range
+    AddressV = CLAMP;
+    AddressW = CLAMP;
+    ComparisonFunc = LESS;        // For shadow mapping, might be useful to add
+    BorderColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
+};
 
 
-	return shadowValue;
+//-------------------------------------------
+
+// we can use a max of 21 in gPCFsamples but for optimisation we will most likely use less
+float3 sampleOffsetDirections[21] = 
+{
+   float3( 0,  0,  0), float3( 1,  1,  1), float3( 1, -1,  1), float3(-1, -1,  1),
+   float3(-1,  1,  1), float3( 1,  1, -1), float3( 1, -1, -1), float3(-1, -1, -1), 
+   float3(-1,  1, -1), float3( 1,  1,  0), float3( 1, -1,  0), float3(-1, -1,  0), 
+   float3(-1,  1,  0), float3( 1,  0,  1), float3(-1,  0,  1), float3( 1,  0, -1), 
+   float3(-1,  0, -1), float3( 0,  1,  1), float3( 0, -1,  1), float3( 0, -1, -1), 
+   float3( 0,  1, -1)
+};
+
+float EvaluateShadowMap(VS_OUTPUT input, int lightNumber)
+{
+    float3 fragToLight = input.worldPos.xyz - gLightPosition[lightNumber].xyz;
+    float currentDepth = length(fragToLight);
+    float normalizedDepth = (currentDepth - gNearPlanes[lightNumber]) / (gFarPlanes[lightNumber] - gNearPlanes[lightNumber]);
+    normalizedDepth -= gShadowMapBias * normalizedDepth * normalizedDepth;
+
+    float3 viewDirection = normalize(fragToLight);
+
+    float viewDistance = length(fragToLight);
+
+    float diskRadius = (1.0 + (viewDistance / gFarPlanes[lightNumber])) / 850.0;
+
+    float shadow = 0.0;
+    int samples = gPCFsamples;
+    for(int i = 0; i < samples; ++i)
+    {
+        float closestDepth = gShadowCubeMap[lightNumber].Sample(cubeSampler, viewDirection + sampleOffsetDirections[i] * diskRadius).r;
+        if(normalizedDepth < closestDepth)
+            shadow += 1.0 - normalizedDepth;
+    }
+    shadow /= float(samples);
+
+    return shadow;
 }
 
 float CalculateShadowValue(VS_OUTPUT input)
 {
-	float totalLighting = 0.f;
+    float totalLighting = 0.f;
 
-	for(int light = 0; light < gAmountLights; ++light)
-	{
-		totalLighting += EvaluateShadowMap(input, light);
-	}
-	
-	// Clamp the lighting so it doesn't go above 1.0 (or some max value)
-	// and doesn't go below the ambient light level.
-	totalLighting = clamp(totalLighting, gAmbientLight, 1.0f);
-	return totalLighting;
+    for(int light = 0; light < gAmountLights; ++light)
+    {
+        totalLighting += EvaluateShadowMap(input, light);
+    }
+    
+    totalLighting = clamp(totalLighting, gAmbientLight, 1.0f);
+    return totalLighting;
 }
 
 float CalculateHalfLambertDiffuse(VS_OUTPUT input)
@@ -140,6 +148,20 @@ float CalculateHalfLambertDiffuse(VS_OUTPUT input)
 }
 
 //--------------------------------------------------------------------------------------
+// Vertex Shader
+//--------------------------------------------------------------------------------------
+VS_OUTPUT VS(VS_INPUT input){
+
+	VS_OUTPUT output;
+	output.pos = mul ( float4(input.pos,1.0f), gWorldViewProj );
+	output.texCoord = input.texCoord;
+	    output.worldPos = mul( float4(input.pos,1.0f), gWorld );
+    output.normal = input.normal;
+	return output;
+}
+
+
+//--------------------------------------------------------------------------------------
 // Pixel Shader
 //--------------------------------------------------------------------------------------
 float4 PS(VS_OUTPUT input) : SV_TARGET{
@@ -150,7 +172,7 @@ float4 PS(VS_OUTPUT input) : SV_TARGET{
 	float4 decalColor = gDecalTexture.Sample( samLinear,input.texCoord );
 	clip(decalColor.a - gAlphaCutoff);
 
-	decalColor.xyz *= shadowValue * diffuseStrength;
+	decalColor.rgb *= shadowValue * diffuseStrength;
 
 	return decalColor;
 }

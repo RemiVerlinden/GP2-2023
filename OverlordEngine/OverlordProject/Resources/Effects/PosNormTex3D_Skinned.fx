@@ -28,7 +28,8 @@ struct VS_INPUT{
 struct VS_OUTPUT{
 	float4 pos : SV_POSITION;
 	float3 normal : NORMAL;
-	float2 texCoord : TEXCOORD;
+	float2 texCoord : TEXCOORD0;
+	float4 worldPos : TEXCOORD1;
 };
 
 DepthStencilState EnableDepth
@@ -47,6 +48,115 @@ BlendState NoBlending
 	BlendEnable[0] = FALSE;
 };
 
+// ---------SHADOWMAP VARIABLES--------------
+bool gEnableShadows = true;
+static const int gMaxLights = 20;
+int gAmountLights;
+float4 gLightPosition[gMaxLights];
+TextureCube gShadowCubeMap[gMaxLights];
+float gNearPlanes[gMaxLights];
+float gFarPlanes[gMaxLights];
+float gAmbientLight = 0.25f;
+float gShadowMapBias = 0.01f;
+float gPCFsamples[gMaxLights];
+
+// SAMPLER
+SamplerComparisonState cubeCmpSampler
+{
+   // sampler state
+   Filter = COMPARISON_MIN_MAG_MIP_LINEAR;
+   AddressU = MIRROR;
+   AddressV = MIRROR;
+   AddressW = MIRROR;
+   // sampler comparison state
+   ComparisonFunc = LESS_EQUAL;
+};
+
+SamplerState cubeSampler
+{
+    Filter = MIN_MAG_MIP_LINEAR;   // Tri-linear interpolation
+    AddressU = CLAMP;              // Clamp the texture coordinates to the valid range
+    AddressV = CLAMP;
+    AddressW = CLAMP;
+    ComparisonFunc = LESS;        // For shadow mapping, might be useful to add
+    BorderColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
+};
+
+//-------------------------------------------
+
+
+//--------------------------------------------------------------------------------------
+// Shadowmap functions
+//--------------------------------------------------------------------------------------
+
+
+float3 sampleOffsetDirections[21] = 
+{
+   float3( 0,  0,  0), float3( 1,  1,  1), float3( 1, -1,  1), float3(-1, -1,  1),
+   float3(-1,  1,  1), float3( 1,  1, -1), float3( 1, -1, -1), float3(-1, -1, -1), 
+   float3(-1,  1, -1), float3( 1,  1,  0), float3( 1, -1,  0), float3(-1, -1,  0), 
+   float3(-1,  1,  0), float3( 1,  0,  1), float3(-1,  0,  1), float3( 1,  0, -1), 
+   float3(-1,  0, -1), float3( 0,  1,  1), float3( 0, -1,  1), float3( 0, -1, -1), 
+   float3( 0,  1, -1)
+};
+
+float EvaluateShadowMap(VS_OUTPUT input, int lightNumber)
+{
+    float3 fragToLight = input.worldPos.xyz - gLightPosition[lightNumber].xyz;
+    float currentDepth = length(fragToLight);
+    float normalizedDepth = (currentDepth - gNearPlanes[lightNumber]) / (gFarPlanes[lightNumber] - gNearPlanes[lightNumber]);
+    normalizedDepth -= gShadowMapBias * normalizedDepth * normalizedDepth;
+
+    float3 viewDirection = normalize(fragToLight);
+
+    float viewDistance = length(fragToLight);
+
+    float diskRadius = (1.0 + (viewDistance / gFarPlanes[lightNumber])) / 850.0;
+
+    float shadow = 0.0;
+    int samples = gPCFsamples[lightNumber];
+    for(int i = 0; i < samples; ++i)
+    {
+        float closestDepth = gShadowCubeMap[lightNumber].Sample(cubeSampler, viewDirection + sampleOffsetDirections[i] * diskRadius).r;
+        if(normalizedDepth < closestDepth)
+            shadow += 1.0 - normalizedDepth;
+    }
+    shadow /= float(samples);
+
+    return shadow;
+}
+
+float CalculateShadowValue(VS_OUTPUT input)
+{
+    float totalLighting = 0.f;
+
+    for(int light = 0; light < gAmountLights; ++light)
+    {
+        totalLighting += EvaluateShadowMap(input, light);
+    }
+    
+    totalLighting = clamp(totalLighting, gAmbientLight, 1.0f);
+    return totalLighting;
+}
+
+float CalculateHalfLambertDiffuse(VS_OUTPUT input)
+{
+	float3 accumulatedLight = float3(0, 0, 0);
+
+	for (int i = 0; i < gAmountLights; ++i)
+	{
+    	float3 lightDirection = normalize(input.worldPos.xyz - gLightPosition[i]);
+    	float lightDiffuseStrength = dot(input.normal, -lightDirection);
+    	lightDiffuseStrength = lightDiffuseStrength * 0.5 + 0.5;
+    	lightDiffuseStrength = saturate(lightDiffuseStrength);
+    
+    	accumulatedLight += lightDiffuseStrength;
+	}
+
+	// Average out the diffuse strength.
+	float avgDiffuseStrength = accumulatedLight / gAmountLights;
+	return avgDiffuseStrength;
+}
 //--------------------------------------------------------------------------------------
 // Vertex Shader
 //--------------------------------------------------------------------------------------
@@ -79,23 +189,27 @@ VS_OUTPUT VS(VS_INPUT input){
 	//			thus removing the postion row of the matrix
 	output.normal = normalize(mul(transformedNormal, (float3x3)gWorld));
 	output.texCoord = input.texCoord;
+    output.worldPos = mul( transformedPosition, gWorld );
+
 	return output;
 }
 
 //--------------------------------------------------------------------------------------
 // Pixel Shader
 //--------------------------------------------------------------------------------------
-float4 PS(VS_OUTPUT input) : SV_TARGET{
+float4 PS(VS_OUTPUT input) : SV_TARGET
+{
+
+	float shadowValue = CalculateShadowValue(input);
+	if(!gEnableShadows) shadowValue = 1.f;
+	float diffuseStrength = CalculateHalfLambertDiffuse(input);
 
 	float4 diffuseColor = gDiffuseMap.Sample( samLinear,input.texCoord );
 	float3 color_rgb= diffuseColor.rgb;
 	float color_a = diffuseColor.a;
 	
-	//HalfLambert Diffuse :)
-	float diffuseStrength = dot(input.normal, -gLightDirection);
-	diffuseStrength = diffuseStrength * 0.5 + 0.5;
-	diffuseStrength = saturate(diffuseStrength);
-	color_rgb = color_rgb * diffuseStrength;
+    color_rgb *=  shadowValue * diffuseStrength;
+
 
 	return float4( color_rgb , color_a );
 }

@@ -13,10 +13,11 @@ struct Light
 	XMFLOAT3 up; //12B
 	XMFLOAT4 position; //16B
 	XMFLOAT4 color; //16B
-	float intensity; //4B
-	float range; //4B
-	float nearPlane = 0.01f;
-	float farPlane = 60.f;
+	//float intensity; //4B
+	//float range; //4B
+	int PCFLevel; // MUST BE BETWEEN [1-21] PERCENTAGE CLOSE FILTERING IS USED FOR SHADOW FILTERING (for now only on omnilight)
+	float nearPlane;
+	float farPlane;
 	float spotLightAngle; //4B
 	LightType type; //4B
 	//4 * 16B (To Shader)
@@ -27,10 +28,11 @@ struct Light
 		direction({ 0.f, 1.f, 0.f, 1.f }),
 		position({ 0.f, 0.f, 0.f, 0.f }),
 		color({ 1.f, 1.f, 1.f, 1.f }),
-		intensity(1.f),
-		range(50.f),
+		//intensity(1.f),
+		//range(50.f),
+		PCFLevel(1),
 		nearPlane(0.01f),
-		farPlane(60.f),
+		farPlane(20.f),
 		spotLightAngle(45.f),
 		type(LightType::Point),
 		isEnabled(true) {}

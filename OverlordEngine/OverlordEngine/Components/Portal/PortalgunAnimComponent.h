@@ -27,7 +27,7 @@ public:
 	void SetAnimation(AnimationState state, bool playOnce = false);
 	bool IsAnimationFinished() const;
 	void SetPortalgunColor(const XMFLOAT3& color);
-
+	void TogglePortalgunModelRender(bool shouldRender); // when you are using a different camera than player camera, the portalgun should be invisible
 protected:
 	void Initialize(const SceneContext& sceneContext) override;
 	void Update(const SceneContext&) override;

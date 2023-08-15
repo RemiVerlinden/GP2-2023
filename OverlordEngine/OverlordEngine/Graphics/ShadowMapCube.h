@@ -4,7 +4,7 @@ class ShadowMapMaterial;
 class ShadowMapCube
 {
 public:
-    ShadowMapCube(const GameContext& gamecontext, float cubemapResolution, float nearPlane, float farPlane);
+    ShadowMapCube(const GameContext& gamecontext, float cubemapResolution, const Light& light);
     ~ShadowMapCube();
 
     void Begin(const SceneContext&, int lightNumber);
@@ -16,6 +16,7 @@ public:
 
     float GetNearPlane() const { return m_NearPlane; };
     float GetFarPlane() const { return m_FarPlane; };
+    float GetPCFlevel() const { return m_PCFlevel; };
 
 private:
     const GameContext& m_GameContext;
@@ -27,6 +28,6 @@ private:
 
     int m_LightNumber{-1};
 
-    float m_NearPlane{}, m_FarPlane{};
+    float m_NearPlane{}, m_FarPlane{}, m_PCFlevel; //PCFlevel = Percentage Closer Filtering
     GameScene* m_pScene{};
 };

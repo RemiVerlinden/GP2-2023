@@ -335,7 +335,7 @@ void MapLoader::LoadFrostedGlassShaderForSubmesh(SubmeshShaderInfo& shaderInfo)
 {
 	FrostedGlassMaterial* pFrostedGlassMaterial = MaterialManager::Get()->CreateMaterial<FrostedGlassMaterial>();
 	pFrostedGlassMaterial->SetDiffuseTexture(ShortenTexturePath(shaderInfo.diffusePath));
-	pFrostedGlassMaterial->SetOpacity(0.7f);
+	pFrostedGlassMaterial->SetOpacity(0.3f);
 
 	// still need to look at the fx file and update it
 

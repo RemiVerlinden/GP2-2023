@@ -71,15 +71,14 @@ void ModelComponent::Draw(const SceneContext& sceneContext)
 #ifdef ENABLEPORTALRENDERER
 	if (PortalRenderer::Get()->IsRenderingPortals())
 	{
+		if (m_RenderContext == PortalRenderContext::RealWorldOnly) return;
+
 		if (PortalRenderer::Get()->IsGameObjectPortal(this->GetGameObject()))
 			return;
 	}
 	else
 	{
-		if (m_RenderModelPortalOnly)
-		{
-			return;
-		}
+		if (m_RenderContext == PortalRenderContext::PortalViewOnly) return;
 	}
 #endif
 	//Update Materials

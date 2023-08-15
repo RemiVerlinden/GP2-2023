@@ -46,80 +46,115 @@ void ShadowMapRendererCube::ChangeViewportDimensions(const float width, const fl
 
 void ShadowMapRendererCube::Begin(const SceneContext& sceneContext)
 {
+	GameScene* pScene = SceneManager::Get()->GetActiveScene();
+
 	int lightNumber = 0;
-	for (std::unique_ptr<ShadowMapCube>& pMap : m_ShadowCubes) 
+	for (std::unique_ptr<ShadowMapCube>& pMap : m_ShadowCubes.at(pScene))
 	{
-		m_NearPlane = pMap->GetNearPlane();
-		m_FarPlane = pMap->GetFarPlane();
 		pMap->Begin(sceneContext, lightNumber);
 		++lightNumber;
 	}
 	ChangeViewportDimensions(static_cast<float>(m_CubemapResolution), static_cast<float>(m_CubemapResolution));
 }
 
-void ShadowMapRendererCube::DrawMesh(const SceneContext& sceneContext, int face,MeshFilter* pMeshFilter, const XMFLOAT4X4& meshWorld, const std::vector<XMFLOAT4X4>& meshBones)
+void ShadowMapRendererCube::DrawMesh(const SceneContext& sceneContext, int face, MeshFilter* pMeshFilter, const XMFLOAT4X4& meshWorld, const std::vector<XMFLOAT4X4>& meshBones)
 {
-	TODO_W8(L"Implement DrawMesh")
-		for (std::unique_ptr<ShadowMapCube>& pMap : m_ShadowCubes) 
-		{
-			m_NearPlane = pMap->GetNearPlane();
-			m_FarPlane = pMap->GetFarPlane();
-			pMap->DrawMesh(sceneContext, face, pMeshFilter, meshWorld, meshBones);
-		}
+	GameScene* pScene = SceneManager::Get()->GetActiveScene();
+
+	for (std::unique_ptr<ShadowMapCube>& pMap : m_ShadowCubes.at(pScene))
+	{
+		pMap->DrawMesh(sceneContext, face, pMeshFilter, meshWorld, meshBones);
+	}
 }
 
-void ShadowMapRendererCube::End(const SceneContext& sceneContext) const
+void ShadowMapRendererCube::End(const SceneContext& sceneContext) 
 {
 	ChangeViewportDimensions(static_cast<const float>(m_GameContext.windowWidth), static_cast<const float>(m_GameContext.windowHeight));
 
 	// honestly just doing the commented line below will do the trick but I will do the other for
 	// clarity.
 	//m_GameContext.pGame->SetRenderTarget(nullptr);
-	for (const std::unique_ptr<ShadowMapCube>& pMap : m_ShadowCubes)
+	GameScene* pScene = SceneManager::Get()->GetActiveScene();
+
+	for (std::unique_ptr<ShadowMapCube>& pMap : m_ShadowCubes.at(pScene))
 		pMap->End(sceneContext);
 }
 
-void ShadowMapRendererCube::AddShadowMap(GameScene* pScene, float nearPlane, float farPlane)
+
+// all this complicated code just for stupid caching
+void ShadowMapRendererCube::AddShadowMap(GameScene* pScene, const Light& light)
 {
-	auto& shadowcube = m_ShadowCubes.emplace_back(std::make_unique<ShadowMapCube>(m_GameContext, m_CubemapResolution, nearPlane, farPlane));
-	m_ShadowCubemapsCache.emplace(pScene, shadowcube->GetShadowMap());
+	m_LightPCFLevelsCache[pScene].emplace_back(static_cast<float>(light.PCFLevel));
 
+	//if (m_CubemapsNearFarPlaneCache.find(pScene) == m_CubemapsNearFarPlaneCache.end())
+	//	m_CubemapsNearFarPlaneCache[pScene] = std::pair<std::vector<float>, std::vector<float>>(); // This step is technically optional, because the map will auto-create an empty vector, but it makes things explicit.
+
+	m_CubemapsNearFarPlaneCache[pScene].first.emplace_back(light.nearPlane);
+	m_CubemapsNearFarPlaneCache[pScene].second.emplace_back(light.farPlane);
+
+	//if (m_ShadowCubes.find(pScene) == m_ShadowCubes.end())
+		//m_ShadowCubes[pScene] = std::vector<std::unique_ptr<ShadowMapCube>>(); // This step is technically optional, because the map will auto-create an empty vector, but it makes things explicit.
+
+	auto& shadowcube = m_ShadowCubes[pScene].emplace_back(std::make_unique<ShadowMapCube>(m_GameContext, m_CubemapResolution, light));
+
+
+	//if (m_ShadowCubemapsCache.find(pScene) == m_ShadowCubemapsCache.end())
+		//m_ShadowCubemapsCache[pScene] = std::vector<ID3D11ShaderResourceView*>();
+
+	m_ShadowCubemapsCache[pScene].push_back(shadowcube->GetShadowMap());
 }
-// NEVER USE THIS FUNCTION IT IS NOT COMPLETE
-//void ShadowMapRendererCube::RemoveShadowMap(UINT index)
-//{
-//	if (index < m_ShadowCubes.size())
-//	{
-//		m_ShadowCubes.erase(m_ShadowCubes.begin() + index);
-//	}
-//}
 
+// check what scene we are in then get the shadowmap at that index
 ID3D11ShaderResourceView* ShadowMapRendererCube::GetShadowMap(UINT index) const
 {
-	return m_ShadowCubes.at(index)->GetShadowMap();
+	GameScene* pScene = SceneManager::Get()->GetActiveScene();
+	return m_ShadowCubes.at(pScene).at(index)->GetShadowMap();
 }
 
 std::vector<ID3D11ShaderResourceView*>& ShadowMapRendererCube::GetAllShadowCubemaps()
 {
 	GameScene* pScene = SceneManager::Get()->GetActiveScene();
 
-	static GameScene* pPreviousScene{nullptr};
-	if (pScene == pPreviousScene) return m_ShadowCubemapsSceneCache;
-
-	pPreviousScene = pScene;
-
-	m_ShadowCubemapsSceneCache.clear();
-	auto range = m_ShadowCubemapsCache.equal_range(pScene);
-	for (auto it = range.first; it != range.second; ++it)
+	if (m_ShadowCubemapsCache.find(pScene) == m_ShadowCubemapsCache.end())
 	{
-		m_ShadowCubemapsSceneCache.push_back(it->second);
+		Logger::LogError(L"Trying to get shadowmaps from a scene that doesnt have any( this means you did not add any lights therefore no shadowmaps)");
+		static std::vector<ID3D11ShaderResourceView*> emptyVector;
+		return emptyVector;
 	}
 
-	return m_ShadowCubemapsSceneCache;
+	return m_ShadowCubemapsCache[pScene];
 }
 
-void ShadowMapRendererCube::Debug_DrawDepthSRV(UINT index,const XMFLOAT2& position, const XMFLOAT2& scale, const XMFLOAT2& pivot) const
+std::pair<std::vector<float>, std::vector<float>>& ShadowMapRendererCube::GetAllNearFarPlanes()
 {
-	return m_ShadowCubes.at(index)->Debug_DrawDepthSRV(position, scale,pivot);
+	GameScene* pScene = SceneManager::Get()->GetActiveScene();
 
+	if (m_CubemapsNearFarPlaneCache.find(pScene) == m_CubemapsNearFarPlaneCache.end())
+	{
+		Logger::LogError(L"Trying to get shadowmaps from a scene that doesnt have any( this means you did not add any lights therefore no shadowmaps)");
+		static std::pair<std::vector<float>, std::vector<float>> emptyVector;
+		return emptyVector;
+	}
+
+	return m_CubemapsNearFarPlaneCache[pScene];
+}
+
+std::vector<float>& ShadowMapRendererCube::GetAllPCFLevels()
+{
+	GameScene* pScene = SceneManager::Get()->GetActiveScene();
+
+	if (m_LightPCFLevelsCache.find(pScene) == m_LightPCFLevelsCache.end())
+	{
+		Logger::LogError(L"Trying to get shadowmaps from a scene that doesnt have any( this means you did not add any lights therefore no shadowmaps)");
+		static std::vector<float> emptyVector;
+		return emptyVector;
+	}
+
+	return m_LightPCFLevelsCache[pScene];
+}
+
+void ShadowMapRendererCube::Debug_DrawDepthSRV(UINT index, const XMFLOAT2& position, const XMFLOAT2& scale, const XMFLOAT2& pivot) const
+{
+	GameScene* pScene = SceneManager::Get()->GetActiveScene();
+	return m_ShadowCubes.at(pScene).at(index)->Debug_DrawDepthSRV(position, scale, pivot);
 }

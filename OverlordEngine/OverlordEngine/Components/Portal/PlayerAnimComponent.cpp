@@ -47,7 +47,7 @@ void PlayerAnimComponent::CreatePlayerMesh()
 	const auto pObject = m_pGameObject;
 	const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/Player/BallBot.ovm"));
 
-	pModel->SetRenderOnlyThroughPortal(true);
+	pModel->SetPortalrRenderContext(ModelComponent::PortalRenderContext::PortalViewOnly);
 
 	pModel->SetMaterial(pSkinnedMaterialShell, 0);
 	pModel->SetMaterial(pSkinnedMaterialFrame, 1);

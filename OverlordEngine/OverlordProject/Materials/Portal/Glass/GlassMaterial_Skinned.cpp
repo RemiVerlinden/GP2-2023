@@ -21,6 +21,7 @@ void GlassMaterial_Skinned::SetOpacity(const float opacity)
 
 void GlassMaterial_Skinned::InitializeEffectVariables()
 {
+	m_EnableShadows = true;
 }
 
 void GlassMaterial_Skinned::OnUpdateModelVariables(const SceneContext&, const ModelComponent* pModel) const
@@ -36,4 +37,7 @@ void GlassMaterial_Skinned::OnUpdateModelVariables(const SceneContext&, const Mo
 
 	//Set the 'gBones' variable of the effect (MatrixArray) > BoneTransforms
 	SetVariable_MatrixArray(L"gBones", (float*)boneTransforms.data(), (UINT)boneTransforms.size());
+
+		// I want to disable shadows on this material for now until end of exam.
+	SetVariable_Scalar(L"gEnableShadows", false);
 }

@@ -6,31 +6,6 @@ float4x4 gWorldInverseTranspose : WORLDINVERSETRANSPOSE;
 float4x4 gWorld : WORLD;
 float4x4 gViewInverse : VIEWINVERSE;
 
-// ---------SHADOWMAP VARIABLES--------------
-bool gEnableShadows = true;
-static const int gMaxLights = 20;
-int gAmountLights;
-float4 gLightPosition[gMaxLights];
-TextureCube gShadowCubeMap[gMaxLights];
-float gNearPlane;
-float gFarPlane;
-float gAmbientLight = 0.35f;
-float gShadowMapBias = 0.01f;
-
-// SAMPLER
-SamplerComparisonState cubeCmpSampler
-{
-   // sampler state
-   Filter = COMPARISON_MIN_MAG_MIP_LINEAR;
-   AddressU = MIRROR;
-   AddressV = MIRROR;
-   AddressW = MIRROR;
-   // sampler comparison state
-   ComparisonFunc = LESS_EQUAL;
-};
-
-//-------------------------------------------
-
 /************** light info **************/
 float3 gLightDirection = float3(-0.577f, -0.577f, 0.577f);
 
@@ -118,6 +93,106 @@ BlendState NoBlending
 };
 
 
+
+//--------------------------------------------------------------------------------------
+// Shadowmap functions
+//--------------------------------------------------------------------------------------
+
+// ---------SHADOWMAP VARIABLES--------------
+bool gEnableShadows = true;
+static const int gMaxLights = 20;
+int gAmountLights;
+float4 gLightPosition[gMaxLights];
+TextureCube gShadowCubeMap[gMaxLights];
+float gNearPlanes[20];
+float gFarPlanes[20];
+float gAmbientLight = 0.45f;
+float gShadowMapBias = 0.01f;
+float gPCFsamples = 20;
+
+SamplerState cubeSampler
+{
+    Filter = MIN_MAG_MIP_LINEAR;   // Tri-linear interpolation
+    AddressU = CLAMP;              // Clamp the texture coordinates to the valid range
+    AddressV = CLAMP;
+    AddressW = CLAMP;
+    ComparisonFunc = LESS;        // For shadow mapping, might be useful to add
+    BorderColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
+};
+
+
+//-------------------------------------------
+
+// we can use a max of 21 in gPCFsamples but for optimisation we will most likely use less
+float3 sampleOffsetDirections[21] = 
+{
+   float3( 0,  0,  0), float3( 1,  1,  1), float3( 1, -1,  1), float3(-1, -1,  1),
+   float3(-1,  1,  1), float3( 1,  1, -1), float3( 1, -1, -1), float3(-1, -1, -1), 
+   float3(-1,  1, -1), float3( 1,  1,  0), float3( 1, -1,  0), float3(-1, -1,  0), 
+   float3(-1,  1,  0), float3( 1,  0,  1), float3(-1,  0,  1), float3( 1,  0, -1), 
+   float3(-1,  0, -1), float3( 0,  1,  1), float3( 0, -1,  1), float3( 0, -1, -1), 
+   float3( 0,  1, -1)
+};
+
+float EvaluateShadowMap(VertexOutput input, int lightNumber)
+{
+    float3 fragToLight = input.worldPos.xyz - gLightPosition[lightNumber].xyz;
+    float currentDepth = length(fragToLight);
+    float normalizedDepth = (currentDepth - gNearPlanes[lightNumber]) / (gFarPlanes[lightNumber] - gNearPlanes[lightNumber]);
+    normalizedDepth -= gShadowMapBias * normalizedDepth * normalizedDepth;
+
+    float3 viewDirection = normalize(fragToLight);
+
+    float viewDistance = length(fragToLight);
+
+    float diskRadius = (1.0 + (viewDistance / gFarPlanes[lightNumber])) / 850.0;
+
+    float shadow = 0.0;
+    int samples = gPCFsamples;
+    for(int i = 0; i < samples; ++i)
+    {
+        float closestDepth = gShadowCubeMap[lightNumber].Sample(cubeSampler, viewDirection + sampleOffsetDirections[i] * diskRadius).r;
+        if(normalizedDepth < closestDepth)
+            shadow += 1.0 - normalizedDepth;
+    }
+    shadow /= float(samples);
+
+    return shadow;
+}
+
+float CalculateShadowValue(VertexOutput input)
+{
+    float totalLighting = 0.f;
+
+    for(int light = 0; light < gAmountLights; ++light)
+    {
+        totalLighting += EvaluateShadowMap(input, light);
+    }
+    
+    totalLighting = clamp(totalLighting, gAmbientLight, 1.0f);
+    return totalLighting;
+}
+
+float CalculateHalfLambertDiffuse(VertexOutput input)
+{
+	float3 accumulatedLight = float3(0, 0, 0);
+
+	for (int i = 0; i < gAmountLights; ++i)
+	{
+    	float3 lightDirection = normalize(input.worldPos.xyz - gLightPosition[i]);
+    	float lightDiffuseStrength = dot(input.normal, -lightDirection);
+    	lightDiffuseStrength = lightDiffuseStrength * 0.5 + 0.5;
+    	lightDiffuseStrength = saturate(lightDiffuseStrength);
+    
+    	accumulatedLight += lightDiffuseStrength;
+	}
+
+	// Average out the diffuse strength.
+	float avgDiffuseStrength = accumulatedLight / gAmountLights;
+	return avgDiffuseStrength;
+}
+
+
 /**************************************/
 /***** VERTEX SHADER ******************/
 /**************************************/
@@ -142,63 +217,6 @@ VertexOutput VS(VertexInput IN) {
     OUT.worldPos = mul( float4(IN.pos,1.0f), gWorld );
 
     return OUT;
-}
-
-
-//--------------------------------------------------------------------------------------
-// Shadowmap functions
-//--------------------------------------------------------------------------------------
-float EvaluateShadowMap(VertexOutput input, int lightNumber) // true means point is lit
-{
-	float3 cubeSampleDirection = input.worldPos.xyz - gLightPosition[lightNumber].xyz;
-	float depth = length(cubeSampleDirection);
-	float normalizedDepth = (depth - gNearPlane) / (gFarPlane - gNearPlane);
-	normalizedDepth -= gShadowMapBias * normalizedDepth * normalizedDepth;
-
-	cubeSampleDirection = normalize(cubeSampleDirection);
-	bool isLit = gShadowCubeMap[lightNumber].SampleCmpLevelZero(cubeCmpSampler, cubeSampleDirection, normalizedDepth);
-	float shadowValue = 0.f;
-	if(isLit)
-	{
-		shadowValue = clamp( 1.0f - normalizedDepth,0.f,1.f);
-	}
-
-
-	return shadowValue;
-}
-
-float CalculateShadowValue(VertexOutput input)
-{
-	float totalLighting = 0.f;
-
-	for(int light = 0; light < gAmountLights; ++light)
-	{
-		totalLighting += EvaluateShadowMap(input, light);
-	}
-	
-	// Clamp the lighting so it doesn't go above 1.0 (or some max value)
-	// and doesn't go below the ambient light level.
-	totalLighting = clamp(totalLighting, gAmbientLight, 1.0f);
-	return totalLighting;
-}
-
-float CalculateHalfLambertDiffuse(VertexOutput input)
-{
-	float3 accumulatedLight = float3(0, 0, 0);
-
-	for (int i = 0; i < gAmountLights; ++i)
-	{
-    	float3 lightDirection = normalize(input.worldPos.xyz - gLightPosition[i]);
-    	float lightDiffuseStrength = dot(input.normal, -lightDirection);
-    	lightDiffuseStrength = lightDiffuseStrength * 0.5 + 0.5;
-    	lightDiffuseStrength = saturate(lightDiffuseStrength);
-    
-    	accumulatedLight += lightDiffuseStrength;
-	}
-
-	// Average out the diffuse strength.
-	float avgDiffuseStrength = accumulatedLight / gAmountLights;
-	return avgDiffuseStrength;
 }
 
 /**************************************/
@@ -250,7 +268,7 @@ float4 PS(VertexOutput IN) : SV_TARGET {
 
     // final combine
     float3 result = specContrib + (diffuseColor * (diffContrib + gAmbientColor));
-    result *= shadowValue * diffuseStrength;
+    result = diffuseColor * shadowValue * diffuseStrength;
 
     return float4(result, 1.0);
 }

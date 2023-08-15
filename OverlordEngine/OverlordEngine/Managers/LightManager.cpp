@@ -20,7 +20,7 @@ void LightManager::SetDirectionalLight(const XMFLOAT3& position, const XMFLOAT3&
 
 UINT LightManager::AddLight(GameScene* pScene, const Light& l)
 {
-	ShadowMapRendererCube::Get()->AddShadowMap(pScene, l.nearPlane, l.farPlane);
+	ShadowMapRendererCube::Get()->AddShadowMap(pScene, l );
 
 	m_Lights.push_back(l);
 	return static_cast<UINT>(m_Lights.size() - 1); 

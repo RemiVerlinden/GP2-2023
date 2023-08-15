@@ -27,13 +27,15 @@ void PortalTestScene::Initialize()
 	{
 		std::vector<Light> lightsVec;
 		Light light;
-		
+		light.PCFLevel = 8;
 		//-0.1, 8.6, 8.6
-		light.position = { -30.6f, 6.6f, 7.6f,0.f }; // center room small
+		light.position = { -31.6f, 5.6f, 8.6f,0.f }; // center room small
 		lightsVec.push_back(light);
-		light.position = { 0.3f, 8.3f, 6.0f,0.f }; // center room big 
+		light.position = { 0.3f, 8.3f, 8.0f,0.f }; // center room big 
+		light.farPlane = 30.f;
 		lightsVec.push_back(light);
-		light.position = { 0.1f, 9.1f, -1.5f,0.f }; // center room big above pit
+		light.position = { 0.1f, 9.1f, -2.f,0.f }; // center room big above pit
+		light.farPlane = 20.f;
 		lightsVec.push_back(light);
 		light.position = { -48.3f, 4.3f, 7.7f,0.f }; // elevator beginning
 		lightsVec.push_back(light);
@@ -41,18 +43,20 @@ void PortalTestScene::Initialize()
 		lightsVec.push_back(light);
 		light.position = { 15.4f, 3.5f, 7.8f,0.f }; // behind door
 		lightsVec.push_back(light);
-		light.position = { 5.0f, 8.6f, 19.7f,0.f }; // big observation room bottom light
+		light.position = { 4.7f, 8.5f, 19.7f,0.f }; // big observation room bottom light
+		light.farPlane = 15.f;
+		light.PCFLevel = 1;
 		lightsVec.push_back(light);
-		light.position = { 5.0f, 9.3f, 19.6f,0.f }; // big observation room top light
-		lightsVec.push_back(light);
+		//light.position = { 4.7f, 11.4f, 19.6f,0.f }; // big observation room top light
+		//lightsVec.push_back(light);
 		light.position = { -17.74f, 8.31f, -7.47f,0.f }; // small observation room bottom light
+		light.farPlane = 7.f;
 		lightsVec.push_back(light);
-		light.position = { -17.74f, 8.9f, -7.47f,0.f }; // small observation room top light
-		lightsVec.push_back(light);
+		//light.position = { -17.74f, 8.9f, -7.47f,0.f }; // small observation room top light
+		//lightsVec.push_back(light);
 
 
-
-		for (const Light& currentLight: lightsVec)
+		for (const Light& currentLight : lightsVec)
 			m_SceneContext.pLights->AddLight(this, currentLight);
 	}
 
@@ -154,7 +158,7 @@ void PortalTestScene::CreatePortals(CameraComponent* playerCamera)
 		PortalComponent* pPortalComponent = pPortal->AddComponent(new PortalComponent(m_pCharacter, (bool)currentPortal));
 
 		const auto pPortalMesh = pPortal->AddComponent(new ModelComponent(L"blender/portal2.ovm"));
-
+		pPortalMesh->SetCastShadows(false);
 		PortalMaterial* pPortalMaterial;
 
 		if ((PortalRenderer::Portal)currentPortal == PortalRenderer::Portal::blue)
@@ -188,8 +192,9 @@ void PortalTestScene::CreatePortals(CameraComponent* playerCamera)
 	orangePortal->SetLinkedPortal(bluePortal);
 	bluePortal->SetLinkedPortal(orangePortal);
 
-	orangePortal->GetTransform()->TranslateWorld({ 3, -10.f, -2 });
-	bluePortal->GetTransform()->TranslateWorld({ -3, -10, -2 });
+	orangePortal->GetTransform()->TranslateWorld({ -12.7614f, 2.22742f, 12.8245f });
+	orangePortal->GetTransform()->Rotate(XMFLOAT4{ 0.f, -0.382683f, 0.f, 0.92388f });
+	bluePortal->GetTransform()->TranslateWorld({ -16.6547f, 2.24675f, 0.01f });
 
 }
 
@@ -217,76 +222,61 @@ void PortalTestScene::MovePortal(Portal portal)
 
 	const float offsetDistance = .01f; // Change this to the desired offset distance
 
-if (auto [pHitObject, hit] = m_SceneContext.pCamera->CrosshairRaycast(CollisionGroup::Group0 | CollisionGroup::Group1 | CollisionGroup::Group2); pHitObject != nullptr)
-{
-    // Default portal facing direction
-    XMVECTOR defaultDir = XMVectorSet(0, 0, 1, 0); // Assuming +Z as default
-    
-    // Compute rotation axis and angle
-    XMVECTOR hitNormal = XMLoadFloat3(&hit.normal);
-
-	// If the portal is orange, invert the normal vector.
-	if (portal == Orange)
+	// just do raycast and place portal at hit point
+	if (auto [pHitObject, hit] = m_SceneContext.pCamera->CrosshairRaycast(CollisionGroup::Group0 | CollisionGroup::Group1 | CollisionGroup::Group2); pHitObject != nullptr)
 	{
-		hitNormal = XMVectorNegate(hitNormal);
+		// Default portal facing direction
+		XMVECTOR defaultDir = XMVectorSet(0, 0, 1, 0); // Assuming +Z as default
+
+		// Compute rotation axis and angle
+		XMVECTOR hitNormal = XMLoadFloat3(&hit.normal);
+
+		// If the portal is orange, invert the normal vector.
+		if (portal == Orange)
+		{
+			hitNormal = XMVectorNegate(hitNormal);
+		}
+
+		XMVECTOR rotationAxis = XMVector3Cross(defaultDir, hitNormal);
+		float rotationAngle = acosf(XMVectorGetX(XMVector3Dot(defaultDir, hitNormal)));
+
+		// Check for a nearly zero-length rotation axis, which indicates parallel or antiparallel vectors
+		XMVECTOR axisLength = XMVector3Length(rotationAxis);
+		if (XMVectorGetX(axisLength) < 1e-6f)
+		{ // 1e-6f is a small threshold; adjust as needed
+			if (XMVectorGetX(XMVector3Dot(defaultDir, hitNormal)) < 0)
+			{
+				// Vectors are antiparallel
+				rotationAxis = XMVectorSet(0, 1, 0, 0); // You can choose any perpendicular axis here
+				rotationAngle = XM_PI; // 180 degrees
+			}
+			else
+			{
+				// Vectors are parallel
+				// No need to rotate in this case, but for safety, you can set to identity
+				rotationAngle = 0.0f;
+				rotationAxis = XMVectorSet(1, 0, 0, 0); // Arbitrary since angle is zero
+			}
+		}
+
+		// Create rotation quaternion
+		XMVECTOR rotationQuat = XMQuaternionRotationAxis(rotationAxis, rotationAngle);
+
+		// Offset the portal position slightly away from the wall
+		XMVECTOR offset = XMVectorScale(XMLoadFloat3(&hit.normal), offsetDistance); // Notice we use the original normal for the offset, not the possibly negated one
+		XMVECTOR finalPosition = XMVectorAdd(XMLoadFloat3(&hit.position), offset);
+
+		// Set portal's transform
+		std::wcout << L"hit object: " << pHitObject->GetTag() << std::endl;
+
+		XMFLOAT3 finalPositionFloat3;
+		XMStoreFloat3(&finalPositionFloat3, finalPosition);
+
+		m_pPortals[portal]->GetTransform()->Rotate(rotationQuat); // Assuming such a function exists
+		m_pPortals[portal]->GetTransform()->TranslateWorld(finalPositionFloat3);
 	}
 
-	XMVECTOR rotationAxis = XMVector3Cross(defaultDir, hitNormal);
-	float rotationAngle = acosf(XMVectorGetX(XMVector3Dot(defaultDir, hitNormal)));
-
-	// Check for a nearly zero-length rotation axis, which indicates parallel or antiparallel vectors
-	XMVECTOR axisLength = XMVector3Length(rotationAxis);
-	if (XMVectorGetX(axisLength) < 1e-6f) { // 1e-6f is a small threshold; adjust as needed
-		if (XMVectorGetX(XMVector3Dot(defaultDir, hitNormal)) < 0) {
-			// Vectors are antiparallel
-			rotationAxis = XMVectorSet(0, 1, 0, 0); // You can choose any perpendicular axis here
-			rotationAngle = XM_PI; // 180 degrees
-		}
-		else {
-			// Vectors are parallel
-			// No need to rotate in this case, but for safety, you can set to identity
-			rotationAngle = 0.0f;
-			rotationAxis = XMVectorSet(1, 0, 0, 0); // Arbitrary since angle is zero
-		}
-	}
-
-	// Create rotation quaternion
-	XMVECTOR rotationQuat = XMQuaternionRotationAxis(rotationAxis, rotationAngle);
-    
-    // Offset the portal position slightly away from the wall
-	XMVECTOR offset = XMVectorScale(XMLoadFloat3(&hit.normal), offsetDistance); // Notice we use the original normal for the offset, not the possibly negated one
-    XMVECTOR finalPosition = XMVectorAdd(XMLoadFloat3(&hit.position), offset);
-    
-    // Set portal's transform
-    std::wcout << L"hit object: " << pHitObject->GetTag() << std::endl;
-    
-    XMFLOAT3 finalPositionFloat3;
-    XMStoreFloat3(&finalPositionFloat3, finalPosition);
-    
-    m_pPortals[portal]->GetTransform()->Rotate(rotationQuat); // Assuming such a function exists
-    m_pPortals[portal]->GetTransform()->TranslateWorld(finalPositionFloat3);
-}
-
-
-
-
-
-
-	//XMFLOAT4 rotation = m_pCharacter->GetCameraComponent()->GetTransform()->GetWorldRotation();
-	//if (portal == Orange)
-	//{
-	//	XMVECTOR axis = XMVectorSet(0, 1, 0, 0);
-	//	float angle = XM_PI;
-	//	XMVECTOR rotationVec = XMQuaternionRotationAxis(axis, angle);
-	//	XMVECTOR newRotation = XMQuaternionMultiply(rotationVec, XMLoadFloat4(&rotation));
-	//	XMFLOAT4 newRotationFloat4;
-	//	XMStoreFloat4(&newRotationFloat4, newRotation);
-	//	rotationVec = XMQuaternionNormalize(newRotation);
-	//	XMStoreFloat4(&rotation, newRotation);
-	//}
-	//m_pPortals[portal]->GetTransform()->RotateWorld(XMLoadFloat4(&rotation));
-
-	m_pPortals[portal]->GetComponent<PortalComponent>()->SetHasPortalMoved(true);
+	m_pPortals[portal]->GetComponent<PortalComponent>()->SetHasPortalMoved(true); // this will make the portal opening animation play
 }
 
 
@@ -329,7 +319,7 @@ void PortalTestScene::Update()
 	// group0 is the player and environment, group1 is for all objects that ignore player, group2 is for interaction with the button and some trigger stuff
 	// group3 will be for all objects that are portalable
 	if (m_SceneContext.pInput->IsKeyboardKey(InputState::pressed, 'G'))
-		if ( const auto [pHitObject,hit] = m_SceneContext.pCamera->PickDetailed(CollisionGroup::Group0 | CollisionGroup::Group1 | CollisionGroup::Group2); pHitObject != nullptr)
+		if (const auto [pHitObject, hit] = m_SceneContext.pCamera->PickDetailed(CollisionGroup::Group0 | CollisionGroup::Group1 | CollisionGroup::Group2); pHitObject != nullptr)
 		{
 			//delete hit object from scene
 			std::wcout << L"hit object: " << pHitObject->GetTag() << std::endl;
@@ -340,13 +330,13 @@ void PortalTestScene::Update()
 		m_ScenePaused = !m_ScenePaused;
 	}
 
-	auto pos = m_SceneContext.pCamera->GetTransform()->GetPosition();
+	//auto pos = m_SceneContext.pCamera->GetTransform()->GetPosition();
 
-	float x = pos.x;
-	float y = pos.y;
-	float z = pos.z;
+	//float x = pos.x;
+	//float y = pos.y;
+	//float z = pos.z;
 
-	std::cout << std::fixed << std::setprecision(1) << x << ", " << y << ", " << z << std::endl;
+	//std::cout << std::fixed << std::setprecision(1) << x << ", " << y << ", " << z << std::endl;
 
 	UpdateMenu();
 }
@@ -354,7 +344,7 @@ void PortalTestScene::Update()
 void PortalTestScene::Draw()
 {
 
-	if (m_ScenePaused) 
+	if (m_ScenePaused)
 	{
 		SpriteRenderer::Get()->AppendSprite(m_pMenuTexture, { 0,0 }, XMFLOAT4{ 1,1,1,0.5f }, {}, { m_SceneContext.windowWidth / 100, m_SceneContext.windowHeight / 100 }, 0, 0.2f);
 	}

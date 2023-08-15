@@ -103,10 +103,12 @@ void PortalgunAnimComponent::CreatePortalgunMesh()
 	const auto pObject = m_pPortalgunHolder;
 	const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/Weapon/PortalgunRTX.ovm"));
 
+	pModel->SetPortalrRenderContext(ModelComponent::PortalRenderContext::RealWorldOnly);
+
 	pObject->GetTransform()->Scale(0.04f); // sorry, if I had more time I'd make the model 1/1 scale
 	pObject ->GetTransform()->Rotate(0.f, -90.f, 0.f);
 	pObject ->GetTransform()->Translate(0.f, 0.f, -0.2f);
-	pModel->SetRenderOnlyThroughPortal(false);
+
 
 	pModel->SetMaterial(pSkinnedMaterialGun, 0);
 	pModel->SetMaterial(m_pPortalgunGlowMaterial, 1);
@@ -119,7 +121,11 @@ void PortalgunAnimComponent::CreatePortalgunMesh()
 	m_pAnimator->SetAnimationSpeed(1.f);
 
 }
-
-
+void PortalgunAnimComponent::TogglePortalgunModelRender(bool shouldRender)
+{
+	auto pModel = m_pPortalgunHolder->GetComponent<ModelComponent>();
+	ModelComponent::PortalRenderContext portalRenderContext = shouldRender ? ModelComponent::PortalRenderContext::RealWorldOnly :ModelComponent::PortalRenderContext::PortalViewOnly;
+	pModel->SetPortalrRenderContext(portalRenderContext);
+}
 
 

@@ -19,8 +19,8 @@ struct VS_OUTPUT{
 
 DepthStencilState EnableDepth
 {
-	DepthEnable = TRUE;
-	DepthWriteMask = ALL;
+	DepthEnable = FALSE;
+	DepthWriteMask = NONE;
 };
 
 RasterizerState NoCulling

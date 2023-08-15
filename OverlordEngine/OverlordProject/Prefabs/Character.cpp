@@ -315,12 +315,16 @@ void Character::DrawImGui()
 		ImGui::DragFloat("Jump Speed", &m_CharacterDesc.JumpSpeed, 0.1f, 0.f, 0.f, "%.1f");
 		ImGui::DragFloat("Rotation Speed (deg/s)", &m_CharacterDesc.rotationSpeed, 0.1f, 0.f, 0.f, "%.1f");
 
-		bool isActive = m_pCameraComponent->IsActive();
+		bool isActive = m_pCameraComponent->IsActive(); // is playercam active
 		if (ImGui::Checkbox("Character Camera", &isActive))
 		{
 			m_pCameraComponent->SetActive(isActive);
-			auto pModel = m_pPlayerAnimObject->GetComponent<ModelComponent>();
-			pModel->SetRenderOnlyThroughPortal(isActive);
+			auto pModel = m_pPlayerAnimComponent->GetGameObject()->GetComponent<ModelComponent>();
+			ModelComponent::PortalRenderContext portalRenderContext;
+			portalRenderContext = isActive ? ModelComponent::PortalRenderContext::PortalViewOnly : ModelComponent::PortalRenderContext::Everywhere;
+			pModel->SetPortalrRenderContext(portalRenderContext);
+
+			m_pPortalgunAnimComponent->TogglePortalgunModelRender(isActive);
 		}
 	}
 }

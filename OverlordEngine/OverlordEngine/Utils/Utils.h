@@ -124,3 +124,8 @@ namespace MathUtil
 		*cosine = cos(radians);
 	}
 }
+
+namespace Random 
+{
+	float GenerateRandomInterval(float min, float max);
+}

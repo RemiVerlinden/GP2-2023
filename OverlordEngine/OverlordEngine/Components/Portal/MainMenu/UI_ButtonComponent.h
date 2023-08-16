@@ -26,7 +26,7 @@ private:
 
 	void DrawButtonText() const;
 	void SoundOnHoverStart();
-	void PlayFmodSound(FMOD::Sound* pSound);
+	void Play2DSound(FMOD::Sound* pSound);
 
 	XMFLOAT2 PixelToPercent(const SceneContext& context, const POINT& pos) const;
 	XMFLOAT2 PixelToPercent(const SceneContext& context, const XMFLOAT2& pos) const;

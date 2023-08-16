@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Utils.h"
 #include <DirectXMath.h>
+#include <random>
 
 void MatrixUtil::MultiplyMatrices(const XMFLOAT4X4& matrixA, const XMFLOAT4X4& matrixB, const XMFLOAT4X4& matrixC, XMFLOAT4X4& result)
 {
@@ -111,3 +112,10 @@ void QuatUtil::AngleVectors(const XMFLOAT3& angles, XMFLOAT3* forward, XMFLOAT3*
 	}
 }
 
+float Random::GenerateRandomInterval(float min,float max)
+{
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<> dis(min, max);
+	return static_cast<float>(dis(gen));
+}

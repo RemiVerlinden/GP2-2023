@@ -36,11 +36,11 @@ private:
 	void UpdateUIBox();
 	void InitializeLevelMeshes();
 
-
+	FMOD::Sound* m_pSound{nullptr};
 
 	//----------------------------------------------------------------------------------------------
 
-	// all the magic numbers that have to do with positioning are just from checking them in photoshop with the original game
+	// all the magic numbers that have to do with positioning. I got these by measuring everything in photoshop in comparison with the original game
 
 	struct UIProperties // this is the base of the start menu UI (logo, new game, options, quit)
 	{
@@ -158,6 +158,8 @@ private:
 
 	XMFLOAT3 m_Translate{ -22.43f, 9.37f,  -2.00f };
 	XMFLOAT3 m_StartRotation{ 17.80f, 122.90f, 0.0f };
+
+	bool m_PressedReturnMenu{ false }; // this is used to check if the player pressed the return button to go back to the main menu
 };
 
 

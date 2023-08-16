@@ -103,6 +103,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Components\Portal\CrosshairComponent.h" />
     <ClInclude Include="Components\Portal\MainMenu\UI_ButtonComponent.h" />
     <ClInclude Include="Components\Portal\PlayerAnimComponent.h" />
     <ClInclude Include="Components\Portal\ButtonAnimComponent.h" />
@@ -203,6 +204,7 @@
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Components\Portal\CrosshairComponent.cpp" />
     <ClCompile Include="Components\Portal\MainMenu\UI_ButtonComponent.cpp" />
     <ClCompile Include="Components\Portal\PlayerAnimComponent.cpp" />
     <ClCompile Include="Components\Portal\ButtonAnimComponent.cpp" />

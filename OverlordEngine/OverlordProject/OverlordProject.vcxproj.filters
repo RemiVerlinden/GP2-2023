@@ -34,7 +34,7 @@
     <ClCompile Include="Scenes\Week 8\ShadowMappingScene.cpp" />
     <ClCompile Include="Materials\Shadow\DiffuseMaterial_Shadow.cpp" />
     <ClCompile Include="Materials\Shadow\DiffuseMaterial_Shadow_Skinned.cpp" />
-    <ClCompile Include="Scenes\Portal\PortalTestScene.cpp" />
+    <ClCompile Include="Scenes\Portal\PortalScene.cpp" />
     <ClCompile Include="Materials\Portal\PortalMaterial.cpp" />
     <ClCompile Include="Scenes\Week 9\ParticleScene.cpp" />
     <ClCompile Include="Scenes\Week 10\PostProcessingScene.cpp" />
@@ -51,7 +51,7 @@
     <ClCompile Include="Scenes\Portal\PortalProps.cpp" />
     <ClCompile Include="Materials\Portal\PhongMaterial_Skinned.cpp" />
     <ClCompile Include="Materials\Post\PostColorGrading.cpp" />
-    <ClCompile Include="Materials\Post\PostSSAO.cpp" />
+    <ClCompile Include="Materials\Post\PostChromatic.cpp" />
     <ClCompile Include="Materials\Portal\Glass\GlassMaterial_Skinned.cpp" />
     <ClCompile Include="Materials\Portal\Weapon\PortalGun_Glow_Material.cpp" />
     <ClCompile Include="Portal\ViewBob.cpp" />
@@ -93,7 +93,7 @@
     <ClInclude Include="Scenes\Week 8\ShadowMappingScene.h" />
     <ClInclude Include="Materials\Shadow\DiffuseMaterial_Shadow.h" />
     <ClInclude Include="Materials\Shadow\DiffuseMaterial_Shadow_Skinned.h" />
-    <ClInclude Include="Scenes\Portal\PortalTestScene.h" />
+    <ClInclude Include="Scenes\Portal\PortalScene.h" />
     <ClInclude Include="Materials\Portal\PortalMaterial.h" />
     <ClInclude Include="Scenes\Week 9\ParticleScene.h" />
     <ClInclude Include="Scenes\Week 10\PostProcessingScene.h" />
@@ -111,7 +111,7 @@
     <ClInclude Include="Scenes\Portal\PortalProps.h" />
     <ClInclude Include="Materials\Portal\PhongMaterial_Skinned.h" />
     <ClInclude Include="Materials\Post\PostColorGrading.h" />
-    <ClInclude Include="Materials\Post\PostSSAO.h" />
+    <ClInclude Include="Materials\Post\PostChromatic.h" />
     <ClInclude Include="Materials\Portal\Glass\GlassMaterial_Skinned.h" />
     <ClInclude Include="Materials\Portal\Weapon\PortalGun_Glow_Material.h" />
     <ClInclude Include="SceneInputDefines\PortalInput.h" />

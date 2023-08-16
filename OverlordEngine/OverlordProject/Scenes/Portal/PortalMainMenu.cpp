@@ -26,12 +26,22 @@ void PortalMainMenu::SetMenuObject(GameObject* pObject)
 
 void PortalMainMenu::Initialize()
 {
-	m_SceneContext.settings.showInfoOverlay = true;
+	m_SceneContext.settings.showInfoOverlay = false;
 	m_SceneContext.settings.drawPhysXDebug = false;
 	m_SceneContext.settings.drawGrid = false;
-	m_SceneContext.settings.enableOnGUI = true;
+	m_SceneContext.settings.enableOnGUI = false ;
 	m_SceneContext.settings.clearColor = (XMFLOAT4)Colors::Black;
 
+	// MENU MUSIC
+	{
+		const auto& soundManager = SoundManager::Get();
+		std::string menuMusic = "Resources/Sounds/Ambient/main_menu.mp3";
+
+		m_pSound = soundManager->LoadSound(menuMusic, true, false);
+
+		SoundManager::Get()->Play2DSound(m_pSound, 0.1f, SoundManager::SoundChannel::Music, false);
+
+	}
 
 	// LIGHTS
 	{
@@ -326,12 +336,31 @@ void PortalMainMenu::OnGUI()
 
 void PortalMainMenu::OnSceneActivated()
 {
-	MainUIProps.buttonComponents[0]->SetText(L"NEW GAME"); // when in the main menu, the name of the first button is "NEW GAME"
+	static bool firstTime = true;
+	if (firstTime)
+	{
+		MainUIProps.buttonComponents[0]->SetText(L"NEW GAME"); // when in the main menu, the name of the first button is "NEW GAME"
+		firstTime = false;
+	}
+	else if (!firstTime && m_PressedReturnMenu)
+	{
+		MainUIProps.buttonComponents[0]->SetText(L"RESUME"); // when in the main menu, the name of the first button is "NEW GAME"
+		m_PressedReturnMenu = false;
+	}
+	else
+	{
+		MainUIProps.buttonComponents[0]->SetText(L" "); // remove new game button after game has been finished
+		GameLogoProps.text = L"You have completed the demo :)";
+	}
+	MainUIProps.buttonComponents[2]->SetText(MainUIProps.text[2]); // Last button is set to quit
+	SoundManager::Get()->ResumeChannelGroup(SoundManager::SoundChannel::Music);
 }
 
 void PortalMainMenu::OnSceneDeactivated()
 {
 	MainUIProps.buttonComponents[0]->SetText(L"RESUME"); // when in different scenes, the name of the first button is "RESUME"
+	MainUIProps.buttonComponents[2]->SetText(L"MAIN MENU"); // when in different scenes, the name of the first button is "RESUME"
+	SoundManager::Get()->PauseChannelGroup(SoundManager::SoundChannel::Music);
 }
 
 void PortalMainMenu::DrawLogo()
@@ -381,10 +410,16 @@ void PortalMainMenu::UpdateMenu()
 		{
 			m_MenuState = MenuState::Quit;
 		}
+		else if (component->GetText() == L"MAIN MENU")
+		{
+			m_PressedReturnMenu = true;
+			m_MenuState = MenuState::Menu;
+			SceneManager::Get()->SetActiveGameScene(L"PortalMainMenu");
+		}
 		else if (component->GetText() == L"RESUME")
 		{
-
-			SceneManager::Get()->SetActiveGameScene(L"PortalScene");
+			m_MenuState = MenuState::Menu;
+			SceneManager::Get()->SetActiveGameScene(L"Chamber 02");
 			SceneManager::Get()->GetActiveScene()->PauseScene(false);
 		}
 	}

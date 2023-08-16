@@ -21,7 +21,6 @@ private:
 
 	bool m_IsPressed = false;
 	float buttonState = 0; // this is in percentage float [0-1] -> [0-100%] on how much the button is pressed
-	XMFLOAT3 m_OriginalPosition;
 
 	struct ButtonAnimationInfo
 	{
@@ -32,4 +31,14 @@ private:
 	ButtonAnimationInfo m_AnimInfo;
 
 	std::vector<InteractionComponent> m_InterationComponents{};
+
+
+
+	enum class SoundLibrary 
+	{
+		Press,
+		Release
+	};
+
+	static inline std::unordered_map<SoundLibrary, FMOD::Sound*> m_pSounds{};
 };

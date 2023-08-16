@@ -64,7 +64,7 @@
 
 #ifdef PORTAL
 #include "Scenes\Portal\PortalMainMenu.h"
-#include "Scenes\Portal\PortalTestScene.h"
+#include "Scenes\Portal\PortalScene.h"
 #endif
 
 #ifdef PORTALTESTANIMATIONS
@@ -154,7 +154,7 @@ void MainGame::Initialize()
 
 #ifdef PORTAL
 	SceneManager::Get()->AddGameScene(new PortalMainMenu());
-	SceneManager::Get()->AddGameScene(new PortalTestScene());
+	SceneManager::Get()->AddGameScene(new PortalScene());
 #endif
 
 #ifdef PORTALTESTANIMATIONS

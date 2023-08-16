@@ -45,6 +45,7 @@
 #include "Components/Portal/PlayerAnimComponent.h"
 #include "Components/Portal/PortalgunAnimComponent.h"
 #include "Components/Portal/MainMenu/UI_ButtonComponent.h"
+#include "Components/Portal/CrosshairComponent.h"
 
 
 #include "Content/ContentLoader.h"

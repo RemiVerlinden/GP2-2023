@@ -85,6 +85,9 @@ void InputManager::ForceMouseToCenter(bool force)
 		POINT mouseCenter{};
 		m_CurrMousePosition.x = static_cast<LONG>(m_GameContext.windowWidth) / 2;
 		m_CurrMousePosition.y = static_cast<LONG>(m_GameContext.windowHeight) / 2;
+
+		m_OldMousePosition = m_CurrMousePosition;
+
 		mouseCenter.x = m_CurrMousePosition.x;
 		mouseCenter.y = m_CurrMousePosition.y;
 		ClientToScreen(m_GameContext.windowHandle, &mouseCenter);

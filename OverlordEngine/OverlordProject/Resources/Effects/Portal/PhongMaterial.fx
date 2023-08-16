@@ -104,11 +104,11 @@ static const int gMaxLights = 20;
 int gAmountLights;
 float4 gLightPosition[gMaxLights];
 TextureCube gShadowCubeMap[gMaxLights];
-float gNearPlanes[20];
-float gFarPlanes[20];
+float gNearPlanes[gMaxLights];
+float gFarPlanes[gMaxLights];
 float gAmbientLight = 0.45f;
 float gShadowMapBias = 0.01f;
-float gPCFsamples = 20;
+float gPCFsamples[gMaxLights];
 
 SamplerState cubeSampler
 {
@@ -148,7 +148,7 @@ float EvaluateShadowMap(VertexOutput input, int lightNumber)
     float diskRadius = (1.0 + (viewDistance / gFarPlanes[lightNumber])) / 850.0;
 
     float shadow = 0.0;
-    int samples = gPCFsamples;
+    int samples = gPCFsamples[lightNumber];
     for(int i = 0; i < samples; ++i)
     {
         float closestDepth = gShadowCubeMap[lightNumber].Sample(cubeSampler, viewDirection + sampleOffsetDirections[i] * diskRadius).r;

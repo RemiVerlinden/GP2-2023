@@ -19,7 +19,7 @@ void UI_ButtonComponent::Initialize(const SceneContext& /*sceneContext*/)
 		// HOVER SOUND
 		auto pFmod = SoundManager::Get()->GetSystem();
 
-		FMOD_RESULT result = pFmod->createStream("Resources/Sounds/buttonrollover.wav", FMOD_DEFAULT | FMOD_LOOP_OFF, nullptr, &m_pHoverSound);
+		FMOD_RESULT result = pFmod->createSound("Resources/Sounds/buttonrollover.wav", FMOD_DEFAULT | FMOD_LOOP_OFF, nullptr, &m_pHoverSound);
 		SoundManager::Get()->ErrorCheck(result);
 
 		result = pFmod->playSound(m_pHoverSound, nullptr, true, &m_pChannel2D);
@@ -27,7 +27,7 @@ void UI_ButtonComponent::Initialize(const SceneContext& /*sceneContext*/)
 
 
 		// CLICK SOUND
-		result = pFmod->createStream("Resources/Sounds/buttonclickrelease.wav", FMOD_DEFAULT | FMOD_LOOP_OFF, nullptr, &m_pClickSound);
+		result = pFmod->createSound("Resources/Sounds/buttonclickrelease.wav", FMOD_DEFAULT | FMOD_LOOP_OFF, nullptr, &m_pClickSound);
 		SoundManager::Get()->ErrorCheck(result);
 
 		result = pFmod->playSound(m_pClickSound, nullptr, true, &m_pChannel2D);
@@ -46,7 +46,7 @@ bool UI_ButtonComponent::GetClicked() const
 
 void UI_ButtonComponent::Update(const SceneContext& /*context*/)
 {
-	if (!m_Enabled) return;
+	if (!m_Enabled || m_Text == L" ") return;
 
 	// ease of use ----------------------------------------------
 	XMFLOAT2 position{ m_BoundingBox.x, m_BoundingBox.y };
@@ -66,7 +66,7 @@ void UI_ButtonComponent::Update(const SceneContext& /*context*/)
 		if (InputManager::IsMouseButton(InputState::pressed, VK_LBUTTON))
 		{
 			m_Clicked = true;
-			PlayFmodSound(m_pClickSound);
+			Play2DSound(m_pClickSound);
 		}
 	}
 
@@ -101,13 +101,13 @@ void UI_ButtonComponent::SoundOnHoverStart()
 	{
 		m_HoveringPreviousFrame = true;
 
-		PlayFmodSound(m_pHoverSound);
+		Play2DSound(m_pHoverSound);
 	}
 	else if(!m_Hovering)
 		m_HoveringPreviousFrame = false;
 }
 
-void UI_ButtonComponent::PlayFmodSound(FMOD::Sound* pSound)
+void UI_ButtonComponent::Play2DSound(FMOD::Sound* pSound)
 {
 	const auto pFmod{ SoundManager::Get()->GetSystem() };
 

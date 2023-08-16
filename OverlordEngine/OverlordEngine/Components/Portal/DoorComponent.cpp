@@ -10,12 +10,23 @@ void DoorComponent::Initialize(const SceneContext&)
 	m_pDoormaterial->SetNormalTexture(props.normalMapPath);
 
 	m_pDoorSides = std::make_pair(CreateDoorSide(false), CreateDoorSide(true));
+
+
+	if (!m_pSounds[SoundLibrary::Close] && !m_pSounds[SoundLibrary::Open])
+	{
+		const auto& soundManager = SoundManager::Get();
+		std::string openSound = "Resources/Sounds/Level/door_open.wav";
+		std::string closeSound = "Resources/Sounds/Level/door_close.wav";
+
+		m_pSounds[SoundLibrary::Close] = soundManager->LoadSound(closeSound, false, true);
+		m_pSounds[SoundLibrary::Open] = soundManager->LoadSound(openSound, false, true);
+	}
 }
 
 void DoorComponent::SetDoorState(bool open)
 {
-	if (!m_IsInitialized) return;
-	if (m_IsOpen == open) return;
+	if (!m_IsInitialized || m_IsOpen == open) return;
+
 	m_IsOpen = open;
 	
 	UINT clip = open ? 1 : 0;
@@ -55,13 +66,16 @@ void DoorComponent::SetDoorCollision(bool enable)
 // start interaction with button pressed
 void DoorComponent::StartInteraction() 
 {
+	SoundManager::Get()->Play3DSound(m_pSounds[SoundLibrary::Open], 1.f, GetTransform()->GetWorldPosition(), SoundManager::SoundChannel::Level, true);
 	SetDoorState(true);
 }
 
 // end interaction with button released
 void DoorComponent::EndInteraction()
 {
+	SoundManager::Get()->Play3DSound(m_pSounds[SoundLibrary::Close], 1.f, GetTransform()->GetWorldPosition(), SoundManager::SoundChannel::Level, true);
 	SetDoorState(false);
+
 }
 
 // disable collision when door is open

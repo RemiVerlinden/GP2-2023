@@ -24,4 +24,12 @@ private:
 	bool m_IsOpen = false;
 	std::pair<GameObject*, GameObject*> m_pDoorSides;
 
+	enum class SoundLibrary
+	{
+		Open,
+		Close
+	};
+
+	static inline std::unordered_map<SoundLibrary, FMOD::Sound*> m_pSounds{};
+
 };

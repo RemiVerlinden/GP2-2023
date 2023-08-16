@@ -70,6 +70,7 @@
     <ClCompile Include="Misc\ShadowMapMaterialCube.cpp" />
     <ClCompile Include="Graphics\SpriteRendererCube.cpp" />
     <ClCompile Include="Graphics\ShadowMapCube.cpp" />
+    <ClCompile Include="Components\Portal\CrosshairComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -165,5 +166,6 @@
     <ClInclude Include="Misc\ShadowMapMaterialCube.h" />
     <ClInclude Include="Graphics\SpriteRendererCube.h" />
     <ClInclude Include="Graphics\ShadowMapCube.h" />
+    <ClInclude Include="Components\Portal\CrosshairComponent.h" />
   </ItemGroup>
 </Project>

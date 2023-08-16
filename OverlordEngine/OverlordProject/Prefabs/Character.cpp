@@ -4,7 +4,8 @@
 Character::Character(const CharacterDesc& characterDesc) :
 	m_CharacterDesc{ characterDesc },
 	m_MoveAcceleration(characterDesc.maxMoveSpeed / characterDesc.moveAccelerationTime),
-	m_FallAcceleration(characterDesc.maxFallSpeed / characterDesc.fallAccelerationTime)
+	m_FallAcceleration(characterDesc.maxFallSpeed / characterDesc.fallAccelerationTime),
+	m_MouseSensitivity(2.f)
 {
 }
 
@@ -13,6 +14,8 @@ void Character::Initialize(const SceneContext& /*sceneContext*/)
 	InitCharacterSettings();
 
 	SetTag(L"Player");
+
+
 
 	//Controller
 	m_pControllerComponent = AddComponent(new ControllerComponent(m_CharacterDesc.controller));
@@ -23,11 +26,10 @@ void Character::Initialize(const SceneContext& /*sceneContext*/)
 	m_pCameraComponent = pCamera->GetComponent<CameraComponent>();
 	m_pCameraComponent->SetActive(true); //Uncomment to make this camera the active camera
 	m_pCameraComponent->SetFieldOfView(60 * DirectX::XM_PI / 180.f);
-	m_pCameraHolder->GetTransform()->Translate(0.f, m_CharacterDesc.controller.halfHeight * 0.5f , 0.f);
+	m_pCameraHolder->GetTransform()->Translate(0.f, m_CharacterDesc.controller.halfHeight * 0.5f, 0.f);
 	// character model and animations
 	m_pPlayerAnimObject = AddChild(new GameObject());
 	m_pPlayerAnimObject->GetTransform()->Translate(0, -m_CharacterDesc.controller.halfHeight, 0);
-
 
 }
 
@@ -92,21 +94,29 @@ void Character::UpdatePlayerAnimationState(const SceneContext& sceneContext, boo
 
 	if (!(back || forward || left || right))
 		m_pPlayerAnimComponent->SetAnimation(PlayerAnimComponent::NoGun_StandingIdle);
-
 }
 
 void Character::UpdatePortalgunAnimationState(const SceneContext& /*sceneContext*/)
 {
 }
 
+
+
 void Character::Update(const SceneContext& sceneContext)
 {
-	if (!m_IsCharacterMeshesInitialized) 
+	if (!m_IsCharacterMeshesInitialized)
 	{
 		Logger::LogError(L"YOU MUST CALL THE InitializeCharacterMeshes() FUNCTION DURING INITIALIZATION");
 		assert(false);
 		assert(true);
-	} 
+	}
+
+	// UPDATE 3D AUDIO LISTENER
+	{
+		const auto& transform = m_pCameraHolder->GetTransform();
+		auto& pos = transform->GetWorldPosition();
+		SoundManager::Get()->SetListenerAttributes(pos, m_TotalVelocity, transform->GetForward(), transform->GetUp());
+	}
 
 	if (m_pCameraComponent->IsActive())
 	{
@@ -140,13 +150,13 @@ void Character::Update(const SceneContext& sceneContext)
 			// Store the MouseMovement in the local 'look' variable (cast is required)
 		//Optional: in case look.x AND look.y are near zero, you could use the Right ThumbStickPosition for look
 		POINT rawMouseMove = sceneContext.pInput->GetMouseMovement();
-		XMFLOAT2 look{0,0};
+		XMFLOAT2 look{ 0,0 };
 
-		if (sceneContext.pInput->IsMouseButton(InputState::down, VK_LBUTTON))
-		{
-			look.x = static_cast<float>(rawMouseMove.x);
-			look.y = static_cast<float>(rawMouseMove.y);
-		}
+
+		look.x = static_cast<float>(rawMouseMove.x) * m_MouseSensitivity;
+		look.y = static_cast<float>(rawMouseMove.y) * m_MouseSensitivity;
+
+
 
 		//float       pitch = 0;  // vertical
 		//float       yaw = 0;    // horizontal
@@ -280,6 +290,12 @@ void Character::Update(const SceneContext& sceneContext)
 
 		UpdatePlayerAnimationState(sceneContext, isGrounded);
 		UpdatePortalgunAnimationState(sceneContext);
+
+		if (sceneContext.pInput->IsKeyboardKey(InputState::pressed, 'K'))
+		{
+			bool isActive = m_pCameraComponent->IsActive(); // is playercam active
+			EnableNoclipCamera(!isActive);
+		}
 	}
 }
 
@@ -318,13 +334,18 @@ void Character::DrawImGui()
 		bool isActive = m_pCameraComponent->IsActive(); // is playercam active
 		if (ImGui::Checkbox("Character Camera", &isActive))
 		{
-			m_pCameraComponent->SetActive(isActive);
-			auto pModel = m_pPlayerAnimComponent->GetGameObject()->GetComponent<ModelComponent>();
-			ModelComponent::PortalRenderContext portalRenderContext;
-			portalRenderContext = isActive ? ModelComponent::PortalRenderContext::PortalViewOnly : ModelComponent::PortalRenderContext::Everywhere;
-			pModel->SetPortalrRenderContext(portalRenderContext);
-
-			m_pPortalgunAnimComponent->TogglePortalgunModelRender(isActive);
+			EnableNoclipCamera(isActive);
 		}
 	}
+}
+
+void Character::EnableNoclipCamera(bool playerCamActive)
+{
+	m_pCameraComponent->SetActive(playerCamActive);
+	auto pModel = m_pPlayerAnimComponent->GetGameObject()->GetComponent<ModelComponent>();
+	ModelComponent::PortalRenderContext portalRenderContext;
+	portalRenderContext = playerCamActive ? ModelComponent::PortalRenderContext::PortalViewOnly : ModelComponent::PortalRenderContext::Everywhere;
+	pModel->SetPortalrRenderContext(portalRenderContext);
+
+	m_pPortalgunAnimComponent->TogglePortalgunModelRender(playerCamActive);
 }

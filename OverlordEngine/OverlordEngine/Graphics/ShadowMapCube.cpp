@@ -39,8 +39,9 @@ void ShadowMapCube::Begin(const SceneContext& sceneContext, int lightNumber)
 	const std::vector<Light>& lights = sceneContext.pLights->GetLights();
 	if ((lights.size() == 0) || (lights.size() - 1 < lightNumber)) return;
 
-	ID3D11ShaderResourceView* nullSRVs[6] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
-	sceneContext.d3dContext.pDeviceContext->PSSetShaderResources(0, 6, nullSRVs);
+	// this should be done once per frame, not per light but whatever
+	std::vector<ID3D11ShaderResourceView*> nullSRVs{lights.size(), nullptr};
+	sceneContext.d3dContext.pDeviceContext->PSSetShaderResources(0, (UINT)lights.size(), nullSRVs.data());
 
 
 	const float nearZ = m_NearPlane;

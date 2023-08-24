@@ -244,7 +244,8 @@ void GameScene::RootDraw()
 		if (m_PostProcessingMaterials.size() > 0)
 		{
 			//1. [PREV_RT & INIT_RT] Retrieve the current RenderTarget (OverlordGame::GetRenderTarget, every scene has access to the OverlordGame > m_pGame)
-			RenderTarget* pPrevRenderTarget = m_pGame->GetRenderTarget();
+			RenderTarget* pInitRenderTarget = m_pGame->GetRenderTarget();
+			RenderTarget* pPrevRenderTarget = pInitRenderTarget;
 			//2. Iterate the vector of PostProcessingMaterials (m_PostProcessingMaterials)
 			//		For Each Material
 			//			- If the material is disabled, skip
@@ -258,12 +259,9 @@ void GameScene::RootDraw()
 				material->Draw(m_SceneContext, pPrevRenderTarget);
 				pPrevRenderTarget = material->GetOutput();
 			}
-			RenderTarget* pInitRenderTarget = m_pGame->GetRenderTarget();
-			if (pPrevRenderTarget == pInitRenderTarget)
+			if (pPrevRenderTarget != pInitRenderTarget)
 			{
-
 				m_pGame->SetRenderTarget(nullptr);
-
 				SpriteRenderer::Get()->DrawImmediate(m_SceneContext.d3dContext, pPrevRenderTarget->GetColorShaderResourceView(), XMFLOAT2{ 0,0 });
 			}
 			//3. All Materials are applied after each other, time to draw the final result to the screen

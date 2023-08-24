@@ -111,7 +111,7 @@ void PortalScene::Initialize()
 		m_pCrosshairComponent = pGo->AddComponent(new CrosshairComponent());
 		pGo->GetTransform()->Translate(m_SceneContext.windowWidth / 2, m_SceneContext.windowHeight / 2, 0.5f);
 
-		//AddChild(pGo);
+		AddChild(pGo);
 	}
 
 	// Get the menu scene

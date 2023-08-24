@@ -29,7 +29,8 @@ GameObject* MapLoader::LoadMap(const std::wstring& mapName)
 
 	const auto pMapMesh = pMapObject->AddComponent(new ModelComponent(L"Meshes/Maps/" + mapName + L"_static.ovm"));
 #ifdef _DEBUG
-	LoadMapTexturesDebug(mapName, pMapMesh);
+	LoadMapTexturesRelease(mapName, pMapMesh);
+	//LoadMapTexturesDebug(mapName, pMapMesh);
 #else
 	LoadMapTexturesRelease(mapName, pMapMesh);
 #endif

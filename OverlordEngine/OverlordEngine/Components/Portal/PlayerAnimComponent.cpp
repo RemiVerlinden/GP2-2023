@@ -46,7 +46,7 @@ void PlayerAnimComponent::CreatePlayerMesh()
 
 	const auto pObject = m_pGameObject;
 	const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/Player/BallBot.ovm"));
-
+	
 	pModel->SetPortalrRenderContext(ModelComponent::PortalRenderContext::PortalViewOnly);
 
 	pModel->SetMaterial(pSkinnedMaterialShell, 0);
@@ -55,11 +55,12 @@ void PlayerAnimComponent::CreatePlayerMesh()
 
 	pObject->GetTransform()->Scale(0.04f); // sorry, if I had more time I4d make the model 1/1 scale
 
+	
 	m_pAnimator = pModel->GetAnimator();
+	m_pAnimator->SetUseBlending(true);
 	m_pAnimator->SetAnimation(0);
 	m_pAnimator->Play();
 	m_pAnimator->SetAnimationSpeed(1.f);
-
 }
 
 

@@ -219,6 +219,22 @@ void GameObject::RootOnSceneDetach(GameScene* pScene)
 	m_pParentScene = nullptr;
 }
 
+void GameObject::RootOnContact(float impactForce)
+{
+	OnContact(impactForce);
+	//Signal Components
+	for (BaseComponent* pComponent : m_pComponents)
+	{
+		pComponent->OnContact(impactForce);
+	}
+
+	//Signal Children
+	for (GameObject* pChild : m_pChildren)
+	{
+		pChild->RootOnContact(impactForce);
+	}
+}
+
 void GameObject::AddChild_(GameObject* pObject)
 {
 #if _DEBUG

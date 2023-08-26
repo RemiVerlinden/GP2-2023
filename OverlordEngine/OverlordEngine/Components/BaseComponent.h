@@ -33,6 +33,7 @@ protected:
 	virtual void OnOwnerDetach(GameObject* /*pPreviousOwner*/) {}
 	virtual void OnSceneAttach(GameScene* /*pScene*/) {}
 	virtual void OnSceneDetach(GameScene* /*pScene*/) {}
+	virtual void OnContact(float /*impactForce*/) {};
 
 	GameObject* m_pGameObject{};
 	GameScene* m_pScene{};

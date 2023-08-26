@@ -292,6 +292,14 @@ void RigidBodyComponent::ClearTorque(PxForceMode::Enum mode) const
 		Logger::LogWarning(L"Cannot clear torque on a static or kinematic actor");
 }
 
+void RigidBodyComponent::SetLinearVelocity(const XMFLOAT3& velocity)
+{
+	if (m_pActor != nullptr && !m_IsStatic && !m_IsKinematic)
+		m_pActor->is<PxRigidDynamic>()->setLinearVelocity(PhysxHelper::ToPxVec3(velocity));
+	else
+		Logger::LogWarning(L"Cannot set linear velocity on a static or kinematic actor");
+}
+
 void RigidBodyComponent::SetConstraint(RigidBodyConstraint flag, bool enable)
 {
 	if (m_IsStatic || m_IsKinematic)

@@ -144,7 +144,7 @@ std::pair<GameObject*, CameraComponent::RaycastHit> CameraComponent::PickDetaile
 	return std::make_pair((GameObject*)nullptr, hit);
 }
 
-std::pair<GameObject*, CameraComponent::RaycastHit> CameraComponent::CrosshairRaycast(CollisionGroup ignoreGroups) const
+std::pair<GameObject*, CameraComponent::RaycastHit> CameraComponent::CrosshairRaycast(CollisionGroup ignoreGroups, float distance) const
 {
 	// Calculate screen center
 	const PxVec2 screenSize{ m_pScene->GetSceneContext().windowWidth ,m_pScene->GetSceneContext().windowHeight };
@@ -181,7 +181,7 @@ std::pair<GameObject*, CameraComponent::RaycastHit> CameraComponent::CrosshairRa
 	//if raycast hits something
 	PxRaycastBuffer pxHit{};
 	RaycastHit hit{};
-	if (m_pScene->GetPhysxProxy()->Raycast(PxVec3(origin.x, origin.y, origin.z), PxVec3(direction.x, direction.y, direction.z), PX_MAX_F32, pxHit, PxHitFlag::eDEFAULT, filterData))
+	if (m_pScene->GetPhysxProxy()->Raycast(PxVec3(origin.x, origin.y, origin.z), PxVec3(direction.x, direction.y, direction.z), distance, pxHit, PxHitFlag::eDEFAULT, filterData))
 	{
 		//get rigid body component from pxActor data
 		RigidBodyComponent* rb = reinterpret_cast<RigidBodyComponent*>(pxHit.getAnyHit(0).actor->userData);

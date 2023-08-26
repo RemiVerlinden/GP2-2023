@@ -1,4 +1,5 @@
 #pragma once
+class AnimationBlender;
 class ModelAnimator final
 {
 public:
@@ -31,6 +32,10 @@ public:
 
 	float GetBlendFactor() const { return m_BlendFactor; }
 
+	void SetUseBlending(bool useBlending);
+
+	friend class AnimationBlender;
+
 private:
 	float CalculatePassedTicks(const SceneContext& sceneContext);
 	void UpdateTickCount(float passedTicks, float finalAnimationTick);
@@ -46,4 +51,7 @@ private:
 	float m_TickCount{}, m_AnimationSpeed{ 1.f }, m_TransitionBlendFactor{};
 
 	float m_BlendFactor{};
+
+	bool m_UseBlending{ false };
+	AnimationBlender* m_pAnimationBlender{ nullptr };
 };

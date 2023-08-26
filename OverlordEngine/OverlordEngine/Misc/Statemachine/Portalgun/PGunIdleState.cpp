@@ -2,7 +2,7 @@
 #include "PGunStateIncludes.h"
 #include "../OverlordProject/SceneInputDefines/PortalInput.h"
 #include "../OverlordProject/Scenes/Portal/PortalScene.h"
-
+#include "../OverlordProject/Prefabs/Character.h"
 void PGunIdleState::Enter(PSC* statecomponent)
 {
 	statecomponent->GetAnimationComponent()->SetAnimation(PortalgunAnimComponent::Idle);
@@ -24,4 +24,15 @@ void PGunIdleState::Update(PSC* statecomponent, const SceneContext& scenecontext
 	{
 		statecomponent->SwitchState(std::make_unique<PGunFireState>(type));
 	}
+
+	else if (scenecontext.pInput->IsActionTriggered(Input::Use))
+	{
+		const float maxPickupDistance = Character::GetMaxPickupDistance();
+		auto [pHitObject, hit] = scenecontext.pCamera->CrosshairRaycast(CollisionGroup::Group0 | CollisionGroup::Group1 | CollisionGroup::Group2 | CollisionGroup::Group4, maxPickupDistance);
+		if (pHitObject != nullptr && pHitObject->GetTag() == L"cube")
+		{
+			statecomponent->SwitchState(std::make_unique<PGunPickUpState>(pHitObject));
+		}
+	}
+
 }

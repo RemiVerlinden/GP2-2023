@@ -71,6 +71,10 @@
     <ClCompile Include="Graphics\SpriteRendererCube.cpp" />
     <ClCompile Include="Graphics\ShadowMapCube.cpp" />
     <ClCompile Include="Components\Portal\CrosshairComponent.cpp" />
+    <ClCompile Include="Misc\Statemachine\Portalgun\PGunReleaseState.cpp" />
+    <ClCompile Include="Misc\Statemachine\Portalgun\PGunPickupState.cpp" />
+    <ClCompile Include="Components\Portal\PickUpObjectComponent.cpp" />
+    <ClCompile Include="Misc\AnimationBlender.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -167,5 +171,7 @@
     <ClInclude Include="Graphics\SpriteRendererCube.h" />
     <ClInclude Include="Graphics\ShadowMapCube.h" />
     <ClInclude Include="Components\Portal\CrosshairComponent.h" />
+    <ClInclude Include="Components\Portal\PickUpObjectComponent.h" />
+    <ClInclude Include="Misc\AnimationBlender.h" />
   </ItemGroup>
 </Project>

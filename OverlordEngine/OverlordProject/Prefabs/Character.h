@@ -53,6 +53,8 @@ public:
 	void DrawImGui();
 	CameraComponent* GetCameraComponent() const { return m_pCameraComponent; }
 	void InitializeCharacterMeshes(); // this will create the player mesh and portalgun mesh and their animations
+
+	static const float GetMaxPickupDistance() { return m_MaxPickupDistance; }
 protected:
 	void Initialize(const SceneContext&) override;
 	void Update(const SceneContext&) override;
@@ -81,5 +83,7 @@ private:
 	XMFLOAT3 m_CurrentDirection{};					//Current/Last Direction based on Camera forward/right (Stored for deacceleration)
 	float m_MouseSensitivity{};						//Mouse Sensitivity for rotation
 	bool m_IsCharacterMeshesInitialized{ false };
+
+	const static inline float m_MaxPickupDistance = 2.5f;
 };
 

@@ -34,6 +34,7 @@ void PhysxProxy::Initialize(GameScene* pParent)
 	m_pControllerManager = PxCreateControllerManager(*m_pPhysxScene);
 	ASSERT_IF(m_pControllerManager == nullptr, L"Failed to create controller manager!")
 
+
 	m_IsInitialized = true;
 }
 
@@ -79,6 +80,56 @@ void PhysxProxy::Draw(const SceneContext& sceneContext) const
 	if (sceneContext.settings.drawPhysXDebug)
 		DebugRenderer::DrawPhysX(m_pPhysxScene);
 }
+
+void PhysxProxy::onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs)
+{
+	for (PxU32 i = 0; i < nbPairs; i++)
+	{
+		const PxContactPair& cp = pairs[i];
+
+		if (cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND)
+		{
+			PxRigidActor* actor0 = pairHeader.actors[0];
+			PxRigidActor* actor1 = pairHeader.actors[1];
+
+			PxRigidBody* body0 = nullptr;
+			PxRigidBody* body1 = nullptr;
+
+			if (actor0->is<PxRigidBody>()) {
+				body0 = actor0->is<PxRigidBody>();
+			}
+
+			if (actor1->is<PxRigidBody>()) {
+				body1 = actor1->is<PxRigidBody>();
+			}
+
+			if (body0 || body1)
+			{
+				PxVec3 vel0 = body0 ? body0->getLinearVelocity() : PxVec3(0);
+				PxVec3 vel1 = body1 ? body1->getLinearVelocity() : PxVec3(0);
+
+				PxVec3 relativeVelocity = vel0 - vel1;
+				float impactSpeed = relativeVelocity.magnitude();
+
+				RigidBodyComponent* rbComponent0 = static_cast<RigidBodyComponent*>(actor0->userData);
+				RigidBodyComponent* rbComponent1 = static_cast<RigidBodyComponent*>(actor1->userData);
+
+				if (rbComponent0)
+				{
+					rbComponent0->GetGameObject()->RootOnContact(impactSpeed);
+				}
+
+				if (rbComponent1)
+				{
+					rbComponent1->GetGameObject()->RootOnContact(impactSpeed);
+				}
+			}
+		}
+	}
+}
+
+
+
 
 void PhysxProxy::onTrigger(PxTriggerPair* pairs, PxU32 count)
 {

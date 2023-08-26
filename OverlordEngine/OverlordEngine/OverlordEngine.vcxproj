@@ -105,6 +105,7 @@
   <ItemGroup>
     <ClInclude Include="Components\Portal\CrosshairComponent.h" />
     <ClInclude Include="Components\Portal\MainMenu\UI_ButtonComponent.h" />
+    <ClInclude Include="Components\Portal\PickUpObjectComponent.h" />
     <ClInclude Include="Components\Portal\PlayerAnimComponent.h" />
     <ClInclude Include="Components\Portal\ButtonAnimComponent.h" />
     <ClInclude Include="Components\ControllerComponent.h" />
@@ -121,6 +122,7 @@
     <ClInclude Include="Graphics\SpriteRendererCube.h" />
     <ClInclude Include="Lab_Todos.h" />
     <ClInclude Include="Managers\LightManager.h" />
+    <ClInclude Include="Misc\AnimationBlender.h" />
     <ClInclude Include="Misc\CameraViewMapMaterial.h" />
     <ClInclude Include="Misc\CommonStructs.h" />
     <ClInclude Include="Misc\ShadowMapMaterialCube.h" />
@@ -206,6 +208,7 @@
   <ItemGroup>
     <ClCompile Include="Components\Portal\CrosshairComponent.cpp" />
     <ClCompile Include="Components\Portal\MainMenu\UI_ButtonComponent.cpp" />
+    <ClCompile Include="Components\Portal\PickUpObjectComponent.cpp" />
     <ClCompile Include="Components\Portal\PlayerAnimComponent.cpp" />
     <ClCompile Include="Components\Portal\ButtonAnimComponent.cpp" />
     <ClCompile Include="Components\ControllerComponent.cpp" />
@@ -221,6 +224,7 @@
     <ClCompile Include="Graphics\ShadowMapRendererCube.cpp" />
     <ClCompile Include="Graphics\SpriteRendererCube.cpp" />
     <ClCompile Include="Managers\LightManager.cpp" />
+    <ClCompile Include="Misc\AnimationBlender.cpp" />
     <ClCompile Include="Misc\CameraViewMapMaterial.cpp" />
     <ClCompile Include="Misc\ModelAnimator.cpp" />
     <ClCompile Include="Content\SpriteFontLoader.cpp" />
@@ -231,6 +235,8 @@
     <ClCompile Include="Misc\ShadowMapMaterialCube.cpp" />
     <ClCompile Include="Misc\Statemachine\Portalgun\PGunFireState.cpp" />
     <ClCompile Include="Misc\Statemachine\Portalgun\PGunIdleState.cpp" />
+    <ClCompile Include="Misc\Statemachine\Portalgun\PGunPickupState.cpp" />
+    <ClCompile Include="Misc\Statemachine\Portalgun\PGunReleaseState.cpp" />
     <ClCompile Include="Prefabs\FixedCamera.cpp" />
     <ClCompile Include="Prefabs\FreeCamera.cpp" />
     <ClCompile Include="Utils\ImguiHelper.cpp" />

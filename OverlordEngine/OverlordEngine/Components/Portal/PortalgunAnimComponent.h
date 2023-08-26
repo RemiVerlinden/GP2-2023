@@ -33,6 +33,7 @@ protected:
 	void Update(const SceneContext&) override;
 
 private:
+
 	void CreatePortalgunMesh();
 
 	std::unique_ptr<ViewBob> m_pViewBob{nullptr};

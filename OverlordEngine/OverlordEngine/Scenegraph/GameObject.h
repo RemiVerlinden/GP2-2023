@@ -130,6 +130,7 @@ public:
 	}
 #pragma endregion Template Methods
 
+	void RootOnContact(float impactForce);
 protected:
 	virtual void Initialize(const SceneContext&) {};
 	virtual void PostInitialize(const SceneContext& ) {}
@@ -141,6 +142,7 @@ protected:
 	virtual void OnParentDetach(GameObject* /*pPreviousParent*/) {}
 	virtual void OnSceneAttach(GameScene* /*pScene*/){}
 	virtual void OnSceneDetach(GameScene* /*pScene*/){}
+	virtual void OnContact(float /*impactForce*/) {};
 
 private:
 	friend class GameScene; //Handles private interface

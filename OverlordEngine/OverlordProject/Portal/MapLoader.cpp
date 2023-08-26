@@ -38,9 +38,12 @@ GameObject* MapLoader::LoadMap(const std::wstring& mapName)
 
 	const auto pMapRigidBody = pMapObject->AddComponent(new RigidBodyComponent(true));
 	const auto pPxTriangleMesh = ContentManager::Load<PxTriangleMesh>(L"Meshes/Maps/" + mapName + L"_collision2.ovpt");
-	pMapRigidBody->AddCollider(PxTriangleMeshGeometry(pPxTriangleMesh, PxMeshScale({ 1,1,1 })), *pDefaultMaterial);
+	UINT colliderID = pMapRigidBody->AddCollider(PxTriangleMeshGeometry(pPxTriangleMesh, PxMeshScale({ 1,1,1 })), *pDefaultMaterial);
 
-	pMapRigidBody->SetCollisionGroup(CollisionGroup::Group0 | CollisionGroup::Group4);
+	const ColliderInfo& collider = pMapRigidBody->GetCollider(colliderID);
+	collider.GetShape()->setContactOffset(0.01f);
+
+	pMapRigidBody->SetCollisionGroup(CollisionGroup::Group0 | CollisionGroup::Group4 | CollisionGroup::Group5);
 
 	return pMapObject;
 }
@@ -510,7 +513,7 @@ void MapLoader::SpawnButton(const XMFLOAT3& position)
 
 	RigidBodyComponent* pButtonRigidBody = pButton->AddComponent(new RigidBodyComponent(false));
 	pButtonRigidBody->SetKinematic(true);
-	pButtonRigidBody->SetCollisionGroup(CollisionGroup::Group2);
+	pButtonRigidBody->SetCollisionGroup(CollisionGroup::Group2| CollisionGroup::Group5);
 
 
 	PxConvexMesh* pConvexMesh = ContentManager::Load<PxConvexMesh>(props.rigidBodyPath);
@@ -519,7 +522,7 @@ void MapLoader::SpawnButton(const XMFLOAT3& position)
 
 	// trigger for button
 	RigidBodyComponent* pButtonTriggeRigidBody = pButton->AddComponent(new RigidBodyComponent(true));
-	pButtonTriggeRigidBody->SetCollisionIgnoreGroups(CollisionGroup::Group2);
+	pButtonTriggeRigidBody->SetCollisionIgnoreGroups(CollisionGroup::Group2 | CollisionGroup::Group5);
 
 	buttonMeshGeometry.scale = PxMeshScale(1.06f); // just make the trigger a little bigger because I like it that way
 	pButtonTriggeRigidBody->AddCollider(buttonMeshGeometry, *pMaterial, true, { 0,0.4f,0 }); // third parameter set to true for trigger
@@ -567,20 +570,30 @@ void MapLoader::SpawnCube(const XMFLOAT3& position)
 	pPhong->SetDiffuseTexture(props.diffuseMapPath);
 	pPhong->SetNormalTexture(props.normalMapPath);
 
-	GameObject* pCube = m_Scene.AddChild(new GameObject);
+	GameObject* pCube = m_Scene.AddChild(new GameObject());
+	pCube->SetTag(L"cube");
+
 	ModelComponent* pModelTop = pCube->AddComponent(new ModelComponent(props.modelPath));
 	pModelTop->SetMaterial(pPhong);
 
 
 	PxConvexMesh* pConvexMesh = ContentManager::Load<PxConvexMesh>(props.rigidBodyPath);
 	RigidBodyComponent* pRigidBody = pCube->AddComponent(new RigidBodyComponent());
-	pRigidBody->AddCollider(PxConvexMeshGeometry{ pConvexMesh }, *pMaterial, false);
-
-
-
+	UINT colliderID = pRigidBody->AddCollider(PxConvexMeshGeometry{ pConvexMesh }, *pMaterial, false);
+	pRigidBody->SetCollisionGroup(CollisionGroup::Group5);
+	
 	PxRigidBodyExt::updateMassAndInertia(*pRigidBody->GetPxRigidActor()->is<PxRigidBody>(), props.mass);
+	pRigidBody->GetPxRigidActor()->setActorFlag(PxActorFlag::eSEND_SLEEP_NOTIFIES, true);
+
+	PxFilterData filterData{};
+	const ColliderInfo& collider = pRigidBody->GetCollider(colliderID);
+	collider.GetShape()->setContactOffset(0.01f);
+
 
 	pCube->GetTransform()->Translate(position);
+
+
+	pCube->AddComponent(new PickUpObjectComponent());
 
 	m_InteractiveElements.cubes.emplace_back(pCube);
 }

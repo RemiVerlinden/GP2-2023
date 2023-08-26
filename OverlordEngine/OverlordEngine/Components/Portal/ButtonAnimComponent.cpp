@@ -22,11 +22,12 @@ void ButtonAnimComponent::Initialize(const SceneContext&)
 
 void ButtonAnimComponent::SetPressed(bool pressed)
 {
+
 	m_IsPressed = pressed;
 
 	FMOD::Sound* pSound = pressed ? m_pSounds[SoundLibrary::Press]: m_pSounds[SoundLibrary::Release];
 	SoundManager::Get()->Play3DSound(pSound, 0.6f, GetTransform()->GetWorldPosition(), SoundManager::SoundChannel::Level, false);
-
+	
 	for (InteractionComponent component : m_InterationComponents)
 	{
 		std::visit([pressed](auto& c)

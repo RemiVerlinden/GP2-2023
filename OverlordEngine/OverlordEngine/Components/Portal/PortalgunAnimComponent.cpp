@@ -23,8 +23,7 @@ void PortalgunAnimComponent::SetAnimation(AnimationState state, bool playOnce)
 		latestState = state;
 		m_pAnimator->SetAnimation(state);
 
-
-		if(playOnce) m_pAnimator->PlayOnce();
+		if (playOnce) m_pAnimator->PlayOnce();
 	}
 }
 
@@ -106,8 +105,8 @@ void PortalgunAnimComponent::CreatePortalgunMesh()
 	pModel->SetPortalrRenderContext(ModelComponent::PortalRenderContext::RealWorldOnly);
 
 	pObject->GetTransform()->Scale(0.04f); // sorry, if I had more time I'd make the model 1/1 scale
-	pObject ->GetTransform()->Rotate(0.f, -90.f, 0.f);
-	pObject ->GetTransform()->Translate(0.f, 0.f, -0.2f);
+	pObject->GetTransform()->Rotate(0.f, -90.f, 0.f);
+	pObject->GetTransform()->Translate(0.f, 0.f, -0.2f);
 
 
 	pModel->SetMaterial(pSkinnedMaterialGun, 0);
@@ -116,6 +115,7 @@ void PortalgunAnimComponent::CreatePortalgunMesh()
 
 
 	m_pAnimator = pModel->GetAnimator();
+	m_pAnimator->SetUseBlending(true);
 	m_pAnimator->SetAnimation(AnimationState::Idle); // idle as default value
 	m_pAnimator->Play();
 	m_pAnimator->SetAnimationSpeed(1.f);
@@ -124,7 +124,7 @@ void PortalgunAnimComponent::CreatePortalgunMesh()
 void PortalgunAnimComponent::TogglePortalgunModelRender(bool shouldRender)
 {
 	auto pModel = m_pPortalgunHolder->GetComponent<ModelComponent>();
-	ModelComponent::PortalRenderContext portalRenderContext = shouldRender ? ModelComponent::PortalRenderContext::RealWorldOnly :ModelComponent::PortalRenderContext::PortalViewOnly;
+	ModelComponent::PortalRenderContext portalRenderContext = shouldRender ? ModelComponent::PortalRenderContext::RealWorldOnly : ModelComponent::PortalRenderContext::PortalViewOnly;
 	pModel->SetPortalrRenderContext(portalRenderContext);
 }
 

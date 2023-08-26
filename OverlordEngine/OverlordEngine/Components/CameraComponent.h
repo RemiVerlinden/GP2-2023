@@ -47,7 +47,7 @@ public:
 	GameObject* Pick(CollisionGroup ignoreGroups = CollisionGroup::None) const;
 	// Exact same as Pick(), but also returns the hit-data aswell.
 	std::pair<GameObject*, CameraComponent::RaycastHit> PickDetailed(CollisionGroup ignoreGroups = CollisionGroup::None) const;
-	std::pair<GameObject*, CameraComponent::RaycastHit> CrosshairRaycast(CollisionGroup ignoreGroups = CollisionGroup::None) const;
+	std::pair<GameObject*, CameraComponent::RaycastHit> CrosshairRaycast(CollisionGroup ignoreGroups = CollisionGroup::None, float distance = PX_MAX_F32) const;
 
 protected:
 

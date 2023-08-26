@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "ModelAnimator.h"
+#include "AnimationBlender.h"
+
 ModelAnimator::ModelAnimator(MeshFilter* pMeshFilter) :
 	m_pMeshFilter{ pMeshFilter }
 {
@@ -10,6 +12,13 @@ void ModelAnimator::Update(const SceneContext& sceneContext)
 {
 	if (m_IsPlaying && m_ClipSet)
 	{
+		if (m_UseBlending && m_pAnimationBlender->IsBlending())
+		{
+			m_pAnimationBlender->Update(sceneContext.pGameTime->GetElapsed());
+			return;
+		}
+
+
 		// speaks for it self (the variable name, not the calculation part)
 		float passedTicks = fmodf(sceneContext.pGameTime->GetElapsed() * m_CurrentClip.ticksPerSecond * m_AnimationSpeed, m_CurrentClip.duration);
 
@@ -45,11 +54,9 @@ void ModelAnimator::Update(const SceneContext& sceneContext)
 	float blendFactor = (m_TickCount - keyA.tick) / (keyB.tick - keyA.tick);
 	m_BlendFactor = blendFactor;
 
+	m_Transforms.clear();
 
-	size_t boneCount = m_CurrentClip.keys[0].boneTransforms.size();
-	m_Transforms.resize(boneCount);
-
-
+	size_t boneCount = m_pMeshFilter->m_BoneCount;
 	for (int i = 0; i < boneCount; ++i)
 	{
 		XMMATRIX transformA = XMLoadFloat4x4(&keyA.boneTransforms[i]);
@@ -64,12 +71,17 @@ void ModelAnimator::Update(const SceneContext& sceneContext)
 		XMVECTOR translationLerp = XMVectorLerp(translationA, translationB, blendFactor);
 
 		XMMATRIX resultMatrix = XMMatrixScalingFromVector(scaleLerp) * XMMatrixRotationQuaternion(rotationSlerp) * XMMatrixTranslationFromVector(translationLerp);
-		XMStoreFloat4x4(&m_Transforms[i], resultMatrix);
+
+		XMFLOAT4X4 result;
+		XMStoreFloat4x4(&result, resultMatrix);
+		m_Transforms.push_back(result);
 	}
 }
 
 void ModelAnimator::SetAnimation(const std::wstring& clipName)
 {
+
+
 	m_ClipSet = false;
 	for (const AnimationClip& clip : m_pMeshFilter->GetAnimationClips())
 	{
@@ -97,6 +109,10 @@ void ModelAnimator::SetAnimation(UINT clipNumber)
 
 void ModelAnimator::SetAnimation(const AnimationClip& clip)
 {
+	if (m_UseBlending)
+	{
+		m_pAnimationBlender->StartBlend(clip);
+	}
 	m_ClipSet = true;
 	m_CurrentClip = clip;
 	Reset(false);
@@ -131,4 +147,13 @@ void ModelAnimator::PlayOnce()
 	Reset(false);
 	m_PlayOnce = true;
 	m_IsPlaying = true;
+}
+
+
+void ModelAnimator::SetUseBlending(bool useBlending)
+{
+	if (useBlending && m_pAnimationBlender == nullptr)
+		m_pAnimationBlender = new AnimationBlender(this);
+
+	m_UseBlending = useBlending;
 }

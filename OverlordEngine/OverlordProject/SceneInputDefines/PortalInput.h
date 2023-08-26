@@ -10,6 +10,7 @@ namespace Input
 		CharacterMoveBackward,
 		CharacterJump,
 		FirePrimary, // blue portal
-		FireSecondary // orange portal
+		FireSecondary, // orange portal
+		Use
 	};
 }

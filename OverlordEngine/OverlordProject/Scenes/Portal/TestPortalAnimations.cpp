@@ -57,7 +57,8 @@ void TestPortalAnimations::Initialize()
 
 
 	pModel->SetMaterial(pSkinnedMaterialGun, 0);
-	pModel->SetMaterial(m_pPortalgunGlowMaterial, 1);
+	//pModel->SetMaterial(m_pPortalgunGlowMaterial, 1);
+	pModel->SetMaterial(pSkinnedMaterialGlass, 1);
 	pModel->SetMaterial(pSkinnedMaterialGlass, 2);
 
 

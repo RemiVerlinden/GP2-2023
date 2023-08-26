@@ -32,6 +32,7 @@ private:
 
 	std::vector<InteractionComponent> m_InterationComponents{};
 
+	const std::chrono::milliseconds COOLDOWN_DURATION = std::chrono::milliseconds(500); // 500ms cooldown for example
 
 
 	enum class SoundLibrary 

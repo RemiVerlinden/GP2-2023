@@ -131,7 +131,8 @@ void PortalScene::Initialize()
 
 
 	m_pCharacter = AddChild(new Character(characterDesc));
-	m_pCharacter->GetTransform()->Translate(-35, 1, 7.5f);
+	//m_pCharacter->GetTransform()->Translate(-35, 1, 7.5f);
+	m_pCharacter->GetTransform()->Translate(-0, 1, 7.5f);
 	//m_pCharacter->GetTransform()->Translate(0,1,0);
 
 	//Create portals
@@ -177,6 +178,9 @@ void PortalScene::Initialize()
 	m_SceneContext.pInput->AddInputAction(inputAction);
 
 	inputAction = InputAction(Input::FireSecondary, InputState::pressed, -1, VK_RBUTTON, XINPUT_GAMEPAD_LEFT_SHOULDER);
+	m_SceneContext.pInput->AddInputAction(inputAction);
+
+	inputAction = InputAction(Input::Use, InputState::pressed, 'E');
 	m_SceneContext.pInput->AddInputAction(inputAction);
 
 
@@ -286,7 +290,7 @@ void PortalScene::MovePortal(Portal portal)
 	const float offsetDistance = .01f; // Change this to the desired offset distance
 
 	// just do raycast and place portal at hit point
-	if (auto [pHitObject, hit] = m_SceneContext.pCamera->CrosshairRaycast(CollisionGroup::Group0 | CollisionGroup::Group1 | CollisionGroup::Group2); pHitObject != nullptr)
+	if (auto [pHitObject, hit] = m_SceneContext.pCamera->CrosshairRaycast(CollisionGroup::Group0 | CollisionGroup::Group1 | CollisionGroup::Group2 | CollisionGroup::Group5); pHitObject != nullptr)
 	{
 		// Default portal facing direction
 		XMVECTOR defaultDir = XMVectorSet(0, 0, 1, 0); // Assuming +Z as default
@@ -405,13 +409,13 @@ void PortalScene::Update()
 	//	m_SceneContext.pLights->SetDirectionalLight(pCameraTransform->GetPosition(), pCameraTransform->GetForward());
 	//}
 
-	if (m_SceneContext.pInput->IsKeyboardKey(InputState::pressed, 'E'))
-	{
-		XMFLOAT3 characterPos = m_pCharacter->GetTransform()->GetPosition();
-		XMFLOAT3 newCubePos = characterPos;
-		newCubePos.y += 3;
-		m_pCube->GetTransform()->Translate(newCubePos);
-	}
+	//if (m_SceneContext.pInput->IsKeyboardKey(InputState::pressed, 'E'))
+	//{
+	//	XMFLOAT3 characterPos = m_pCharacter->GetTransform()->GetPosition();
+	//	XMFLOAT3 newCubePos = characterPos;
+	//	newCubePos.y += 3;
+	//	m_pCube->GetTransform()->Translate(newCubePos);
+	//}
 	if (m_SceneContext.pInput->IsKeyboardKey(InputState::pressed, 'P'))
 		m_pPostChromatic->SetIsEnabled(!m_pPostChromatic->IsEnabled());
 

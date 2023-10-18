@@ -12,8 +12,6 @@ public:
 
     void StartBlend(const AnimationClip& newClip)
     {
-		std::cout << "start blend\n";
-
         m_PreviousClip = m_pAnimator->m_CurrentClip; // save the last clip
         m_PreviousTickCount = m_PreviousClip.ticksPerSecond; // save the last progress
         m_NewClip = newClip;
@@ -133,15 +131,17 @@ public:
         // keyB > Closest Key with Tick after/bigger than time
         for (const auto& key : clip.keys)
         {
-            if (key.tick < time)
-            {
-                keyA = key;
-            }
-            else if (key.tick >= time)
-            {
-                keyB = key;
-                break;
-            }
+			if (key.tick <= time)
+			{
+				keyA = key;
+			}
+			else if (key.tick >= time)
+			{
+				keyB = key;
+				break;
+			}
+			else
+				return interpolatedKey;
         }
 
         // Figure out the BlendFactor

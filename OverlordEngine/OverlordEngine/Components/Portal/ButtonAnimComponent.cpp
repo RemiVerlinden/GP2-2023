@@ -71,12 +71,12 @@ void ButtonAnimComponent::Update(const SceneContext& context)
 
 	// I have 2 rigidbodies attached to my button and for some reason only a single collider moves locally with the button
 	// so I have to manually set the position of the other one
-	for (RigidBodyComponent* component : rigidBodies)
-	{
-		if (!component->IsKinematic()) continue;
-		auto pRigidActor = component->GetPxRigidActor();
-		pRigidActor->setGlobalPose(physx::PxTransform({ pressPosition.x,pressPosition.y,pressPosition.z }));
-	}
+	//for (RigidBodyComponent* component : rigidBodies)
+	//{
+	//	if (!component->IsKinematic()) continue;
+	//	auto pRigidActor = component->GetPxRigidActor();
+	//	pRigidActor->setGlobalPose(physx::PxTransform({ pressPosition.x,pressPosition.y,pressPosition.z }));
+	//}
 }
 
 

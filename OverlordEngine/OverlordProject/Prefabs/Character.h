@@ -12,6 +12,7 @@ struct CharacterDesc
 		controller.halfHeight = height / 2.f + radius;
 		controller.material = pMaterial;
 		controller.contactOffset = .01f;
+		controller.slopeLimit = .2f;
 	}
 
 	inline static float maxMoveSpeed{ 7.f };

@@ -131,8 +131,8 @@ void PortalScene::Initialize()
 
 
 	m_pCharacter = AddChild(new Character(characterDesc));
-	//m_pCharacter->GetTransform()->Translate(-35, 1, 7.5f);
-	m_pCharacter->GetTransform()->Translate(-0, 1, 7.5f);
+	m_pCharacter->GetTransform()->Translate(-35, 1, 7.5f);
+	//m_pCharacter->GetTransform()->Translate(-0, 1, 7.5f);
 	//m_pCharacter->GetTransform()->Translate(0,1,0);
 
 	//Create portals
@@ -486,8 +486,8 @@ void PortalScene::UpdateMenu()
 
 void PortalScene::OnSceneActivated()
 {
-	m_SceneContext.settings.showInfoOverlay = true;
-	m_SceneContext.settings.enableOnGUI = true;
+	m_SceneContext.settings.showInfoOverlay = false;
+	m_SceneContext.settings.enableOnGUI = false;
 	m_SceneContext.settings.drawGrid = false;
 	m_SceneContext.settings.drawPhysXDebug = false;
 

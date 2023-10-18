@@ -15,7 +15,7 @@ void PickUpObjectComponent::SetGrabbed(bool grabbed)
 void PickUpObjectComponent::Initialize(const SceneContext& /*sceneContext*/)
 {
 	m_ImpactThreshholdSoft = 2.f;
-	m_ImpactThreshholdHard = 4.f;
+	m_ImpactThreshholdHard = 10.f;
 
 	if (m_pSounds.size() == 0)
 	{
@@ -167,7 +167,7 @@ void PickUpObjectComponent::Update(const SceneContext& sceneContext)
 
 void PickUpObjectComponent::OnContact(float impactForce)
 {
-	std::cout << "PickUpObjectComponent::OnContact() > Impact force: " << impactForce << std::endl;
+	//std::cout << "PickUpObjectComponent::OnContact() > Impact force: " << impactForce << std::endl;
 
 	if (impactForce > m_ImpactThreshholdHard) 
 	{

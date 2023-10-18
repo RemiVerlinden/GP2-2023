@@ -511,21 +511,24 @@ void MapLoader::SpawnButton(const XMFLOAT3& position)
 
 	pButton->GetTransform()->Translate(position);
 
-	RigidBodyComponent* pButtonRigidBody = pButton->AddComponent(new RigidBodyComponent(false));
-	pButtonRigidBody->SetKinematic(true);
-	pButtonRigidBody->SetCollisionGroup(CollisionGroup::Group2| CollisionGroup::Group5);
-
-
-	PxConvexMesh* pConvexMesh = ContentManager::Load<PxConvexMesh>(props.rigidBodyPath);
-	PxConvexMeshGeometry buttonMeshGeometry{ pConvexMesh };
-	pButtonRigidBody->AddCollider(buttonMeshGeometry, *pMaterial, false);
-
 	// trigger for button
 	RigidBodyComponent* pButtonTriggeRigidBody = pButton->AddComponent(new RigidBodyComponent(true));
-	pButtonTriggeRigidBody->SetCollisionIgnoreGroups(CollisionGroup::Group2 | CollisionGroup::Group5);
+	pButtonTriggeRigidBody->SetCollisionIgnoreGroups(CollisionGroup::Group2);
+
+	RigidBodyComponent* pButtonRigidBody = pButton->AddComponent(new RigidBodyComponent(false));
+	pButtonRigidBody->SetKinematic(true);
+	pButtonRigidBody->SetCollisionGroup(CollisionGroup::Group2);
+
+	// create the collider mesh for the button
+	PxConvexMesh* pConvexMesh = ContentManager::Load<PxConvexMesh>(props.rigidBodyPath);
+	PxConvexMeshGeometry buttonMeshGeometry{ pConvexMesh };
+	pButtonTriggeRigidBody->AddCollider(buttonMeshGeometry, *pMaterial, true, { 0,0.4f,0 }); // third parameter set to true for trigger
+
+	// add collider for button
+	pButtonRigidBody->AddCollider(buttonMeshGeometry, *pMaterial, false);
 
 	buttonMeshGeometry.scale = PxMeshScale(1.06f); // just make the trigger a little bigger because I like it that way
-	pButtonTriggeRigidBody->AddCollider(buttonMeshGeometry, *pMaterial, true, { 0,0.4f,0 }); // third parameter set to true for trigger
+
 	pButton->SetOnTriggerCallBack([pButtonAnim](GameObject*, GameObject*, PxTriggerAction action)
 	{
 		static size_t objectInTrigger = 0;
@@ -541,6 +544,7 @@ void MapLoader::SpawnButton(const XMFLOAT3& position)
 			if (objectInTrigger == 0) pButtonAnim->SetPressed(false);
 		}
 	});
+
 
 
 	m_InteractiveElements.buttons.emplace_back(pButton);
